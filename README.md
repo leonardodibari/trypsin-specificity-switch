@@ -354,13 +354,18 @@ across the 1000 chains as a band, against the mean number of **accepted** moves
 per chain (`--x proposed` for proposed steps instead, `--log-x` for the log
 axis that makes the transient visible). The dotted rule is the natural mean.
 
-Equilibration is quick and not monotone: the chains reach their plateau within
-roughly a hundred accepted moves, and at the large lambdas they **overshoot** —
-energy and sample quality peak above their stationary values and then relax
-back while `P(S)` is still inching up. The bias drags the sequence up the energy
-scale first and the chain anneals part of that cost away afterwards, which is
-also why a run truncated at a few thousand proposed steps reports a worse
-energy than the equilibrium one.
+Equilibration is quick and distinctly **not monotone**. Everything happens
+inside the first ~100 accepted moves per chain, and at the large lambdas the
+ensemble overshoots badly before settling: at lambda = 1000 the mean energy
+peaks near 368 around 40 accepted moves — *above* the natural mean of 365 —
+and then relaxes to its stationary 334, while the sample quality peaks near 83
+and falls back to 44. The bias drags the sequence up the energy scale first and
+the chain anneals part of that cost away afterwards, once `P(S)` has nothing
+left to gain. Two practical consequences: a run truncated at a few thousand
+proposed steps reports a materially worse energy than the equilibrium one, and
+the `P(S)` panel shows lambda = 1000 rising *later* per accepted move than
+lambda = 100 — it accepts far less often (0.011 against 0.050), and the moves
+it does accept are the committed ones.
 
 ## Layout
 
