@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+.pytest_cache/
+
+# Model parameters and their cache: far too large for git
+*.dat
+*.cache.pt
+
+# Run outputs
+results/
+*.png
+!docs/*.png

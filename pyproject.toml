@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "trypsin-specificity-switch"
+version = "0.1.0"
+description = "MCMC specificity switching of rat trypsin toward chymotrypsin with an adabmDCA 2.1 Potts model"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Leonardo Di Bari" }]
+keywords = ["DCA", "Potts model", "MCMC", "protein design", "serine protease"]
+dependencies = [
+    "adabmDCA>=1.0.0",
+    "torch>=2.0",
+    "numpy>=1.26",
+    "pandas>=2.0",
+    "matplotlib>=3.8",
+    "joblib>=1.3",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+py-modules = ["encoding", "potts", "sites", "mcmc"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
