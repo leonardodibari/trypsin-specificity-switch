@@ -213,6 +213,105 @@ with 41 mutable columns and a bias this size the chain equilibrates below the
 threshold rather than crossing it, so a real run wants a larger lambda, more
 steps, or the tighter Sho site set.
 
+## Ensembles: a thousand chains per lambda
+
+The single-chain scripts follow one trajectory; the ensemble scripts ask what
+the biased distribution *is*. Every chain starts from the wild type, runs
+`--n-steps` proposed moves, and contributes its final sequence; the chains
+advance together as one tensor (one site is drawn for the whole batch and
+scored with a single matrix product, as in
+`adabmDCA.sampling.gibbs_step_uniform_sites`), so a thousand of them cost
+barely more than one and `--device cuda` runs the batch on a GPU.
+
+```bash
+python scripts/run_ensemble.py \
+    --wt data/wt_trypsin.fasta --model ../bmDCA_params.dat \
+    --output ensembles/ --critic-col 197 --allowed-cols 180-220 \
+    --lambdas 0 5 10 20 50 100 --n-chains 1000 --n-steps 40000 \
+    --trace-every 2000 --cache-model
+```
+
+Per lambda it writes `ensembles/lam{value}/` with `final_sequences.fasta`
+(1000 records), `observables.csv` (`E_DCA`, `hamming_to_wt`, `P_S`, `CDE` for
+every chain), `trace.csv` (batch means along the run, for checking
+equilibration) and `summary.json`.
+
+### The sample quality and its mu
+
+`CDE` is the *context-dependent entropy*: the mean over sites of the Shannon
+entropy of the model's conditional at that site given the rest of the sequence.
+The **sample quality** is
+
+```
+Q_mu(seq) = E_DCA(seq) - mu * CDE(seq)
+```
+
+and `mu` is fixed on the natural alignment: it is the value that makes `Q` as
+nearly constant as possible across natural sequences, i.e. the minimiser of
+`Var(E - mu * CDE)`, which is `Cov(E, CDE) / Var(CDE)`.
+
+```bash
+python scripts/calibrate_mu.py \
+    --natural ../iter_aln_dedup.faa --model ../bmDCA_params.dat \
+    --output calibration/ --max-sequences 20000 \
+    --wt data/wt_trypsin.fasta --critic-col 197 --cache-model
+```
+
+![mu calibration](docs/mu_calibration.png)
+
+On this family (82021 aligned sequences, 20000 scored) energy and context
+entropy are almost collinear — `corr(E, CDE) = 0.976` — and
+
+```
+mu* = 307.6     sd(E) = 70.9  ->  sd(Q) = 15.3     95.4% of the energy variance removed
+```
+
+Since `CDE` is a *mean* over the L = 260 sites, `mu* / L = 1.18`: the quality is
+`E - 1.18 * (total conditional entropy)`, a free energy at an effective
+temperature of about 1.2 that the natural family itself sets. The script writes
+`mu.json` (used directly by the plotting script) and `natural_observables.csv`.
+
+### The pairwise figure
+
+```bash
+python scripts/plot_ensemble.py \
+    --ensemble-dir ensembles/ --mu calibration/mu.json \
+    --natural-observables calibration/natural_observables.csv \
+    --max-points 1000 --save docs/ensemble_pairs.png
+```
+
+![Ensemble pairs](docs/ensemble_pairs.png)
+
+Lower triangle: every pair of quantities, one point per final sequence,
+coloured along a single hue by lambda (an ordered magnitude, not a category).
+Diagonal: the marginal of each quantity. The natural alignment is the grey
+cloud behind, and `--quantities E_DCA P_S Q` drops the Hamming column if the
+family's distance to rat trypsin (~161 substitutions) crushes the scale.
+
+What the run says, with 41 mutable columns, 40000 steps and 1000 chains each
+(the traces are flat from the first recorded point, so these are equilibrium
+numbers, not transients):
+
+| lambda | `<E_DCA>` | `<Hamming>` | `<P(S)>` | `<Q_mu>` (sd) | acceptance |
+|---|---|---|---|---|---|
+| 0 | 224.7 | 5.4 | 0.005 | −11.2 (4.5) | 0.039 |
+| 5 | 238.6 | 6.9 | 0.033 | −2.4 (5.8) | 0.065 |
+| 10 | 254.9 | 9.7 | 0.152 | 4.7 (5.1) | 0.081 |
+| 20 | 265.9 | 12.0 | 0.305 | 8.0 (5.1) | 0.079 |
+| 50 | 279.4 | 15.0 | 0.516 | 13.2 (5.4) | 0.062 |
+| 100 | 291.7 | 17.6 | 0.642 | 19.6 (5.0) | 0.050 |
+| *natural* | *364.9* | *161.0* | *0.110* | *9.2 (15.3)* | — |
+
+The bias buys specificity linearly in cost: each step up in lambda raises
+`P(S)` and pays for it in energy, in Hamming distance and in context entropy
+together — in the `E` vs `P(S)` panel the ensembles lie on one common front, so
+lambda moves along a trade-off curve rather than finding a different one. By
+sample quality the lambda = 10–50 ensembles sit inside the natural band
+(`<Q>` 4.7–13.2 against 9.2 ± 15.3 for natural sequences), while lambda = 100
+is pushing past the family's typical quality. Even at lambda = 100 the mean
+`P(S)` is 0.64, short of the 0.80 threshold: the pocket does not switch on this
+column set by single substitutions alone at an affordable cost.
+
 ## Layout
 
 ```
@@ -223,10 +322,15 @@ src/
   potts.py      model loading, E_DCA, conditionals, substitution dE
   sites.py      3TGI -> MSA mapping, site selection, chimera builder
   mcmc.py       the biased Metropolis-Hastings sampler and its output files
+  ensemble.py   the same moves, vectorised over a thousand chains (CPU or GPU)
+  observables.py  energy, Hamming, P(S), context entropy, sample quality
 scripts/
   run_mcmc.py           a single chain
   run_sweep.py          lambdas x replicates, in parallel
-  plot_trajectories.py  the 4x3 figure
+  plot_trajectories.py  the 4x3 trajectory figure
+  run_ensemble.py       1000 chains per lambda, scored
+  calibrate_mu.py       mu from the natural alignment, with its figure
+  plot_ensemble.py      the pairwise scatter matrix
   _common.py            CLI options shared by the scripts
 tests/        energy/conditional consistency and sampler behaviour
 ```
