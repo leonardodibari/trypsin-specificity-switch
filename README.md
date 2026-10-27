@@ -5,6 +5,9 @@ samples protein sequences that start from wild-type rat trypsin and drift toward
 chymotrypsin-like specificity, under a Potts (bmDCA) model of the serine-protease
 family trained with [adabmDCA 2.1](https://github.com/spqb/adabmDCApy).
 
+A formal write-up of the method, with the equations and the command behind every
+number, is in [`docs/METHODS.md`](docs/METHODS.md).
+
 It answers two different questions with the same machinery:
 
 * **One trajectory at a time** — what route does a chain take from the wild type to
@@ -117,7 +120,7 @@ The two sampling modes differ only in what they report:
 Requires Python ≥ 3.10.
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/leonardodibari/trypsin-specificity-switch.git
 cd trypsin_specificity_switch
 pip install -e .
 ```
@@ -422,8 +425,9 @@ temperature of about 1.2 that the natural family itself sets.
 
 ## Results from a real run
 
-Six lambdas, 1000 chains each, 60 000 proposed moves per chain, 41 mutable columns
-(`--allowed-cols 180-220`), critic column 197. About 35 minutes on one RTX 3090.
+Six lambdas, 1000 chains each, 60 000 proposed moves per chain, 36 mutable columns
+(`--allowed-cols 180-220`, less the five columns that are gaps in the wild type),
+critic column 197. About 35 minutes on one RTX 3090.
 
 | lambda | ⟨E_DCA⟩ | ⟨Hamming⟩ | ⟨P(S)⟩ | max P(S) | chains ≥ 0.80 | ⟨CDE⟩ | ⟨Q_mu⟩ (sd) | acceptance |
 |---|---|---|---|---|---|---|---|---|
@@ -438,7 +442,7 @@ Six lambdas, 1000 chains each, 60 000 proposed moves per chain, 41 mutable colum
 **The bias works, and the threshold is reachable.** At `lambda = 1000` every one of
 the 1000 chains ends at `P(S) >= 0.80`, against `P(S) = 0.008` for the wild type.
 But `P(S)` saturates there: the mean is 0.818 and the best chain reaches 0.825, so
-on these 41 columns the model will not put much more than four fifths of the
+on these 36 columns the model will not put much more than four fifths of the
 conditional mass on serine, however hard it is pushed.
 
 **Specificity is bought at a steady price.** Each step up in lambda raises `P(S)`
