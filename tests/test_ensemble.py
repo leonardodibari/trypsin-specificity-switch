@@ -147,6 +147,25 @@ def test_optimal_mu_minimises_the_variance_of_the_sample_quality():
     assert scan[1] < scan[0] and scan[1] < scan[2]
 
 
+def test_the_log_trace_schedule_is_dense_early(model, start):
+    result = run_ensemble(
+        model,
+        start,
+        critic_col=8,
+        allowed_cols=[3, 4, 5],
+        config=EnsembleConfig(
+            lam=1.0, n_chains=16, n_steps=1000, seed=2,
+            trace_every=100, trace_schedule="log", trace_cde=False,
+        ),
+    )
+    steps = result.trace["step"]
+    assert steps[0] == 1 and steps[-1] == 1000
+    assert np.all(np.diff(steps) > 0)
+    # Log spacing puts more than half the points in the first tenth of the run.
+    assert (steps <= 100).sum() > len(steps) / 2
+    assert "CDE_mean" not in result.trace  # switched off
+
+
 def test_the_trace_follows_the_batch(model, start):
     result = run_ensemble(
         model,
@@ -155,6 +174,16 @@ def test_the_trace_follows_the_batch(model, start):
         allowed_cols=[3, 4, 5],
         config=EnsembleConfig(lam=1.0, n_chains=16, n_steps=50, seed=2, trace_every=10),
     )
-    assert result.trace["step"].tolist() == [10, 20, 30, 40, 50]
-    assert np.all((result.trace["P_S"] >= 0) & (result.trace["P_S"] <= 1))
-    assert torch.is_tensor(torch.as_tensor(result.trace["E_DCA"]))
+    assert result.trace["step"].tolist() == [1, 10, 20, 30, 40, 50]
+    assert np.all((result.trace["P_S_mean"] >= 0) & (result.trace["P_S_mean"] <= 1))
+    assert np.all(result.trace["P_S_q25"] <= result.trace["P_S_q75"])
+    assert np.all(np.diff(result.trace["accepted_per_chain"]) >= 0)
+    for name in ("E_DCA", "hamming_to_wt", "P_S", "CDE"):
+        assert f"{name}_mean" in result.trace
+    # The traced energy must be the energy of the traced sequences.
+    assert result.trace["E_DCA_mean"][-1] == pytest.approx(
+        float(np.mean(energies(model, result.sequences))), abs=1e-3
+    )
+    assert result.trace["hamming_to_wt_mean"][-1] == pytest.approx(
+        float(np.mean(hamming_distance(result.sequences, start))), abs=1e-6
+    )

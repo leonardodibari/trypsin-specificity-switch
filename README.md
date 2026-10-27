@@ -227,14 +227,25 @@ barely more than one and `--device cuda` runs the batch on a GPU.
 python scripts/run_ensemble.py \
     --wt data/wt_trypsin.fasta --model ../bmDCA_params.dat \
     --output ensembles/ --critic-col 197 --allowed-cols 180-220 \
-    --lambdas 0 5 10 20 50 100 --n-chains 1000 --n-steps 40000 \
-    --trace-every 2000 --cache-model
+    --lambdas 0 10 50 100 300 1000 --n-chains 1000 --n-steps 60000 \
+    --trace-every 1000 --trace-schedule log --trace-lambdas 10 100 1000 \
+    --device cuda --cache-model
 ```
 
-Per lambda it writes `ensembles/lam{value}/` with `final_sequences.fasta`
-(1000 records), `observables.csv` (`E_DCA`, `hamming_to_wt`, `P_S`, `CDE` for
-every chain), `trace.csv` (batch means along the run, for checking
-equilibration) and `summary.json`.
+Per lambda it writes `ensembles/lam{value}/`:
+
+* `final_sequences.fasta` — the 1000 final sequences, aligned, one record per
+  chain (`--ungapped-fasta` strips the gaps);
+* `observables.csv` — `E_DCA`, `hamming_to_wt`, `P_S` and `CDE` of every chain's
+  final sequence;
+* `summary.json` — settings, acceptance rate and the batch means;
+* `trace.csv` — the four observables (mean and quartiles across chains) plus
+  the mean accepted moves per chain, at each recorded step.
+
+Tracing costs an all-site pass per recorded point, so `--trace-lambdas` limits
+it to the two or three lambdas worth watching. `--trace-schedule log` spaces the
+same number of points logarithmically, which is what resolves the approach to
+equilibrium: everything happens in the first few hundred accepted moves.
 
 ### The sample quality and its mu
 
@@ -285,32 +296,71 @@ python scripts/plot_ensemble.py \
 Lower triangle: every pair of quantities, one point per final sequence,
 coloured along a single hue by lambda (an ordered magnitude, not a category).
 Diagonal: the marginal of each quantity. The natural alignment is the grey
-cloud behind, and `--quantities E_DCA P_S Q` drops the Hamming column if the
+cloud behind. `--point-size`, `--natural-point-size` and `--font-scale` size the
+marks and the type; `--quantities E_DCA P_S Q` drops the Hamming column if the
 family's distance to rat trypsin (~161 substitutions) crushes the scale.
 
-What the run says, with 41 mutable columns, 40000 steps and 1000 chains each
-(the traces are flat from the first recorded point, so these are equilibrium
-numbers, not transients):
+What the run says, with 41 mutable columns, 60000 steps and 1000 chains per
+lambda:
 
-| lambda | `<E_DCA>` | `<Hamming>` | `<P(S)>` | `<Q_mu>` (sd) | acceptance |
-|---|---|---|---|---|---|
-| 0 | 224.7 | 5.4 | 0.005 | −11.2 (4.5) | 0.039 |
-| 5 | 238.6 | 6.9 | 0.033 | −2.4 (5.8) | 0.065 |
-| 10 | 254.9 | 9.7 | 0.152 | 4.7 (5.1) | 0.081 |
-| 20 | 265.9 | 12.0 | 0.305 | 8.0 (5.1) | 0.079 |
-| 50 | 279.4 | 15.0 | 0.516 | 13.2 (5.4) | 0.062 |
-| 100 | 291.7 | 17.6 | 0.642 | 19.6 (5.0) | 0.050 |
-| *natural* | *364.9* | *161.0* | *0.110* | *9.2 (15.3)* | — |
+| lambda | ⟨E_DCA⟩ | ⟨Hamming⟩ | ⟨P(S)⟩ | max P(S) | chains ≥ 0.80 | ⟨CDE⟩ | ⟨Q_mu⟩ (sd) | acceptance |
+|---|---|---|---|---|---|---|---|---|
+| 0 | 224.9 | 5.4 | 0.005 | 0.028 | 0 % | 0.767 | −11.1 (4.5) | 0.039 |
+| 10 | 254.8 | 9.6 | 0.152 | 0.378 | 0 % | 0.813 | 4.6 (5.2) | 0.080 |
+| 50 | 279.4 | 15.0 | 0.515 | 0.655 | 0 % | 0.866 | 12.9 (5.3) | 0.062 |
+| 100 | 291.6 | 17.6 | 0.641 | 0.730 | 0 % | 0.885 | 19.3 (5.0) | 0.050 |
+| 300 | 314.6 | 22.2 | 0.772 | 0.805 | 1.4 % | 0.919 | 31.8 (4.5) | 0.027 |
+| 1000 | 334.0 | 25.9 | 0.818 | 0.825 | **100 %** | 0.942 | 44.2 (3.1) | 0.011 |
+| *natural* | *364.9* | *161.0* | *0.110* | *0.998* | *5.2 %* | *1.156* | *9.2 (15.3)* | — |
 
-The bias buys specificity linearly in cost: each step up in lambda raises
-`P(S)` and pays for it in energy, in Hamming distance and in context entropy
-together — in the `E` vs `P(S)` panel the ensembles lie on one common front, so
-lambda moves along a trade-off curve rather than finding a different one. By
-sample quality the lambda = 10–50 ensembles sit inside the natural band
-(`<Q>` 4.7–13.2 against 9.2 ± 15.3 for natural sequences), while lambda = 100
-is pushing past the family's typical quality. Even at lambda = 100 the mean
-`P(S)` is 0.64, short of the 0.80 threshold: the pocket does not switch on this
-column set by single substitutions alone at an affordable cost.
+Three things the sweep settles.
+
+**The bias works, and the threshold is reachable.** At lambda = 1000 every one
+of the 1000 chains ends at `P(S) >= 0.80`, against `P(S) = 0.008` for the wild
+type. But `P(S)` saturates there: the mean is 0.818 and the best chain reaches
+0.825, so on these 41 columns the model will not put much more than four fifths
+of the conditional mass on Serine, whatever the bias.
+
+**Specificity is bought at a steady price.** Each step up in lambda raises
+`P(S)` and pays in energy, in substitutions and in context entropy together. In
+the `E` vs `P(S)` panel the six ensembles lie on *one* front rather than six
+clouds: lambda slides along a single trade-off curve, it does not find a
+cheaper route to the same specificity.
+
+**The quality ceiling bites before the specificity ceiling.** Natural sequences
+have `<Q> = 9.2 ± 15.3`. The lambda = 10–50 ensembles sit inside that band
+(4.6–12.9), lambda = 100 is at its edge, and the lambda = 1000 ensemble that
+clears the threshold sits at 44.2 — more than two standard deviations above
+anything the family does. Its context entropy (0.94) also stays well below the
+natural mean (1.16): these are sequences the model finds *more* constrained
+than a natural one, which is what `Q` is measuring when it flags them.
+Sequences that satisfy the specificity constraint are
+therefore *model-plausible but not family-typical*: useful as designs, not as
+members of the natural ensemble.
+
+### How the ensemble gets there
+
+```bash
+python scripts/plot_ensemble_trace.py \
+    --ensemble-dir ensembles/ --mu calibration/mu.json \
+    --natural-observables calibration/natural_observables.csv \
+    --log-x --save docs/ensemble_trace.png
+```
+
+![Ensemble trace](docs/ensemble_trace.png)
+
+One panel per quantity, the batch mean as a line and the inter-quartile range
+across the 1000 chains as a band, against the mean number of **accepted** moves
+per chain (`--x proposed` for proposed steps instead, `--log-x` for the log
+axis that makes the transient visible). The dotted rule is the natural mean.
+
+Equilibration is quick and not monotone: the chains reach their plateau within
+roughly a hundred accepted moves, and at the large lambdas they **overshoot** —
+energy and sample quality peak above their stationary values and then relax
+back while `P(S)` is still inching up. The bias drags the sequence up the energy
+scale first and the chain anneals part of that cost away afterwards, which is
+also why a run truncated at a few thousand proposed steps reports a worse
+energy than the equilibrium one.
 
 ## Layout
 
@@ -331,6 +381,7 @@ scripts/
   run_ensemble.py       1000 chains per lambda, scored
   calibrate_mu.py       mu from the natural alignment, with its figure
   plot_ensemble.py      the pairwise scatter matrix
+  plot_ensemble_trace.py  the observables along the run
   _common.py            CLI options shared by the scripts
 tests/        energy/conditional consistency and sampler behaviour
 ```

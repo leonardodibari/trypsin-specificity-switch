@@ -43,7 +43,30 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--seed", type=int, default=0, help="Base seed; lambda i uses seed + i")
     parser.add_argument(
-        "--trace-every", type=int, default=0, help="Record the batch mean every N steps (0 = off)"
+        "--trace-every",
+        type=int,
+        default=0,
+        help="Record the batch's observables every N proposed steps (0 = off)",
+    )
+    parser.add_argument(
+        "--trace-lambdas",
+        type=float,
+        nargs="*",
+        default=None,
+        help="Trace only these lambdas (default: all of them). The trace costs a full "
+        "all-site pass per recorded point, so two or three are usually enough",
+    )
+    parser.add_argument(
+        "--trace-schedule",
+        default="linear",
+        choices=("linear", "log"),
+        help="'linear' records every --trace-every steps; 'log' spaces the same number of "
+        "points logarithmically, which resolves the approach to equilibrium",
+    )
+    parser.add_argument(
+        "--no-trace-cde",
+        action="store_true",
+        help="Leave the context entropy out of the trace (it is its most expensive part)",
     )
     parser.add_argument(
         "--progress-every", type=int, default=0, help="Print a progress line every N steps (0 = quiet)"
@@ -66,6 +89,9 @@ def main() -> None:
 
     rows = []
     for index, lam in enumerate(args.lambdas):
+        traced = args.trace_lambdas is None or any(
+            abs(lam - value) < 1e-12 for value in args.trace_lambdas
+        )
         config = EnsembleConfig(
             lam=lam,
             beta=args.beta,
@@ -73,9 +99,14 @@ def main() -> None:
             n_steps=args.n_steps,
             seed=args.seed + index,
             target_residue=args.target_residue,
-            trace_every=args.trace_every,
+            trace_every=args.trace_every if traced else 0,
+            trace_cde=not args.no_trace_cde,
+            trace_schedule=args.trace_schedule,
         )
-        print(f"\nlambda = {lam:g}: {args.n_chains} chains x {args.n_steps} steps on {args.device}")
+        print(
+            f"\nlambda = {lam:g}: {args.n_chains} chains x {args.n_steps} steps on {args.device}"
+            + ("  (traced)" if traced and args.trace_every else "")
+        )
         result = run_ensemble(
             model=setup.model,
             start_sequence=setup.wt_sequence,

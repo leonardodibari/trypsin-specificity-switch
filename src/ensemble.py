@@ -35,6 +35,8 @@ class EnsembleConfig:
     seed: int = 0
     target_residue: str = "S"
     trace_every: int = 0  # 0 = no trace
+    trace_cde: bool = True  # the context entropy costs a full all-site pass
+    trace_schedule: str = "linear"  # "linear" every trace_every steps, or "log"-spaced
 
 
 @dataclass
@@ -96,7 +98,9 @@ def run_ensemble(
     site_tensor = torch.as_tensor(sites, device=device)
     rows = torch.arange(n, device=device)
     accepted_total = 0
-    trace: Dict[str, List[np.ndarray]] = {"step": [], "P_S": [], "E_DCA": []}
+    trace: Dict[str, List[float]] = {}
+    reference = torch.as_tensor(start, device=device, dtype=torch.long)
+    trace_steps = _trace_steps(config)
 
     for step in range(1, int(config.n_steps) + 1):
         site = int(site_tensor[torch.randint(sites.size, (1,), generator=generator, device=device)])
@@ -132,10 +136,19 @@ def run_ensemble(
             log_p = torch.where(accept, new_log_p, log_p)
             accepted_total += int(accept.sum())
 
-        if config.trace_every and step % config.trace_every == 0:
-            trace["step"].append(step)
-            trace["P_S"].append(float(log_p.exp().mean()))
-            trace["E_DCA"].append(float(_energy(model, x).mean()))
+        if step in trace_steps:
+            _record(
+                trace,
+                model=model,
+                chains=chains,
+                x=x,
+                log_p=log_p,
+                reference=reference,
+                step=step,
+                accepted=accepted_total / n,
+                with_cde=config.trace_cde,
+                beta=config.beta,
+            )
         if progress_every and step % progress_every == 0:
             print(
                 f"  [lam={config.lam:g}] step {step}/{config.n_steps} "
@@ -153,6 +166,57 @@ def run_ensemble(
         allowed_cols=[int(c) for c in sites],
         trace={key: np.asarray(value) for key, value in trace.items() if value},
     )
+
+
+def _trace_steps(config: EnsembleConfig) -> set:
+    """The steps at which the batch is scored.
+
+    ``linear`` records every ``trace_every`` steps; ``log`` records about
+    ``n_steps / trace_every`` log-spaced steps instead, which is what resolves
+    the approach to equilibrium -- everything happens in the first few hundred
+    moves and the rest is a flat line.
+    """
+    if not config.trace_every:
+        return set()
+    if config.trace_schedule == "log":
+        count = max(2, config.n_steps // config.trace_every)
+        steps = np.unique(np.round(np.logspace(0, np.log10(config.n_steps), count)).astype(int))
+        return set(int(s) for s in steps) | {1, config.n_steps}
+    return set(range(config.trace_every, config.n_steps + 1, config.trace_every)) | {1}
+
+
+def _record(
+    trace: Dict[str, List[float]],
+    model: PottsModel,
+    chains: torch.Tensor,
+    x: torch.Tensor,
+    log_p: torch.Tensor,
+    reference: torch.Tensor,
+    step: int,
+    accepted: float,
+    with_cde: bool,
+    beta: float,
+) -> None:
+    """Append the batch's observables at this step: mean and quartiles of each."""
+    from observables import context_dependent_entropy
+
+    values: Dict[str, torch.Tensor] = {
+        "E_DCA": _energy(model, x),
+        "hamming_to_wt": (chains != reference.unsqueeze(0)).sum(dim=1).to(torch.float32),
+        "P_S": log_p.exp(),
+    }
+    if with_cde:
+        values["CDE"] = torch.as_tensor(
+            context_dependent_entropy(model, chains, beta=beta), device=chains.device
+        )
+    trace.setdefault("step", []).append(float(step))
+    trace.setdefault("accepted_per_chain", []).append(float(accepted))
+    for name, tensor in values.items():
+        tensor = tensor.to(torch.float32)
+        quartiles = torch.quantile(tensor, torch.tensor([0.25, 0.75], device=tensor.device))
+        trace.setdefault(f"{name}_mean", []).append(float(tensor.mean()))
+        trace.setdefault(f"{name}_q25", []).append(float(quartiles[0]))
+        trace.setdefault(f"{name}_q75", []).append(float(quartiles[1]))
 
 
 def _log_softmax_at(logits: torch.Tensor, state: int, beta: float) -> torch.Tensor:

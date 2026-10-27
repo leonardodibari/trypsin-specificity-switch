@@ -83,6 +83,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--max-points", type=int, default=0, help="Subsample per ensemble (0 = all)")
     parser.add_argument("--save", default="ensemble_pairs.png", help="Output image")
     parser.add_argument("--dpi", type=int, default=200)
+    parser.add_argument("--point-size", type=float, default=22.0, help="Marker area of the ensembles")
+    parser.add_argument(
+        "--natural-point-size", type=float, default=14.0, help="Marker area of the natural cloud"
+    )
+    parser.add_argument("--font-scale", type=float, default=1.35, help="Multiplier on every font size")
     parser.add_argument("--figsize", type=float, nargs=2, default=None, help="Figure size in inches")
     return parser
 
@@ -141,6 +146,18 @@ def main() -> None:
     if not ensembles:
         raise SystemExit(f"No lam*/observables.csv found under {directory}")
 
+    scale = args.font_scale
+    plt.rcParams.update(
+        {
+            "font.size": 10 * scale,
+            "axes.titlesize": 12 * scale,
+            "axes.labelsize": 12 * scale,
+            "xtick.labelsize": 9.5 * scale,
+            "ytick.labelsize": 9.5 * scale,
+            "legend.fontsize": 11 * scale,
+        }
+    )
+
     mu = load_mu(args.mu)
     quantities = list(args.quantities)
     if "Q" in quantities and mu is None:
@@ -158,7 +175,7 @@ def main() -> None:
 
     colors = lambda_colors(len(frames))
     n = len(quantities)
-    figsize = tuple(args.figsize) if args.figsize else (3.1 * n + 1.2, 3.0 * n)
+    figsize = tuple(args.figsize) if args.figsize else (3.5 * n + 1.4, 3.4 * n)
     figure, axes = plt.subplots(n, n, figsize=figsize, squeeze=False, constrained_layout=True)
     figure.patch.set_facecolor(SURFACE)
 
@@ -172,19 +189,22 @@ def main() -> None:
             if row == column:
                 _diagonal(axis, frames, natural, y_name, colors)
             else:
-                _scatter(axis, frames, natural, x_name, y_name, colors, args.threshold)
+                _scatter(
+                    axis, frames, natural, x_name, y_name, colors, args.threshold,
+                    point_size=args.point_size, natural_point_size=args.natural_point_size,
+                )
             if row == n - 1:
-                axis.set_xlabel(LABELS.get(x_name, x_name), fontsize=11)
+                axis.set_xlabel(LABELS.get(x_name, x_name))
             if column == 0 and row > 0:
-                axis.set_ylabel(LABELS.get(y_name, y_name), fontsize=11)
+                axis.set_ylabel(LABELS.get(y_name, y_name))
             if row == column == 0:
-                axis.set_ylabel("density", fontsize=10)
+                axis.set_ylabel("density")
 
     _legend(figure, frames, colors, natural is not None, mu)
     title = "Final sequences of 1000 chains per lambda"
     if mu is not None:
         title += rf"   ($\mu = {mu:.3g}$)"
-    figure.suptitle(title, fontsize=14)
+    figure.suptitle(title, fontsize=15 * scale)
 
     save = Path(args.save)
     save.parent.mkdir(parents=True, exist_ok=True)
@@ -192,20 +212,24 @@ def main() -> None:
     print(f"figure written to {save}")
 
 
-def _scatter(axis, frames, natural, x_name, y_name, colors, threshold) -> None:
+def _scatter(
+    axis, frames, natural, x_name, y_name, colors, threshold,
+    point_size: float = 22.0, natural_point_size: float = 14.0,
+) -> None:
     if natural is not None and {x_name, y_name} <= set(natural.columns):
         axis.scatter(
-            natural[x_name], natural[y_name], s=6, color=NATURAL_COLOR, alpha=0.35,
-            linewidths=0, zorder=1,
+            natural[x_name], natural[y_name], s=natural_point_size, color=NATURAL_COLOR,
+            alpha=0.35, linewidths=0, zorder=1,
         )
     for (lam, frame), color in zip(frames, colors):
         axis.scatter(
-            frame[x_name], frame[y_name], s=7, color=color, alpha=0.55, linewidths=0, zorder=2
+            frame[x_name], frame[y_name], s=point_size, color=color, alpha=0.55,
+            linewidths=0, zorder=2,
         )
     if x_name == "P_S":
-        axis.axvline(threshold, color="#52514e", linestyle="--", linewidth=1.0, zorder=3)
+        axis.axvline(threshold, color="#52514e", linestyle="--", linewidth=1.4, zorder=3)
     if y_name == "P_S":
-        axis.axhline(threshold, color="#52514e", linestyle="--", linewidth=1.0, zorder=3)
+        axis.axhline(threshold, color="#52514e", linestyle="--", linewidth=1.4, zorder=3)
 
 
 def _diagonal(axis, frames, natural, name, colors) -> None:
@@ -226,12 +250,12 @@ def _legend(figure, frames, colors, has_natural, mu) -> None:
     from matplotlib.lines import Line2D
 
     handles = [
-        Line2D([], [], color=color, marker="o", markersize=8, linestyle="none", label=rf"$\lambda = {lam:g}$")
+        Line2D([], [], color=color, marker="o", markersize=10, linestyle="none", label=rf"$\lambda = {lam:g}$")
         for (lam, _), color in zip(frames, colors)
     ]
     if has_natural:
         handles.append(
-            Line2D([], [], color=NATURAL_COLOR, marker="o", markersize=8, linestyle="none",
+            Line2D([], [], color=NATURAL_COLOR, marker="o", markersize=10, linestyle="none",
                    label="natural alignment")
         )
     figure.legend(
@@ -239,7 +263,7 @@ def _legend(figure, frames, colors, has_natural, mu) -> None:
         loc="upper right",
         bbox_to_anchor=(0.99, 0.97),
         frameon=False,
-        fontsize=10,
+        markerscale=1.3,
     )
 
 
@@ -251,7 +275,7 @@ def _style(axis) -> None:
         axis.spines[side].set_visible(False)
     for side in ("left", "bottom"):
         axis.spines[side].set_color("#a9a8a2")
-    axis.tick_params(colors="#52514e", labelsize=9)
+    axis.tick_params(colors="#52514e")
 
 
 if __name__ == "__main__":
