@@ -65,6 +65,60 @@ def hamming_distance(sequences: torch.Tensor | np.ndarray, reference: np.ndarray
     return (encoded != np.asarray(reference)[None, :]).sum(axis=1).astype(np.int64)
 
 
+def min_hamming_to_set(
+    sequences: torch.Tensor | np.ndarray,
+    reference_set: torch.Tensor | np.ndarray,
+    device: str | torch.device = "cpu",
+    exclude: np.ndarray | None = None,
+    chunk: int = 512,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Distance from each sequence to its nearest neighbour in a set of sequences.
+
+    Returns ``(distance, index)``: for every sequence, the smallest Hamming
+    distance to any member of ``reference_set`` and which member attains it.
+    Agreements are counted with one matrix product per chunk -- the one-hot forms
+    satisfy ``matches = x . y``, so ``distance = L - matches`` -- which is what
+    makes a few thousand queries against a few thousand references immediate on a
+    GPU.
+
+    ``exclude`` gives, per query, one index into ``reference_set`` to ignore
+    (``-1`` for none). It is what keeps a natural sequence from reporting a
+    distance of zero to its own copy in the reference set.
+    """
+    queries = torch.as_tensor(np.asarray(sequences), dtype=torch.long, device=device)
+    references = torch.as_tensor(np.asarray(reference_set), dtype=torch.long, device=device)
+    if queries.ndim == 1:
+        queries = queries.unsqueeze(0)
+    if queries.shape[1] != references.shape[1]:
+        raise ValueError(
+            f"Sequences of length {queries.shape[1]} against references of length {references.shape[1]}"
+        )
+    if references.shape[0] == 0:
+        raise ValueError("The reference set is empty")
+
+    length = queries.shape[1]
+    states = int(max(int(queries.max()), int(references.max())) + 1)
+    reference_flat = (
+        torch.nn.functional.one_hot(references, num_classes=states).to(torch.float32).reshape(references.shape[0], -1)
+    )
+
+    distances, indices = [], []
+    for start in range(0, queries.shape[0], chunk):
+        block = queries[start : start + chunk]
+        flat = torch.nn.functional.one_hot(block, num_classes=states).to(torch.float32).reshape(block.shape[0], -1)
+        matches = flat @ reference_flat.T  # (chunk, n_references)
+        block_distance = length - matches
+        if exclude is not None:
+            skip = torch.as_tensor(np.asarray(exclude[start : start + chunk]), dtype=torch.long, device=device)
+            rows = torch.arange(block.shape[0], device=device)
+            valid = skip >= 0
+            block_distance[rows[valid], skip[valid]] = float(length + 1)
+        best = block_distance.min(dim=1)
+        distances.append(best.values.round().to(torch.int64).cpu().numpy())
+        indices.append(best.indices.cpu().numpy())
+    return np.concatenate(distances), np.concatenate(indices)
+
+
 def site_probabilities(
     model: PottsModel,
     sequences: torch.Tensor | np.ndarray,

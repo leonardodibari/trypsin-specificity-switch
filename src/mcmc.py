@@ -12,6 +12,11 @@ on the target residue (Serine by default). A **larger lambda pulls harder toward
 S**, at the cost of the DCA energy; lambda = 0 is plain Potts sampling at
 inverse temperature beta.
 
+``beta`` multiplies the DCA energy alone. The conditional is always evaluated at
+inverse temperature 1 (:data:`CRITIC_BETA`), so that cooling the Potts term does
+not also sharpen the bias: the bias stays the model's own probability of S at
+that site. At ``beta = 1`` the two conventions coincide.
+
 A move substitutes one residue at one allowed site by another non-gap residue,
 drawn uniformly. The proposal is therefore symmetric and the acceptance is
 ``min(1, exp(-dH))``.
@@ -35,6 +40,9 @@ import torch
 
 from encoding import Alphabet, ungap, write_sequences
 from potts import PottsModel, log_conditional_from_logits
+
+#: See the module docstring: the critic conditional is never scaled by ``beta``.
+CRITIC_BETA = 1.0
 
 
 @dataclass(frozen=True)
@@ -139,7 +147,7 @@ def run_mcmc(
 
     energy = model.energy(sequence)
     logits = model.site_logits(critic_col, sequence).clone()
-    log_p = log_conditional_from_logits(logits, target_state, config.beta)
+    log_p = log_conditional_from_logits(logits, target_state, CRITIC_BETA)
     hamiltonian = config.beta * energy - config.lam * log_p
 
     records = [
@@ -178,7 +186,7 @@ def run_mcmc(
                 + model.coupling_column(critic_col, site, new_state)
                 - model.coupling_column(critic_col, site, old_state)
             )
-            new_log_p = log_conditional_from_logits(new_logits, target_state, config.beta)
+            new_log_p = log_conditional_from_logits(new_logits, target_state, CRITIC_BETA)
 
         delta_h = config.beta * delta_energy - config.lam * (new_log_p - log_p)
         if delta_h <= 0.0 or rng.random() < math.exp(-delta_h):
@@ -230,7 +238,7 @@ def run_mcmc(
 
     # Guard against incremental drift over very long chains.
     energy = model.energy(sequence)
-    log_p = model.log_conditional(critic_col, sequence, target_state, beta=config.beta)
+    log_p = model.log_conditional(critic_col, sequence, target_state, beta=CRITIC_BETA)
 
     return MCMCResult(
         records=records,

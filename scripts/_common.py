@@ -106,8 +106,12 @@ def add_common_arguments(parser) -> None:
     )
 
 
-def prepare_run(args, verbose: bool = True) -> RunSetup:
-    """Load the model, the wild type and the mutable MSA columns."""
+def prepare_run(args, verbose: bool = True, drop_gap_columns: bool = True) -> RunSetup:
+    """Load the model, the wild type and the mutable MSA columns.
+
+    ``drop_gap_columns=False`` keeps the columns that are a gap in the wild type,
+    which only makes sense for a sampler allowed to mutate gaps.
+    """
     if args.torch_threads:
         torch.set_num_threads(args.torch_threads)
     alphabet = Alphabet.from_name(args.alphabet)
@@ -133,7 +137,7 @@ def prepare_run(args, verbose: bool = True) -> RunSetup:
 
     if not 0 <= critic_col < model.L:
         raise SystemExit(f"The critic column {critic_col} is outside the model (L={model.L})")
-    keep = mutable_columns(columns, [wt_sequence], alphabet)
+    keep = mutable_columns(columns, [wt_sequence], alphabet) if drop_gap_columns else list(columns)
     dropped = [label_of[c] for c in columns if c not in keep]
     if dropped and verbose:
         print(f"Skipping gap positions of the wild type: {dropped}")

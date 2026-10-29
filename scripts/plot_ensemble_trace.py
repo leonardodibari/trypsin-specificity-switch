@@ -73,6 +73,7 @@ def build_parser() -> argparse.ArgumentParser:
         help="x axis: mean accepted moves per chain (default) or proposed steps",
     )
     parser.add_argument("--log-x", action="store_true", help="Logarithmic x axis")
+    parser.add_argument("--series-label", default=r"$\lambda = {:g}$", help="Legend template for each series, with '{}' where the directory's number goes. The default names it lambda; a staging directory whose lam<N> dirs index something else can say so, e.g. --series-label '$\\\\beta = {:g}$'")
     parser.add_argument("--save", default="ensemble_trace.png", help="Output image")
     parser.add_argument("--dpi", type=int, default=200)
     parser.add_argument("--figsize", type=float, nargs=2, default=(13.5, 9.5))
@@ -154,6 +155,7 @@ def main() -> None:
     figure, axes = plt.subplots(rows, columns, figsize=tuple(args.figsize), squeeze=False)
     figure.patch.set_facecolor(SURFACE)
 
+    series_label = args.series_label
     x_column = "accepted_per_chain" if args.x == "accepted" else "step"
     x_label = "accepted moves per chain" if args.x == "accepted" else "proposed steps"
 
@@ -166,7 +168,7 @@ def main() -> None:
                 x, frame[f"{name}_q25"], frame[f"{name}_q75"], color=color, alpha=0.18, linewidth=0
             )
             axis.plot(x, frame[f"{name}_mean"], color=color, linewidth=args.line_width,
-                      label=rf"$\lambda = {lam:g}$")
+                      label=series_label.format(lam))
         if natural is not None and name in natural.columns and name in args.natural_rules:
             axis.axhline(
                 float(natural[name].mean()), color=NATURAL_COLOR, linestyle=":", linewidth=2.0,

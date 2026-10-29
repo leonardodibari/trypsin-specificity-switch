@@ -54,6 +54,8 @@ LABELS = {
     "P_S": r"$P(S\,|\,\mathrm{critic})$",
     "Q": r"$Q_\mu = E - \mu\,\mathrm{CDE}$",
     "CDE": "CDE (nats)",
+    "min_hamming_natural_S": "Hamming to nearest\nnatural S-carrier",
+    "min_hamming_natural_S_pct": "Distance to nearest natural\nS-carrier (% of mutable sites)",
 }
 
 
@@ -81,6 +83,12 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--threshold", type=float, default=0.80, help="P(S) threshold, drawn as a rule")
     parser.add_argument("--max-points", type=int, default=0, help="Subsample per ensemble (0 = all)")
+    parser.add_argument(
+        "--title",
+        default="Final sequences of 1000 chains per lambda",
+        help="Figure title; the value of mu is appended to it",
+    )
+    parser.add_argument("--series-label", default=r"$\lambda = {:g}$", help="Legend template for each series, with '{}' where the directory's number goes. The default names it lambda; a staging directory whose lam<N> dirs index something else can say so, e.g. --series-label '$\\\\beta = {:g}$'")
     parser.add_argument("--save", default="ensemble_pairs.png", help="Output image")
     parser.add_argument("--dpi", type=int, default=200)
     parser.add_argument("--point-size", type=float, default=22.0, help="Marker area of the ensembles")
@@ -200,8 +208,8 @@ def main() -> None:
             if row == column == 0:
                 axis.set_ylabel("density")
 
-    _legend(figure, frames, colors, natural is not None, mu)
-    title = "Final sequences of 1000 chains per lambda"
+    _legend(figure, frames, colors, natural is not None, mu, args.series_label)
+    title = args.title
     if mu is not None:
         title += rf"   ($\mu = {mu:.3g}$)"
     figure.suptitle(title, fontsize=15 * scale)
@@ -246,11 +254,12 @@ def _diagonal(axis, frames, natural, name, colors) -> None:
     axis.set_yticks([])
 
 
-def _legend(figure, frames, colors, has_natural, mu) -> None:
+def _legend(figure, frames, colors, has_natural, mu, series_label) -> None:
     from matplotlib.lines import Line2D
 
     handles = [
-        Line2D([], [], color=color, marker="o", markersize=10, linestyle="none", label=rf"$\lambda = {lam:g}$")
+        Line2D([], [], color=color, marker="o", markersize=10, linestyle="none",
+               label=series_label.format(lam))
         for (lam, _), color in zip(frames, colors)
     ]
     if has_natural:

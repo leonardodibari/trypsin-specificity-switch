@@ -331,6 +331,116 @@ python scripts/plot_ensemble.py \
 type; `--quantities E_DCA P_S Q` drops the Hamming column, whose scale is dominated
 by the family's distance from any single sequence.
 
+### `substitute_critic.py` — write the serine in, and rescore
+
+The bias acts on the *conditional* at the critic site, which does not depend on the
+residue sitting there, so a chain's final sequence still carries whatever residue
+it last accepted — at `lambda = 0`, almost always the wild-type aspartate. This
+script sets the critic column to `S` in every final sequence of every lambda and
+recomputes the four observables, so that a figure drawn from them describes
+sequences that really are serine at the pocket. Only the sampled sequences are
+touched; the natural alignment and the calibration of `mu` are left alone.
+
+```bash
+python scripts/substitute_critic.py \
+    --ensemble-dir ../results/ensembles --output ../results_serine/ensembles \
+    --wt data/wt_trypsin.fasta --model ../bmDCA_params.dat \
+    --critic-col 197 --device cuda --cache-model
+```
+
+It writes the same `final_sequences.fasta` / `observables.csv` / `summary.json`
+layout as `run_ensemble.py`, so every plotting script reads the result directly.
+`observables.csv` gains one column, `critic_residue_before`, holding the residue
+that was replaced.
+
+### `plot_critic_deltas.py` — what that substitution costs
+
+Two panels of histograms, one per lambda: the per-chain change in energy and in
+sample quality between a chain's own final sequence and the same sequence with the
+serine written in. Chains that already ended on `S` differ by exactly zero and are
+left out, with their share in the legend; `--include-unchanged` puts them back.
+
+```bash
+python scripts/plot_critic_deltas.py \
+    --ensemble-dir ../results/ensembles --substituted-dir ../results_serine/ensembles \
+    --mu ../results/calibration/mu.json --save docs/critic_substitution_deltas.png
+```
+
+### `add_natural_neighbour.py` — how close is a design to something nature has?
+
+Adds a per-sequence column: the distance to the nearest sequence of the natural
+alignment **that already carries the target residue at the critic site** (8728 of
+the 82 021 here). Energy says whether the model finds a design plausible; this
+says whether the family contains anything like it.
+
+`--allowed-cols` restricts the comparison to the columns the sampler could move
+and `--as-percentage` reports it as a share of them. That is the version worth
+plotting: outside those columns a design *is* the wild type, so counting the rest
+adds the same large constant to every design and hides what separates them.
+
+```bash
+python scripts/add_natural_neighbour.py \
+    --ensemble-dir ../results_serine/ensembles \
+    --natural ../iter_aln_dedup.faa --critic-col 197 \
+    --allowed-cols 180-220 --wt data/wt_trypsin.fasta --as-percentage \
+    --natural-observables ../results/calibration/natural_observables.csv --device cuda
+```
+
+The column goes into each `observables.csv`, so `plot_ensemble.py --quantities
+E_DCA hamming_to_wt P_S Q min_hamming_natural_S_pct` turns the 4 × 4 scatter
+matrix into a 5 × 5 one. With `--natural-observables` the natural cloud gets the
+column too, each sequence's own row excluded from its own minimum.
+
+### `run_generative_check.py` — does resampling reproduce the training statistics?
+
+The generative check of the model itself, not a design run: `lambda = 0`,
+`beta = 1`, every non-gap column mutable. Chains are followed as they equilibrate
+and compared at each checkpoint with the **reweighted** statistics of the training
+alignment (weighted by `--weights`, over every sequence in it; the chains
+themselves are unweighted, being i.i.d. draws from the model) — the Pearson coefficients of `f_i`, of `f_ij` and of the connected
+correlations `C_ij` (off-diagonal blocks only), all computed with adabmDCA's own
+`get_freq_single_point`, `get_freq_two_points` and `get_correlation_two_points`.
+
+```bash
+python scripts/run_generative_check.py \
+    --wt data/wt_trypsin.fasta --model ../bmDCA_params.dat \
+    --natural ../iter_aln_dedup.faa --weights ../bmDCA_weights.dat \
+    --output ../results_generative/ --critic-col 197 --allowed-cols 0-259 \
+    --n-chains 1000 --n-steps 520000 --trace-every 8000 --trace-schedule log \
+    --device cuda --cache-model
+```
+
+Unlike a design run, this sampler treats the **gap as an ordinary state**: it may
+be proposed, and a gap column may mutate. That is not optional — the training
+alignment is 11.6 % gaps, and chains that keep one gap pattern explore a subspace
+of the space the model was fitted on and cannot reach the right equilibrium. Pass
+`--no-gap-moves` to see what that costs: chains started at the wild type never
+leave the trypsin basin (81 substitutions away after 2000 sweeps, against a family
+that is 160 away) and `f_i` stalls at 0.79 instead of 0.98.
+
+Two other options matter for reading the result. `--ceiling-repeats` measures the
+**finite-sample ceiling** by drawing `--n-chains` sequences from the natural
+alignment itself: a batch of 1000 estimates `f_ij` from 1000 samples, so even a
+perfect sampler reaches only 0.85 on `C_ij`, and that — not 1 — is the target.
+`--start` moves the chains' starting point: `natural` draws one natural sequence
+per chain under the weights, `random` draws a uniformly random sequence per chain.
+Running all three is how one tells a model that cannot reproduce its statistics
+from chains that have not mixed — the wild type and natural sequences approach
+equilibrium from below in energy, random sequences from far above it, and only a
+mixed chain ends in the same place from all three.
+
+### `plot_generative_check.py` — the convergence figure
+
+Pearson coefficients against their ceilings on the top row, per-sequence
+observables against the weighted natural means below. Several runs overlay, which
+is how the starting points are compared.
+
+```bash
+python scripts/plot_generative_check.py \
+    --run-dir ../results_gibbs ../results_gibbs_natural ../results_gibbs_random \
+    --log-x --no-nogap --figsize 15 8.6 --save docs/generative_check.png
+```
+
 ### `plot_ensemble_trace.py` — how the ensemble gets there
 
 One panel per quantity, showing the batch mean as a line and the inter-quartile
@@ -460,6 +570,31 @@ anything the family does, with a context entropy (0.94) well below the natural m
 *model-plausible but not family-typical*: interesting as designs, not as members of
 the natural ensemble.
 
+**Writing the serine in changes almost nothing — and that is the point.** The
+table above describes the sequences the chains ended on, which at low lambda still
+carry the wild-type aspartate at position 189. Substituting `S` there and
+rescoring (`substitute_critic.py`, figures `ensemble_pairs_serine.png` and
+`critic_substitution_deltas.png`) leaves `P(S)` identical to machine precision —
+the conditional does not depend on that residue — and moves the energy by at most
+0.9 and the quality by at most 2.5, against a natural spread of 15.3. The sign is
+informative: at `lambda = 0` the substitution is a real penalty (`+5.3` in energy,
+every chain on the wrong side of zero), while from `lambda = 50` upward it *lowers*
+the energy of the chains it touches, by up to 4.0 at `lambda = 1000` — those
+contexts already wanted a serine and were simply caught on another residue. The
+share of chains that needed no substitution at all rises from 0.7 % to 84.2 %
+across the lambda range. Section 6.6 of [`docs/METHODS.md`](docs/METHODS.md) has
+the full tables.
+
+**The designs walk away from the natural sequences that already solve the
+problem, and overtake them.** Over the 36 mutable columns, the distance to the
+nearest natural S-carrier rises monotonically with lambda — median 22 % at
+`lambda = 0` (the wild-type pocket itself), 53 % at `lambda = 1000`. A typical
+natural sequence sits 39 % from its nearest S-carrying relative over those same
+columns, so the weakly biased ensembles are closer to the natural S-carriers than
+naturals are to each other, while from `lambda = 50` up the designs are further.
+Past that point the bias is steering away from the arrangement the family uses,
+not toward it.
+
 **Equilibration is fast but not monotone.** Nearly everything happens within the
 first ~100 accepted moves per chain, and at large lambda the ensemble overshoots
 before settling: at `lambda = 1000` the mean energy peaks near 368 around 40
@@ -471,6 +606,168 @@ after a few thousand proposed steps reports a materially worse energy than the
 equilibrium one.
 
 ---
+
+### Is the model itself any good?
+
+A separate question from the designs, answered by `run_generative_check.py`:
+resample the model with no bias at all (`lambda = 0`, `beta = 1`, every column
+free, the gap an ordinary state) and compare with the reweighted statistics it
+was trained on. 1000 chains, 520 000 proposed moves each, from three starting
+points.
+
+| sampler | start | sweeps | `f_i` | `f_ij` | `C_ij` | slope | ⟨E⟩ | ⟨Hamming to WT⟩ |
+|---|---|---|---|---|---|---|---|---|
+| Metropolis | wild type | 8000 | 0.990 | 0.978 | 0.562 | 0.55 | 449.9 | 169 |
+| Metropolis | natural | 2000 | 0.993 | 0.983 | 0.601 | 0.59 | 442.5 | 167 |
+| Gibbs | wild type | 2000 | 0.990 | 0.977 | 0.548 | 0.54 | 449.3 | 169 |
+| Gibbs | natural | 2000 | 0.991 | 0.980 | 0.568 | 0.55 | 450.0 | 169 |
+| Gibbs | random | 2000 | 0.990 | 0.978 | 0.540 | 0.52 | 453.9 | 169 |
+| Gibbs | wild type | 2000 | 0.991 | 0.981 | 0.716 | 0.54 | 450.5 | 169 |
+| Gibbs | random | 2000 | 0.991 | 0.981 | 0.711 | 0.54 | 451.1 | 169 |
+| *target (ceiling at 1000 chains)* | — | — | *0.999* | *0.996* | *0.848* | *1.00* | *361.8* | *160* |
+| *target (ceiling at 10 000 chains)* | — | — | *1.000* | *1.000* | *0.986* | *0.995* | *361.8* | *160* |
+
+The last two Gibbs rows use **10 000** chains; every other row uses 1000. See
+below for why that matters.
+
+Two samplers and three starting points give one answer. The Gibbs runs — adabmDCA's
+own `gibbs_step_uniform_sites`, the sampler the model was trained with — span 4.6
+in energy while arriving from three directions: the wild type climbs from `E = 220`,
+natural sequences rise from 362, and random sequences fall from 1197. The
+Metropolis chains land in the same place. Equilibrium is near `E = 450`, about 88
+above the weighted natural mean of 361.8.
+
+Single- and two-site frequencies come close to their ceilings; the **connected
+correlations reach 0.55 of a possible 0.85, with a slope of 0.54**, meaning the
+resampled correlations are systematically about 45 % weaker than the natural ones.
+The model has learnt the family's composition well and a little over half of its
+correlation structure.
+
+That shortfall is the model, not the measurement: quadrupling the Metropolis run
+(2000 → 8000 sweeps) lifts `f_i` from 0.976 to 0.990 and leaves `C_ij` at 0.56,
+the natural-start Gibbs run begins at `C_ij = 0.832` against a ceiling of 0.848
+before the model's own dynamics carry it down to 0.57, and the random-start run
+climbs to the same 0.54 from `C_ij = 0.0001` — the same equilibrium reached from
+below as well as from above.
+
+**Quote the slope, not the Pearson coefficient.** Repeating the check with 10 000
+chains raises the `C_ij` ceiling from 0.848 to 0.986 and the measured `C_ij` from
+0.548 to 0.716, so a third of the apparent shortfall at 1000 chains was noise in
+the batch's own estimate — and the ratio to the ceiling is not stable either
+(0.65 against 0.73), so dividing by it is not a valid correction. The slope does
+not move: 0.539 at 1000 chains, 0.538 at 10 000, with a ceiling of 1.00 at both,
+because adabmDCA regresses the chains' `C_ij` on the natural `C_ij` as predictor
+and noise in the response does not bias that coefficient. The energy gap is
+likewise unmoved (450.5 against 449.3). METHODS §7.5 derives this; the figure is
+`docs/generative_check_10k.png`.
+
+Read `docs/METHODS.md` §7 before quoting those numbers: the ceiling, the gap
+treatment and the residual non-convergence of the wild-type run all bear on them.
+
+---
+
+### A second model: `model_pcd_serine_protease`
+
+The whole analysis repeated on a second set of parameters for the same family.
+Energies are gauge-dependent, so nothing transfers between models; `mu` is
+recalibrated to **316.53** and every number below is recomputed. METHODS §9 has
+the commands.
+
+Generative check, 25 000 Gibbs chains, 4000 sweeps, from two opposite starts:
+
+| start | `f_i` | `f_ij` | `C_ij` | slope | ⟨E⟩ |
+|---|---|---|---|---|---|
+| random (from E = 1199) | 0.993 | 0.985 | 0.762 | 0.595 | 373.5 |
+| natural (from E = 289) | 0.993 | 0.985 | 0.761 | 0.593 | 373.6 |
+| *ceiling at 25 000 chains* | *1.000* | *1.000* | *0.996* | *0.998* | *289.0* |
+
+The two starts meet to 0.1 in energy and 0.0008 in `C_ij` from 910 apart, so this
+is equilibrium. Same verdict as the first model on different parameters:
+composition right, connected correlations about 40 % too weak.
+
+Designs, the same six lambdas as §6, 1000 chains each, S written into the critic
+site afterwards:
+
+| λ | ⟨E⟩ | ⟨Hamming to WT⟩ | ⟨P_S⟩ | P_S > 0.8 | ⟨Q⟩ | median distance to nearest natural S-carrier |
+|---|---|---|---|---|---|---|
+| 0 | 155.0 | 6.4 | 0.005 | 0 % | −94.3 | 25.0 % |
+| 10 | 179.8 | 10.2 | 0.138 | 0 % | −84.0 | 33.3 % |
+| 50 | 203.6 | 15.4 | 0.480 | 0 % | −75.9 | 41.7 % |
+| 100 | 216.8 | 18.1 | 0.611 | 0 % | −68.6 | 44.4 % |
+| 300 | 242.1 | 23.0 | 0.748 | 0 % | −53.0 | 50.0 % |
+| 1000 | 266.4 | 27.3 | 0.796 | 23.6 % | −34.9 | 55.6 % |
+| *natural* | *289.6* | *161.0* | *0.110* | — | *−79.1 ± 16.5* | *38.9 %* |
+
+The §6 trade-off again, and monotone in λ across the whole ladder: `P_S` is bought
+with energy and with distance from the family. `docs/critic_substitution_deltas_pcd.png`
+shows what writing S costs per chain: wholly positive at λ = 0, straddling zero at
+λ = 10, wholly negative from λ = 50 up. Only λ = 1000 puts any chains above
+`P_S` = 0.8, and by then ⟨Q⟩ has left the natural band. Figures:
+`docs/mu_calibration_pcd.png`, `docs/ensemble_pairs_pcd.png`,
+`docs/ensemble_trace_pcd.png`, `docs/generative_check_pcd.png`.
+
+The model's own equilibrium sample, the 10 000 persistent chains in
+`chains.fasta`, scored the same way, with the ceiling measured at the same M:
+
+| | `f_i` | `f_ij` | `C_ij` | slope | ⟨E⟩ |
+|---|---|---|---|---|---|
+| training chains (10 000) | 0.993 | 0.986 | **0.755** | 0.576 | 376.4 |
+| *ceiling at 10 000 chains* | *1.000* | *1.000* | *0.980* | *1.004* | *289.0* |
+
+That matches the independent 25 000-chain run above (0.762, E = 373.5) from a
+different sampler and the opposite starting point.
+
+### Cooling the Potts term: what β buys
+
+`--beta` multiplies the DCA energy; the critic's conditional is now always
+evaluated at β = 1 (`CRITIC_BETA`), so cooling the energy no longer sharpens the
+bias as a side effect. At β = 1 nothing changes, so every result above stands.
+With the critic fixed the measure factorises exactly:
+
+```
+exp(-beta E + lambda log P_1)  =  exp(-beta [ E - lambda_tilde log P_1 ]),   lambda_tilde = lambda / beta
+```
+
+so `lambda_tilde` says *what* is optimised and β only says *how cold*. Nineteen
+ensembles over the (β, λ) grid, all rescored at β = 1, give three answers:
+
+* **β saturates by about 5.** At equal `lambda_tilde`, β = 5 and β = 10 agree to
+  the third digit in every observable — the sampler has reached its
+  zero-temperature limit and the ensemble depends on `lambda_tilde` alone.
+* **Cooling at fixed bias changes almost nothing.** Along `lambda_tilde` = 1000,
+  β = 1 → 3 moves the energy 266.4 → 264.3 and leaves `P_S` at 0.797, while the
+  distinct sequences fall 466 → 53.
+* **At matched energy — the framing the suggestion came in — cooling does help,
+  most where it matters.** At the energy each cooled run reaches, against what
+  β = 1 would have given there:
+
+| cooled run | ⟨E⟩ | P_S cooled | P_S at β = 1 | gain | diversity cooled | at β = 1 |
+|---|---|---|---|---|---|---|
+| β = 5, `lambda_tilde` = 100 | 208.6 | 0.631 | 0.530 | **+0.101** | 2.4 | 11.2 |
+| β = 5, `lambda_tilde` = 200 | 226.9 | 0.719 | 0.666 | +0.054 | 1.9 | 9.5 |
+| β = 5, `lambda_tilde` = 300 | 241.6 | 0.763 | 0.746 | +0.018 | 2.0 | 7.5 |
+
+  The gain grows as the energy falls toward the wild type's 143.7 — a fifth more
+  specificity at the same energy, for a library four to five times less diverse.
+  (Holding `lambda_tilde` fixed instead, the gain is only +0.02 in P_S.)
+
+So: `lambda_tilde` places the designs, β sharpens them. Use `lambda_tilde` at β = 1 to place the designs against the natural band
+(`lambda_tilde` = 50 gives Q = −75.9 with 1000 distinct sequences); a mild
+β = 1.5–2 is defensible if every chain must carry S unaided. Beyond β ≈ 3 the
+ensemble stops being a library.
+
+Figures: `docs/beta_scan_pcd.png` (the grid), `docs/beta_matched_pairs_pcd.png`
+(the 5×5 at matched `lambda_tilde` = 100, where the cold libraries are a tight knot
+inside the warm one) and `docs/beta_matched_trace_pcd.png` (the same three along
+the run). Detail in METHODS §10.
+
+**One caveat on this model's training log.** It reports `Pearson = 0.950027` for
+those very chains, against the 0.755 measured here — reproducing the log's `M_eff`
+and pseudocount exactly, unchanged in float64. `params.dat`, `chains.fasta` and
+`weights.dat` agree with each other; the logged 0.95 is the outlier. Since
+`target_pearson` is the stopping rule, training may have stopped early. METHODS
+§9.1 has the detail.
+
 
 ## Conventions and gotchas
 
@@ -506,13 +803,19 @@ src/
   mcmc.py         the single-chain biased sampler and its output files
   ensemble.py     the same moves, vectorised over a thousand chains (CPU or GPU)
   observables.py  energy, Hamming distance, P(S), context entropy, sample quality
+  natural_stats.py  reweighted f_i / f_ij / C_ij of the alignment, and Pearson against them
 scripts/
   run_mcmc.py             one chain
   run_sweep.py            lambdas x replicates, in parallel
   plot_trajectories.py    the 4x3 trajectory figure
   run_ensemble.py         many chains per lambda, scored
   calibrate_mu.py         mu from the natural alignment, with its figure
+  substitute_critic.py    write the target residue into the critic site, rescore
+  add_natural_neighbour.py  distance to the nearest natural sequence with that residue
   plot_ensemble.py        the pairwise scatter matrix
+  plot_critic_deltas.py   the cost of that substitution, chain by chain
+  run_generative_check.py   unbiased resampling against the training statistics
+  plot_generative_check.py  the convergence figure for that check
   plot_ensemble_trace.py  the observables along the run
   _common.py              CLI options shared by the scripts
 tests/       energy/conditional consistency and sampler correctness
