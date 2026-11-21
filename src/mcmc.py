@@ -56,6 +56,7 @@ class MCMCConfig:
     record_every: int = 100
     seed: int = 42
     target_residue: str = "S"
+    allow_gap_moves: bool = False  # treat the gap as an ordinary state (see run_mcmc)
 
 
 @dataclass
@@ -140,9 +141,14 @@ def run_mcmc(
 
     target_state = alphabet.index(config.target_residue)
     sites = np.asarray(sorted(set(int(c) for c in allowed_cols)), dtype=np.int64)
-    if np.any(sequence[sites] == alphabet.gap_index):
+    if not config.allow_gap_moves and np.any(sequence[sites] == alphabet.gap_index):
         raise ValueError("Allowed sites include a gap position of the starting sequence")
-    states = alphabet.residue_indices  # never propose a gap
+    # With ``allow_gap_moves`` the gap is an ordinary state: it may be proposed and
+    # a column that starts as a gap may mutate, so insertions and deletions are part
+    # of the move set. Off by default, which freezes the wild type's gap pattern.
+    states = (
+        np.arange(model.q, dtype=np.int64) if config.allow_gap_moves else alphabet.residue_indices
+    )
     rng = np.random.default_rng(config.seed)
 
     energy = model.energy(sequence)

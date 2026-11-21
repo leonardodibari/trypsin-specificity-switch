@@ -1,0 +1,42 @@
+{
+  "lam": 30.0,
+  "beta": 1.0,
+  "n_chains": 1000,
+  "critic_col": 201,
+  "target_residue": "S",
+  "source": "/Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_newmodel/consensus/ensembles/lam30/final_sequences.fasta",
+  "chains_already_target": 835,
+  "critic_residue_counts_before": {
+    "S": 835,
+    "A": 56,
+    "G": 37,
+    "D": 35,
+    "N": 14,
+    "T": 7,
+    "Y": 5,
+    "E": 4,
+    "P": 3,
+    "R": 2,
+    "F": 1,
+    "V": 1
+  },
+  "mean_E_DCA": 95.31134796142578,
+  "mean_P_S": 0.8455570340156555,
+  "mean_hamming_to_wt": 7.399,
+  "mean_CDE": 0.4713613986968994,
+  "allowed_cols": [
+    165,
+    169,
+    187,
+    201,
+    237,
+    238,
+    239,
+    241
+  ],
+  "n_allowed_sites": 8,
+  "allow_gap_moves": true,
+  "n_steps": 60000,
+  "seed": 2,
+  "mean_n_gaps": 42.005
+}

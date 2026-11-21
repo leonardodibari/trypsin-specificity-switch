@@ -46,6 +46,16 @@ class EnsembleConfig:
     trace_cde: bool = True  # the context entropy costs a full all-site pass
     trace_schedule: str = "linear"  # "linear" every trace_every steps, or "log"-spaced
     allow_gap_moves: bool = False  # treat the gap as an ordinary state (see run_ensemble)
+    #: Which quantity the bias steers on.
+    #:   "logp"    -> lambda * log P(S | sigma_\i*)        (the original)
+    #:   "logodds" -> lambda * log P(S | .)/P(D | .)
+    #: The log-odds is the better discriminator on natural sequences, and unlike
+    #: log P(S) it keeps resolving once P(S) saturates: log P(S) -> 0 while the
+    #: log-odds -> +inf, so it still distinguishes a context that merely favours
+    #: S from one that has also stopped favouring D.
+    bias: str = "logp"
+    #: The residue the log-odds divides by. Only used when bias == "logodds".
+    against_residue: str = "D"
 
 
 @dataclass
@@ -120,6 +130,21 @@ def run_ensemble(
         reference_sequence = start[0]
 
     target_state = alphabet.index(config.target_residue)
+    against_state = alphabet.index(config.against_residue)
+    if config.bias not in ("logp", "logodds"):
+        raise ValueError(f"bias must be 'logp' or 'logodds', not {config.bias!r}")
+
+    def bias_value(logits: torch.Tensor) -> torch.Tensor:
+        """The quantity lambda multiplies, for a batch of critic logits.
+
+        For the log-odds the softmax cancels exactly:
+        log_softmax(b x)[i] - log_softmax(b x)[j] = b (x_i - x_j), so the
+        normalisation never has to be computed.
+        """
+        if config.bias == "logodds":
+            return CRITIC_BETA * (logits[:, target_state] - logits[:, against_state])
+        return _log_softmax_at(logits, target_state, CRITIC_BETA)
+
     states = torch.arange(q, device=device) if config.allow_gap_moves else torch.as_tensor(
         alphabet.residue_indices, device=device
     )
@@ -135,7 +160,7 @@ def run_ensemble(
     critic_block = model.couplings[critic_col]  # (q, L, q)
     critic_flat = critic_block.reshape(q, L * q)
     critic_logits = model.bias[critic_col] + flat @ critic_flat.T  # (n, q)
-    log_p = _log_softmax_at(critic_logits, target_state, CRITIC_BETA)
+    log_p = bias_value(critic_logits)
 
     site_tensor = torch.as_tensor(sites, device=device)
     rows = torch.arange(n, device=device)
@@ -163,7 +188,7 @@ def run_ensemble(
         else:
             block = critic_block[:, site, :]  # (q, q): J[critic, :, site, :]
             new_critic_logits = critic_logits + block[:, new_state].T - block[:, old_state].T
-            new_log_p = _log_softmax_at(new_critic_logits, target_state, CRITIC_BETA)
+            new_log_p = bias_value(new_critic_logits)
 
         delta_h = config.beta * delta_energy - config.lam * (new_log_p - log_p)
         uniform = torch.rand(n, generator=generator, device=device)
@@ -179,12 +204,16 @@ def run_ensemble(
             accepted_total += int(accept.sum())
 
         if step in trace_steps:
+            # ALWAYS trace log P(S), never the steered quantity: with
+            # bias="logodds" the acceptance uses log P(S)/P(D), and recording
+            # exp() of that would fill the trace's P_S column with an odds
+            # ratio, which is not a probability and can exceed 1.
             _record(
                 trace,
                 model=model,
                 chains=chains,
                 x=x,
-                log_p=log_p,
+                log_p=_log_softmax_at(critic_logits, target_state, CRITIC_BETA),
                 reference=reference,
                 step=step,
                 accepted=accepted_total / n,
@@ -195,14 +224,17 @@ def run_ensemble(
         if progress_every and step % progress_every == 0:
             print(
                 f"  [lam={config.lam:g}] step {step}/{config.n_steps} "
-                f"mean P(S)={float(log_p.exp().mean()):.4f} "
+                f"mean P(S)="
+                f"{float(_log_softmax_at(critic_logits, target_state, CRITIC_BETA).exp().mean()):.4f} "
                 f"acceptance={accepted_total / (step * n):.3f}",
                 flush=True,
             )
 
     return EnsembleResult(
         sequences=chains.cpu().numpy(),
-        log_p=log_p.cpu().numpy(),
+        # log P(S) of the final sequences, independent of what was steered on.
+        log_p=_log_softmax_at(critic_logits, target_state,
+                              CRITIC_BETA).cpu().numpy(),
         acceptance_rate=accepted_total / (config.n_steps * n),
         config=config,
         critic_col=int(critic_col),

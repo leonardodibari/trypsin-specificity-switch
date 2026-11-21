@@ -200,14 +200,27 @@ def describe(
     beta: float = 1.0,
     chunk: int = DEFAULT_CHUNK,
 ) -> Dict[str, np.ndarray]:
-    """All four observables of a set of sequences, as a dict of 1-D arrays."""
+    """All observables of a set of sequences, as a dict of 1-D arrays.
+
+    ``n_gaps`` is the number of gap columns of each sequence. It is constant, and
+    equal to the wild type's, whenever the sampler keeps the gap inert; it only
+    varies when gaps are part of the move set (``--allow-gap-moves``), where it
+    says how far a design has drifted from the wild type's gap pattern.
+    """
     encoded = _as_batch(model, sequences)
     return {
         "E_DCA": energies(model, encoded, chunk=chunk),
         "hamming_to_wt": hamming_distance(encoded, reference),
         "P_S": critic_probability(model, encoded, critic_col, target_state, beta=beta, chunk=chunk),
         "CDE": context_dependent_entropy(model, encoded, beta=beta, chunk=chunk),
+        "n_gaps": gap_count(model, encoded),
     }
+
+
+def gap_count(model: PottsModel, sequences: torch.Tensor | np.ndarray) -> np.ndarray:
+    """Number of gap columns in each sequence."""
+    encoded = _as_batch(model, sequences)
+    return (encoded == model.alphabet.gap_index).sum(dim=1).cpu().numpy().astype(np.int64)
 
 
 def _as_batch(model: PottsModel, sequences: torch.Tensor | np.ndarray) -> torch.Tensor:

@@ -17,7 +17,7 @@ Example::
         --ensemble-dir ../results/ensembles \\
         --output ../results_serine/ensembles \\
         --wt data/wt_trypsin.fasta --model ../bmDCA_params.dat \\
-        --critic-col 197 --cache-model
+        --critic-col 201 --cache-model
 """
 
 from __future__ import annotations
@@ -135,6 +135,23 @@ def main() -> None:
             "mean_hamming_to_wt": float(frame["hamming_to_wt"].mean()),
             "mean_CDE": float(frame["CDE"].mean()),
         }
+        # Carry the site restriction forward. Without it a downstream consumer
+        # (annotate_sectors) cannot tell which columns were ever allowed to move
+        # and silently falls back to "the whole alignment", which normalises
+        # sector enrichment against 265 columns instead of the 79 that could
+        # actually mutate -- turning a depletion into an apparent enrichment.
+        source_summary = fasta.parent / "summary.json"
+        if source_summary.is_file():
+            try:
+                with open(source_summary, encoding="utf-8") as handle:
+                    origin = json.load(handle)
+            except (OSError, json.JSONDecodeError):
+                origin = {}
+            for key in ("allowed_cols", "n_allowed_sites", "allow_gap_moves", "n_steps", "seed"):
+                if key in origin:
+                    summary[key] = origin[key]
+        if "mean_n_gaps" not in summary and "n_gaps" in frame:
+            summary["mean_n_gaps"] = float(frame["n_gaps"].mean())
         with open(target / "summary.json", "w", encoding="utf-8") as handle:
             json.dump(summary, handle, indent=2)
         rows.append(summary)

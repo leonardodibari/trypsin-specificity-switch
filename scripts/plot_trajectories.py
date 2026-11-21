@@ -101,7 +101,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--allowed-cols",
         default=None,
-        help="MSA columns defining the chimera, 0-based (e.g. '180-220'); replaces --allowed-sites",
+        help="MSA columns defining the chimera, 0-based (e.g. '165-243'); replaces --allowed-sites",
     )
     parser.add_argument("--threshold", type=float, default=0.80, help="Threshold rule in row 1")
     parser.add_argument("--beta", type=float, default=1.0, help="Inverse temperature for P(S)")

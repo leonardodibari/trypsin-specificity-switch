@@ -104,14 +104,40 @@ def add_common_arguments(parser) -> None:
         action="store_true",
         help="Keep a <params>.cache.pt tensor dump beside the parameter file and reuse it",
     )
+    parser.add_argument(
+        "--allow-gap-moves",
+        action="store_true",
+        help="Treat the gap as an ordinary state in a design run: a gap column of the wild "
+        "type stays mutable and the gap may be proposed, so insertions and deletions are "
+        "part of the move set. Off by default, which freezes the wild type's gap pattern",
+    )
+    parser.add_argument(
+        "--bias",
+        default="logp",
+        choices=("logp", "logodds"),
+        help="What the bias term lambda multiplies. 'logp' (default, the original) "
+        "uses log P(S | sigma_\\i*); 'logodds' uses log P(S|.)/P(D|.), which keeps "
+        "resolving once P(S) saturates, where log P(S) has flattened to 0. The two "
+        "are NOT monotone transforms of each other, so the lambda ladders differ",
+    )
+    parser.add_argument(
+        "--against-residue",
+        default="D",
+        help="Denominator residue of the log-odds (default: D, the trypsin residue). "
+        "Only read when --bias logodds",
+    )
 
 
-def prepare_run(args, verbose: bool = True, drop_gap_columns: bool = True) -> RunSetup:
+def prepare_run(args, verbose: bool = True, drop_gap_columns: bool | None = None) -> RunSetup:
     """Load the model, the wild type and the mutable MSA columns.
 
     ``drop_gap_columns=False`` keeps the columns that are a gap in the wild type,
-    which only makes sense for a sampler allowed to mutate gaps.
+    which only makes sense for a sampler allowed to mutate gaps. Left at ``None``
+    it follows ``--allow-gap-moves``, so a design run asked to move gaps keeps the
+    gap columns of its window instead of silently dropping them.
     """
+    if drop_gap_columns is None:
+        drop_gap_columns = not getattr(args, "allow_gap_moves", False)
     if args.torch_threads:
         torch.set_num_threads(args.torch_threads)
     alphabet = Alphabet.from_name(args.alphabet)
@@ -155,6 +181,14 @@ def prepare_run(args, verbose: bool = True, drop_gap_columns: bool = True) -> Ru
         print(f"Mutable   : {len(keep)} {kind} -> {[label_of[c] for c in keep]}")
         if critic_col in keep:
             print("Note      : the critic site is itself mutable.")
+        if not drop_gap_columns:
+            n_gap = sum(1 for c in keep if int(wt_sequence[c]) == alphabet.gap_index)
+            print(
+                f"Gaps      : an ordinary state; {n_gap} of the {len(keep)} mutable columns "
+                "are a gap in the wild type, and any column may become one."
+            )
+        else:
+            print("Gaps      : inert (never proposed, gap columns frozen).")
 
     return RunSetup(
         model=model,

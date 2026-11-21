@@ -12,7 +12,7 @@ Example::
         --wt data/wt_trypsin.fasta \\
         --model ../bmDCA_params.dat \\
         --output ensembles/ \\
-        --critic-col 197 --allowed-cols 180-220 \\
+        --critic-col 201 --allowed-cols 165-243 \\
         --lambdas 0 5 10 20 50 \\
         --n-chains 1000 --n-steps 20000 \\
         --device cuda --cache-model
@@ -74,6 +74,17 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--ungapped-fasta", action="store_true", help="Write the final sequences without alignment gaps"
     )
+    parser.add_argument(
+        "--clamp-critic",
+        action="store_true",
+        help="CLAMP-AND-RELAX. Put --target-residue at the critic column of the starting "
+        "sequence and freeze it there, then sample the rest. Normally the critic column "
+        "is an ordinary mutable site and the bias is what pulls it toward S; under the "
+        "clamp the residue is imposed and the chains answer a different question -- what "
+        "the model thinks the REST of the protein should be, given a serine at i*. "
+        "Use with --lambdas 0: it is the zero-parameter null the lambda ladder is "
+        "measured against, and there is nothing in it for a bias to game",
+    )
     return parser
 
 
@@ -84,6 +95,22 @@ def main() -> None:
     setup = prepare_run(args)
     alphabet = setup.alphabet
     target_state = alphabet.index(args.target_residue)
+
+    start_sequence = setup.wt_sequence
+    allowed_cols = setup.allowed_cols
+    if args.clamp_critic:
+        # Both halves are needed. Imposing S without freezing the column would
+        # let the chains walk straight back to D -- at lambda = 0 nothing holds
+        # them there. Freezing without imposing would clamp the WILD TYPE's D.
+        start_sequence = start_sequence.copy()
+        start_sequence[setup.critic_col] = target_state
+        allowed_cols = [c for c in allowed_cols if c != setup.critic_col]
+        if args.lambdas != [0.0] and any(lam != 0.0 for lam in args.lambdas):
+            print("NOTE: --clamp-critic with lambda != 0. The bias still acts on "
+                  "P(S | sigma_\\i*), which does not depend on the clamped residue, "
+                  "so it now shapes the CONTEXT around an imposed serine.")
+        print(f"clamped: critic column {setup.critic_col} fixed at "
+              f"{args.target_residue!r}; {len(allowed_cols)} mutable columns remain")
     output = Path(args.output)
     output.mkdir(parents=True, exist_ok=True)
 
@@ -102,6 +129,9 @@ def main() -> None:
             trace_every=args.trace_every if traced else 0,
             trace_cde=not args.no_trace_cde,
             trace_schedule=args.trace_schedule,
+            allow_gap_moves=args.allow_gap_moves,
+            bias=args.bias,
+            against_residue=args.against_residue,
         )
         print(
             f"\nlambda = {lam:g}: {args.n_chains} chains x {args.n_steps} steps on {args.device}"
@@ -109,9 +139,9 @@ def main() -> None:
         )
         result = run_ensemble(
             model=setup.model,
-            start_sequence=setup.wt_sequence,
+            start_sequence=start_sequence,
             critic_col=setup.critic_col,
-            allowed_cols=setup.allowed_cols,
+            allowed_cols=allowed_cols,
             config=config,
             progress_every=args.progress_every,
         )
@@ -148,7 +178,13 @@ def main() -> None:
             "acceptance_rate": result.acceptance_rate,
             "critic_col": result.critic_col,
             "n_allowed_sites": len(result.allowed_cols),
+            "allowed_cols": result.allowed_cols,
+            "allow_gap_moves": bool(args.allow_gap_moves),
+            "clamp_critic": bool(args.clamp_critic),
+            "bias": args.bias,
+            "against_residue": args.against_residue,
             "mean_E_DCA": float(frame["E_DCA"].mean()),
+            "mean_n_gaps": float(frame["n_gaps"].mean()),
             "mean_P_S": float(frame["P_S"].mean()),
             "mean_hamming_to_wt": float(frame["hamming_to_wt"].mean()),
             "mean_CDE": float(frame["CDE"].mean()),

@@ -1,8 +1,29 @@
 # Biased Potts sampling for a trypsin → chymotrypsin specificity switch
 
 *Methods draft. Every quantity below is defined once and then reused; each
-subsection ends with the command that reproduces it. Numerical values are those
-of the run shipped with this repository.*
+subsection ends with the command that reproduces it.*
+
+> ⚠ **This document describes the superseded 260-column setup — the whole
+> document, not only §9.**
+>
+> It was written against the earlier alignment (`iter_aln_dedup.faa`, L = 260)
+> and the earlier parameter files. Throughout, §1 states `L = 260`, §2 puts the
+> critic site at MSA column **197**, and the command blocks in §§3–7, §9 and §10
+> use `--critic-col 197`, `--allowed-cols 0-259`, `../bmDCA_params.dat`,
+> `../bmDCA_weights.dat` and `../results*/` trees that no longer exist.
+>
+> The project now runs on `iter_aln_v2` (**L = 265**), where the critic site is
+> MSA column **201** (label `189`) and the grafting window is **165–243**, under
+> the model `DCAmodel-serine_protease`. **Do not copy a command out of this file
+> and run it** — the column indices are wrong for the current alignment and will
+> silently address the wrong residues.
+>
+> What remains correct and worth reading is the **mathematics**: the energy, the
+> bias, the conditional `P(S)`, the context-dependent entropy, the sample-quality
+> weight μ and the estimators. Those are definitions, and they did not change.
+>
+> For current commands see the [README](../README.md) and
+> [`DATA.md`](DATA.md); for current results see [`RESULTS.md`](RESULTS.md).
 
 ---
 
@@ -869,6 +890,14 @@ python scripts/plot_generative_check.py \
 ---
 
 ## 9. The same analysis with the `model_pcd_serine_protease` parameters
+
+> **Superseded — kept for provenance only.** This section documents an earlier
+> model *and* an earlier alignment. Its paths
+> (`../model_pcd_serine_protease/`, `../results_pcd/`, `../iter_aln_dedup.faa`)
+> and its `--critic-col 197` belong to the old **260-column** alignment; the
+> alignment in use now is 265 columns wide and the critic site is column **201**
+> (see `docs/SETUP.md`). Neither that model nor its results survive. Nothing
+> below has been ported or re-run — it is recorded exactly as it was.
 
 A second model of the same family (adabmDCA `bmDCA`, Metropolis PCD, 10 000 chains,
 stopped at its own `target_pearson = 0.95`). Energies are gauge-dependent, so none

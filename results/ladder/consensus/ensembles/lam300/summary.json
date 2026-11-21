@@ -1,0 +1,26 @@
+{
+  "lam": 300.0,
+  "beta": 1.0,
+  "n_chains": 1000,
+  "n_steps": 60000,
+  "seed": 4,
+  "acceptance_rate": 0.03771711666666667,
+  "critic_col": 201,
+  "n_allowed_sites": 8,
+  "allowed_cols": [
+    165,
+    169,
+    187,
+    201,
+    237,
+    238,
+    239,
+    241
+  ],
+  "allow_gap_moves": true,
+  "mean_E_DCA": 99.02619171142578,
+  "mean_n_gaps": 42.027,
+  "mean_P_S": 0.9207931756973267,
+  "mean_hamming_to_wt": 7.651,
+  "mean_CDE": 0.4739653468132019
+}

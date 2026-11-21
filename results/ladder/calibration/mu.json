@@ -1,0 +1,14 @@
+{
+  "mu": 422.61675577706455,
+  "n_sequences": 20000,
+  "alignment": "/Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/iter_aln_v2.faa",
+  "model": "../DCAmodel-serine_protease/params.dat.gz",
+  "beta": 1.0,
+  "var_energy": 16580.28125,
+  "var_quality": 783.2852172851562,
+  "mean_quality": -97.42925262451172,
+  "std_quality": 27.987232208251953,
+  "corr_energy_cde": 0.9760932451994326,
+  "mean_energy": 258.6857604980469,
+  "mean_cde": 0.8426429629325867
+}

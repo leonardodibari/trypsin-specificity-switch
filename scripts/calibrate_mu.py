@@ -43,6 +43,7 @@ from observables import (  # noqa: E402
     context_dependent_entropy,
     critic_probability,
     energies,
+    gap_count,
     hamming_distance,
     optimal_mu,
     sample_quality,
@@ -140,7 +141,15 @@ def main() -> None:
         f"  corr(E, CDE)      = {np.corrcoef(energy, cde)[0, 1]:.3f}"
     )
 
-    columns = {"name": names, "E_DCA": energy, "CDE": cde, "Q": quality}
+    columns = {
+        "name": names,
+        "E_DCA": energy,
+        "CDE": cde,
+        "Q": quality,
+        # The family's own gap content, so a design run that moves gaps has
+        # something to be compared against.
+        "n_gaps": gap_count(model, encoded),
+    }
     if args.wt:
         _, wt_string = read_single_sequence(args.wt)
         columns["hamming_to_wt"] = hamming_distance(encoded, alphabet.encode(wt_string))

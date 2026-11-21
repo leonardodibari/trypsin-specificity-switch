@@ -36,6 +36,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
+from matplotlib.ticker import MaxNLocator  # noqa: E402
 import pandas as pd  # noqa: E402
 
 from _common import _SRC  # noqa: F401,E402  (puts src/ on sys.path)
@@ -48,14 +49,22 @@ NATURAL_COLOR = "#b0afa8"
 SURFACE = "#fcfcfb"
 GRID_KWARGS = dict(color="#e2e1dc", linewidth=0.5, alpha=0.9)
 
+#: Axis labels are kept to one short line. A pair matrix puts a label on every
+#: row and column, so a two-line label of the "Distance to nearest natural
+#: S-carrier (% of mutable sites)" kind runs straight into its neighbour's
+#: ticks; the long form belongs in the caption, not on the axis.
 LABELS = {
     "E_DCA": r"$E_{\mathrm{DCA}}$",
     "hamming_to_wt": "Hamming to WT",
-    "P_S": r"$P(S\,|\,\mathrm{critic})$",
-    "Q": r"$Q_\mu = E - \mu\,\mathrm{CDE}$",
+    "P_S": r"$P(S)$ at the site",
+    "Q": r"$Q_\mu$  (lower is better)",
     "CDE": "CDE (nats)",
-    "min_hamming_natural_S": "Hamming to nearest\nnatural S-carrier",
-    "min_hamming_natural_S_pct": "Distance to nearest natural\nS-carrier (% of mutable sites)",
+    "min_hamming_natural_S": "to nearest natural S",
+    "min_hamming_natural_S_pct": "to nearest natural S (%)",
+    "n_gaps": "gaps",
+    "n_mut_red": "mutations, red sector",
+    "n_mut_grafting": "mutations, graft (non-red)",
+    "n_mut_other": "mutations elsewhere",
 }
 
 
@@ -280,6 +289,12 @@ def _style(axis) -> None:
     axis.grid(True, **GRID_KWARGS)
     axis.set_axisbelow(True)
     axis.set_facecolor(SURFACE)
+    # Matplotlib's default tick density is chosen for a single axes. In an n x n
+    # matrix each panel is a few inches wide, so the automatic ticks collide
+    # with each other and with the neighbouring panel's label. Cap them, and
+    # prune the end ticks that sit right where two panels meet.
+    axis.xaxis.set_major_locator(MaxNLocator(nbins=4, prune="both"))
+    axis.yaxis.set_major_locator(MaxNLocator(nbins=4, prune="both"))
     for side in ("top", "right"):
         axis.spines[side].set_visible(False)
     for side in ("left", "bottom"):

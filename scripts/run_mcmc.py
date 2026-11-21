@@ -61,6 +61,7 @@ def main() -> None:
         record_every=args.record_every,
         seed=args.seed,
         target_residue=args.target_residue,
+        allow_gap_moves=args.allow_gap_moves,
     )
 
     result = run_mcmc(

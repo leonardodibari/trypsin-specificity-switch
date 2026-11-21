@@ -45,10 +45,33 @@ class SiteMapping:
         return list(self.label_to_column)
 
     def column(self, label: str) -> int:
-        key = str(label).strip().upper()
-        if key not in self.label_to_column:
-            raise KeyError(f"3TGI position {label!r} is not in the mapping file")
-        return self.label_to_column[key]
+        """The MSA column of a residue label.
+
+        Labels are matched **case-sensitively** first, because an alignment may
+        carry two positions that differ only in the case of their insertion code
+        -- this one has both ``188a`` and ``188A``, which are different columns.
+        A label that matches nothing exactly falls back to a case-insensitive
+        match, but only when that match is unique; an ambiguous one is an error
+        rather than a silent choice between two columns.
+        """
+        key = str(label).strip()
+        if key in self.label_to_column:
+            return self.label_to_column[key]
+        folded = key.casefold()
+        candidates = {
+            name: column
+            for name, column in self.label_to_column.items()
+            if name.casefold() == folded
+        }
+        if len(candidates) == 1:
+            return next(iter(candidates.values()))
+        if len(candidates) > 1:
+            listed = ", ".join(f"{n!r} -> column {c}" for n, c in sorted(candidates.items()))
+            raise KeyError(
+                f"Residue label {label!r} is ambiguous: {listed}. "
+                "Spell it with the right case."
+            )
+        raise KeyError(f"3TGI position {label!r} is not in the mapping file")
 
     def column_to_label(self) -> Dict[int, str]:
         return {column: label for label, column in self.label_to_column.items()}
@@ -71,11 +94,21 @@ def load_mapping(path: str | Path, base: int = 0) -> SiteMapping:
     for label, column in zip(frame[pdb_column], frame[msa_column]):
         if pd.isna(label) or pd.isna(column):
             continue
-        key = str(label).strip().upper()
+        # Labels are kept verbatim. Upper-casing them here would merge positions
+        # whose insertion codes differ only in case -- this alignment has both
+        # '188a' (column 198) and '188A' (column 200) -- and the loser of that
+        # collision would vanish from the mapping, silently shrinking every range
+        # that should contain it.
+        key = str(label).strip()
         value = int(column) - base
         if value < 0:
             raise ValueError(
                 f"{path}: MSA column {column} for residue {label} is negative with base={base}"
+            )
+        if key in mapping and mapping[key] != value:
+            raise ValueError(
+                f"{path}: residue label {key!r} appears twice, for columns "
+                f"{mapping[key]} and {value}"
             )
         mapping[key] = value
     if not mapping:
@@ -113,7 +146,9 @@ def parse_site_spec(spec: str) -> List[str | _RangeToken]:
         if match:
             tokens.append(_RangeToken(int(match.group(1)), int(match.group(2))))
             continue
-        tokens.append(token.upper())
+        # Kept verbatim; SiteMapping.column resolves the case, and refuses to
+        # guess when two labels differ only by it.
+        tokens.append(token)
     if not tokens:
         raise ValueError(f"Empty site specification: {spec!r}")
     return tokens

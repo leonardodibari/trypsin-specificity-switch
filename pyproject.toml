@@ -17,6 +17,7 @@ dependencies = [
     "numpy>=1.26",
     "pandas>=2.0",
     "matplotlib>=3.8",
+    "scipy>=1.11",
     "joblib>=1.3",
 ]
 
@@ -25,7 +26,18 @@ dev = ["pytest>=7.0"]
 
 [tool.setuptools]
 package-dir = { "" = "src" }
-py-modules = ["encoding", "potts", "sites", "mcmc"]
+# Every module under src/.  Keep this in sync: a module missing here imports
+# fine from a source checkout and then fails for anyone who pip-installs.
+py-modules = [
+    "encoding",
+    "ensemble",
+    "mcmc",
+    "natural_stats",
+    "observables",
+    "potts",
+    "sectors",
+    "sites",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

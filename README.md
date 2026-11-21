@@ -8,6 +8,22 @@ family trained with [adabmDCA 2.1](https://github.com/spqb/adabmDCApy).
 A formal write-up of the method, with the equations and the command behind every
 number, is in [`docs/METHODS.md`](docs/METHODS.md).
 
+> ### Start here if you are inheriting this project
+>
+> 1. **[`docs/RESULTS.md`](docs/RESULTS.md)** — what was actually found, and the
+>    caveats. The short version: a zero-parameter control (clamp the serine, let
+>    the model relax everything else) beats its matched control by 217× — but
+>    only when all 265 columns are free and only at β = 1. Narrowing the window
+>    or cooling the chains each destroy the effect independently.
+> 2. **[`docs/DATA.md`](docs/DATA.md)** — the two large files that are *not* in
+>    git, where they go, and the 265-vs-260 column trap that has already bitten
+>    this repository once.
+> 3. **[`docs/NUMBERING.md`](docs/NUMBERING.md)** — read before indexing
+>    anything. The critic site is MSA column **201**, label `189`.
+> 4. `figures/ladder/` and `figures/clamp/` are committed, so every result is
+>    readable without a GPU, without the alignment, and without re-running a
+>    thing.
+
 It answers two different questions with the same machinery:
 
 * **One trajectory at a time** — what route does a chain take from the wild type to
@@ -117,27 +133,42 @@ The two sampling modes differ only in what they report:
 
 ## Installation
 
-Requires Python ≥ 3.10.
+**Requires Python ≥ 3.10.** This matters more than it sounds: macOS ships
+`/usr/bin/python3` at 3.9, which will refuse to install this package with a
+message about the required Python. Check before you start:
+
+```bash
+python3 -V          # must be 3.10 or newer
+```
+
+If it is not, use a conda/miniforge, pyenv or Homebrew interpreter. The
+development machine used miniforge (`~/miniforge3/bin/python3`, 3.14).
 
 ```bash
 git clone https://github.com/leonardodibari/trypsin-specificity-switch.git
-cd trypsin_specificity_switch
-pip install -e .
+cd trypsin-specificity-switch
+
+python3 -m venv .venv                   # use a ≥3.10 interpreter
+./.venv/bin/pip install -e ".[dev]"
 ```
+
+The venv is expected at `.venv/` in the repository root — the drivers in
+`analysis/` pick it up automatically, and fall back to whatever `python3` is on
+PATH otherwise. Override with `PY=/path/to/python`.
 
 That pulls in `adabmDCA` (version 1.0.0 on PyPI — this is the adabmDCA 2.1
-software), plus torch, numpy, pandas, matplotlib and joblib.
+software), plus torch, numpy, pandas, matplotlib, scipy and joblib.
 
-To run the test suite (26 tests, about 10 seconds, no model file needed — it builds
-a small random Potts model on the fly):
+Verify (46 tests, ~2 seconds, no model file needed — they build a small random
+Potts model on the fly):
 
 ```bash
-pip install -e ".[dev]"
-pytest
+./.venv/bin/python -m pytest -q
 ```
 
-A GPU is optional. Everything runs on CPU; `--device cuda` moves the ensemble
-sampler onto a GPU when one is available, which is worth it for large batches.
+A GPU is optional. Everything runs on CPU; `--device cuda` (NVIDIA) or
+`--device mps` (Apple silicon) moves the ensemble sampler onto a GPU, which is
+worth it for large batches. All results in this repo were produced with `mps`.
 
 ---
 
@@ -150,15 +181,37 @@ sampler onto a GPU when one is available, which is worth it for large batches.
 | **Natural alignment** | `--natural` | Only for `calibrate_mu.py`. The family alignment the model was trained on. **Not included.** |
 | **Residue-number mapping** | `--mapping` | *Optional.* CSV mapping PDB 3TGI residue labels to MSA columns. See [Specifying sites](#specifying-sites). |
 
-What *is* included, in `data/`, are three aligned sequences of length 260 taken
-from the study alignment:
+What *is* included, in `data/`, are four aligned sequences of length **265**,
+each generated from the study alignment by `scripts/extract_aligned_row.py`:
 
-* `wt_trypsin.fasta` — rat anionic trypsin (TRY2_RAT), the starting point;
-* `chymotrypsin_bovine.fasta`, `chymotrypsin_rat.fasta` — chymotrypsins, used as
-  donors when building a chimeric "target" sequence for reference.
+| file | accession | col 201 | |
+|---|---|---|---|
+| `wt_trypsin.fasta` | P00763 | `D` | rat anionic trypsin — the starting point |
+| `chymotrypsin_rat.fasta` | P07338 | `S` | rat chymotrypsin B |
+| `chymotrypsin_bovine.fasta` | P00767 | `S` | bovine chymotrypsinogen B |
+| `elastase_pig.fasta` | P00772 | `S` | pig elastase 1 |
 
-The `.gitignore` excludes `*.dat` and `*.cache.pt` so a large parameter file cannot
-be committed by accident. Keep it outside the repository and point `--model` at it.
+> **Length 265, not 260.** An earlier alignment had 260 columns, and a reference
+> row taken from it loads fine and is then silently wrong after the first indel.
+> Generate references with `scripts/extract_aligned_row.py --expect-length 265`;
+> never copy them between projects. See [`docs/DATA.md`](docs/DATA.md).
+
+### Where the heavy data goes
+
+The alignment and the parameter file are found through one environment variable,
+`TRYP_DATA_ROOT`, which **defaults to the repository's parent directory**:
+
+```
+$TRYP_DATA_ROOT/
+├── iter_aln_v2.faa                      24 MB
+└── DCAmodel-serine_protease/
+    └── params.dat.gz                   137 MB
+```
+
+Every driver in `analysis/` checks for both before sampling and stops with the
+paths it tried if either is missing. The `.gitignore` excludes `*.faa`,
+`*.dat.gz` and `*.cache.pt` so a large file cannot be committed by accident.
+Full detail in [`docs/DATA.md`](docs/DATA.md).
 
 **Model loading cache.** Parsing a real parameter file takes about 30 seconds. Pass
 `--cache-model` and the loaded tensors are dumped next to the parameter file as
@@ -169,27 +222,53 @@ invalidated automatically if the text file is newer.
 
 ## Quick start
 
-With a parameter file at `../bmDCA_params.dat`, first check that the sites resolve
-as you expect — this loads the model and exits without sampling:
+### Reproduce the study
+
+Two pipelines, each in two stages. **Stage 1 samples (expensive, GPU); Stage 2
+draws figures (cheap).** They are separate on purpose.
 
 ```bash
-python scripts/run_mcmc.py \
+# --- clamp-and-relax: the zero-parameter protocol -------------------------
+bash analysis/run_clamp.sh                 # 4 conditions × β ladder, ~18 min
+cd analysis/figures_clamp && ../../.venv/bin/python make_all.py     # 3 figures, ~7 s
+
+# --- the lambda ladder: the main pipeline ---------------------------------
+bash analysis/run_ladder.sh graft          # stages run in order and are NOT independent
+bash analysis/run_ladder.sh derive         #   derive must run between graft and consensus
+bash analysis/run_ladder.sh consensus
+bash analysis/run_ladder_sectors.sh        # all-sites-free run + sector annotation
+cd analysis/figures_ladder && ../../.venv/bin/python make_all.py    # 15 figures, ~34 s
+```
+
+Rendered figures are committed, so **you can read every result without running
+anything** — look in `figures/ladder/` and `figures/clamp/`, and read
+[`docs/RESULTS.md`](docs/RESULTS.md).
+
+### Drive the sampler directly
+
+First check that the sites resolve as you expect — this loads the model and exits
+without sampling:
+
+```bash
+./.venv/bin/python scripts/run_mcmc.py \
     --wt data/wt_trypsin.fasta \
-    --model ../bmDCA_params.dat \
+    --model ../DCAmodel-serine_protease/params.dat.gz \
     --output /tmp/out \
-    --critic-col 197 --allowed-cols 180-220 \
+    --critic-col 201 --allowed-cols 165-243 \
     --list-sites --cache-model
 ```
 
 It prints the model dimensions, the critic site with the wild-type residue found
-there, and the mutable columns. Then run one chain:
+there, and the mutable columns. The critic column is **201** in this alignment
+(label `189`); older commands in `docs/METHODS.md` use 197, which belongs to the
+superseded 260-column alignment. Then run one chain:
 
 ```bash
-python scripts/run_mcmc.py \
+./.venv/bin/python scripts/run_mcmc.py \
     --wt data/wt_trypsin.fasta \
-    --model ../bmDCA_params.dat \
-    --output results/ \
-    --critic-col 197 --allowed-cols 180-220 \
+    --model ../DCAmodel-serine_protease/params.dat.gz \
+    --output /tmp/run1 \
+    --critic-col 201 --allowed-cols 165-243 \
     --lam 50 --threshold 0.80 \
     --max-steps 200000 --record-every 50 --seed 42 \
     --cache-model
@@ -228,7 +307,7 @@ each (replicate `i` uses seed `--seed + i`), distributed over cores with joblib
 ```bash
 python scripts/run_sweep.py \
     --wt data/wt_trypsin.fasta --model ../bmDCA_params.dat \
-    --output results/ --critic-col 197 --allowed-cols 180-220 \
+    --output results/ --critic-col 201 --allowed-cols 180-220 \
     --lambdas 10 20 50 --threshold 0.80 \
     --max-steps 200000 --record-every 25 \
     --n-runs 4 --seed 1 --n-jobs 12 --cache-model
@@ -256,7 +335,7 @@ Produces a 4 × 3 figure, one column per lambda, from a sweep's output:
 ```bash
 python scripts/plot_trajectories.py \
     --output-dir results/ --lambdas 10 20 50 --plot-lambda 20 \
-    --critic-col 197 --wt data/wt_trypsin.fasta --model ../bmDCA_params.dat \
+    --critic-col 201 --wt data/wt_trypsin.fasta --model ../bmDCA_params.dat \
     --target-source data/chymotrypsin_bovine.fasta --allowed-cols 180-220 \
     --cache-model --save trajectories.png
 ```
@@ -277,7 +356,7 @@ cost barely more than one, and `--device cuda` puts the batch on a GPU.
 ```bash
 python scripts/run_ensemble.py \
     --wt data/wt_trypsin.fasta --model ../bmDCA_params.dat \
-    --output ensembles/ --critic-col 197 --allowed-cols 180-220 \
+    --output ensembles/ --critic-col 201 --allowed-cols 180-220 \
     --lambdas 0 10 50 100 300 1000 --n-chains 1000 --n-steps 60000 \
     --trace-every 1000 --trace-schedule log --trace-lambdas 10 100 1000 \
     --device cuda --cache-model
@@ -309,7 +388,7 @@ calibration figure.
 python scripts/calibrate_mu.py \
     --natural path/to/family_alignment.faa --model ../bmDCA_params.dat \
     --output calibration/ --max-sequences 20000 \
-    --wt data/wt_trypsin.fasta --critic-col 197 --cache-model
+    --wt data/wt_trypsin.fasta --critic-col 201 --cache-model
 ```
 
 ### `plot_ensemble.py` — the pairwise scatter matrix
@@ -345,7 +424,7 @@ touched; the natural alignment and the calibration of `mu` are left alone.
 python scripts/substitute_critic.py \
     --ensemble-dir ../results/ensembles --output ../results_serine/ensembles \
     --wt data/wt_trypsin.fasta --model ../bmDCA_params.dat \
-    --critic-col 197 --device cuda --cache-model
+    --critic-col 201 --device cuda --cache-model
 ```
 
 It writes the same `final_sequences.fasta` / `observables.csv` / `summary.json`
@@ -381,7 +460,7 @@ adds the same large constant to every design and hides what separates them.
 ```bash
 python scripts/add_natural_neighbour.py \
     --ensemble-dir ../results_serine/ensembles \
-    --natural ../iter_aln_dedup.faa --critic-col 197 \
+    --natural ../iter_aln_v2.faa --critic-col 201 \
     --allowed-cols 180-220 --wt data/wt_trypsin.fasta --as-percentage \
     --natural-observables ../results/calibration/natural_observables.csv --device cuda
 ```
@@ -404,8 +483,8 @@ correlations `C_ij` (off-diagonal blocks only), all computed with adabmDCA's own
 ```bash
 python scripts/run_generative_check.py \
     --wt data/wt_trypsin.fasta --model ../bmDCA_params.dat \
-    --natural ../iter_aln_dedup.faa --weights ../bmDCA_weights.dat \
-    --output ../results_generative/ --critic-col 197 --allowed-cols 0-259 \
+    --natural ../iter_aln_v2.faa --weights ../bmDCA_weights.dat \
+    --output ../results_generative/ --critic-col 201 --allowed-cols 0-259 \
     --n-chains 1000 --n-steps 520000 --trace-every 8000 --trace-schedule log \
     --device cuda --cache-model
 ```
@@ -469,7 +548,7 @@ ways.
 **By MSA column** (0-based), which needs nothing but the model:
 
 ```
---critic-col 197 --allowed-cols 180-220
+--critic-col 201 --allowed-cols 180-220
 ```
 
 For the alignment shipped in `data/`, column 197 *is* trypsin Asp189: it is the `D`
@@ -534,6 +613,22 @@ temperature of about 1.2 that the natural family itself sets.
 ---
 
 ## Results from a real run
+
+> ⚠ **Superseded numbers — kept to document how the sampler behaves.**
+> This section, and the two that follow it, come from an **earlier model fitted
+> to the earlier 260-column alignment**, where the critic site was column 197 and
+> the window was `--allowed-cols 180-220`. That model and its results were
+> deleted in the November 2026 cleanup.
+>
+> The current alignment is `iter_aln_v2` (L = 265), the critic column is **201**,
+> the grafting window is **165–243**, and the model is
+> `DCAmodel-serine_protease`. For results that describe the model actually in
+> this repository, read **[`docs/RESULTS.md`](docs/RESULTS.md)** and look in
+> `figures/ladder/` and `figures/clamp/`.
+>
+> What remains valid below is *qualitative*: how λ trades specificity against
+> energy, why `P(S)` saturates, and where the quality ceiling bites. Treat every
+> number as an illustration of the mechanism, not as a current measurement.
 
 Six lambdas, 1000 chains each, 60 000 proposed moves per chain, 36 mutable columns
 (`--allowed-cols 180-220`, less the five columns that are gaps in the wild type),
@@ -668,6 +763,12 @@ treatment and the residual non-convergence of the wild-type run all bear on them
 
 ### A second model: `model_pcd_serine_protease`
 
+> ⚠ Also superseded, and the parameter file is no longer in the project. This
+> subsection is kept because its *point* survives: energies are gauge-dependent,
+> so nothing — not μ, not a λ ladder, not a consensus column set — transfers
+> between models. That is why both figure pipelines recompute every
+> model-derived constant and refuse to draw if the parameter fingerprint changes.
+
 The whole analysis repeated on a second set of parameters for the same family.
 Energies are gauge-dependent, so nothing transfers between models; `mu` is
 recalibrated to **316.53** and every number below is recomputed. METHODS §9 has
@@ -794,8 +895,27 @@ and pseudocount exactly, unchanged in float64. `params.dat`, `chains.fasta` and
 ## Repository layout
 
 ```
-data/        three aligned MSA rows: the wild type and two chimera donors
-docs/        example figures produced by the plotting scripts
+analysis/    the study: pipeline drivers and the two figure pipelines
+  _paths.sh            shared path resolution + preflight for every driver
+  run_clamp.sh         STAGE 1, clamp-and-relax (4 conditions)
+  run_ladder.sh        STAGE 1, the lambda ladder (stages: graft, derive, consensus)
+  run_ladder_sectors.sh  STAGE 1, all-sites-free run and sector annotation
+  derive_consensus.py  reads this model's consensus columns from its own cold run
+  figures_ladder/      STAGE 2, 15 figures  -> figures/ladder/
+  figures_clamp/       STAGE 2,  3 figures  -> figures/clamp/
+results/     per-chain observables, summaries and traces (ensembles gitignored)
+  ladder/  clamp/
+figures/     rendered PNG + PDF, committed so results are readable without a GPU
+  ladder/  clamp/
+data/        four aligned MSA rows (L=265) plus the sector and numbering maps
+docs/
+  DATA.md       where the heavy data lives and how references are generated
+  RESULTS.md    what the runs found, with the caveats
+  METHODS.md    the formal write-up: equations and the command behind each number
+  SETUP.md      alignment, mapping, sectors, gaps
+  TRAINING.md   how the Potts model was fitted
+  NUMBERING.md  the column-labelling convention — read before indexing anything
+  presentation/ briefs used to build the talk
 src/
   encoding.py     alphabet handling and FASTA I/O, over adabmDCA
   potts.py        model loading, energies, conditionals, substitution energies
@@ -817,6 +937,8 @@ scripts/
   run_generative_check.py   unbiased resampling against the training statistics
   plot_generative_check.py  the convergence figure for that check
   plot_ensemble_trace.py  the observables along the run
+  annotate_sectors.py     sector enrichment of a designed ensemble
+  extract_aligned_row.py  pull a reference sequence out of the alignment, length-checked
   _common.py              CLI options shared by the scripts
 tests/       energy/conditional consistency and sampler correctness
 ```

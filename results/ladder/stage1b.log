@@ -1,0 +1,4 @@
+
+================ stage: free ================
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/.venv-ptt/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/run_ensemble.py --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_newmodel/free/ensembles --critic-col 201 --allowed-cols 0-264 --allow-gap-moves --lambdas 0 10 30 100 300 1000 --beta 1 --n-chains 1000 --n-steps 60000 --trace-every 1000 --trace-schedule log --seed 0 --device mps --cache-model

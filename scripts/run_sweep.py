@@ -67,6 +67,7 @@ def _run_one(args, lam: float, run_index: int) -> dict:
         record_every=args.record_every,
         seed=args.seed + run_index,
         target_residue=args.target_residue,
+        allow_gap_moves=args.allow_gap_moves,
     )
     result = run_mcmc(
         model=setup.model,

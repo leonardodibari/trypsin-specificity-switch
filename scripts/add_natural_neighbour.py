@@ -28,7 +28,7 @@ Example::
 
     python scripts/add_natural_neighbour.py \\
         --ensemble-dir ../results_serine/ensembles \\
-        --natural ../iter_aln_dedup.faa --critic-col 197 \\
+        --natural ../iter_aln_v2.faa --critic-col 201 \\
         --natural-observables ../results/calibration/natural_observables.csv \\
         --device cuda
 """
@@ -74,7 +74,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--allowed-cols",
         default=None,
-        help="Restrict the distance to these MSA columns, 0-based (e.g. '180-220'): the columns the "
+        help="Restrict the distance to these MSA columns, 0-based (e.g. '165-243'): the columns the "
         "sampler was allowed to mutate. Everywhere else a design is the wild type by construction, so "
         "counting those positions only measures how far the wild type is from the family",
     )

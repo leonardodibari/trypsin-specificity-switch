@@ -5,13 +5,24 @@ __pycache__/
 build/
 dist/
 .venv/
+.venv-*/
 .pytest_cache/
 
-# Model parameters and their cache: far too large for git
-*.dat
-*.cache.pt
+# macOS
+.DS_Store
 
-# Run outputs
-results/
-*.png
-!docs/*.png
+# --- heavy data: deliberately NOT in git -------------------------------------
+# The alignment (24 MB) and the fitted Potts model (137 MB) live outside the
+# repository, under $TRYP_DATA_ROOT.  See docs/DATA.md.
+*.faa
+*.dat.gz
+*.cache.pt
+!data/weights_iter_aln_v2.dat
+
+# Designed ensembles: ~36 MB of FASTA, regenerable from analysis/run_*.sh.
+# The per-chain observables and the run summaries ARE tracked -- they are what
+# every figure is built from and they are small.
+results/**/final_sequences.fasta
+
+# Figure-script caches (keyed by model fingerprint, rebuilt on demand)
+analysis/figures_*/.cache/

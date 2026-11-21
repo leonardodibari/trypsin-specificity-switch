@@ -26,8 +26,8 @@ Example::
 
     python scripts/run_generative_check.py \\
         --wt data/wt_trypsin.fasta --model ../bmDCA_params.dat \\
-        --natural ../iter_aln_dedup.faa --weights ../bmDCA_weights.dat \\
-        --output ../results_generative/ --critic-col 197 --allowed-cols 0-259 \\
+        --natural ../iter_aln_v2.faa --weights ../bmDCA_weights.dat \\
+        --output ../results_generative/ --critic-col 201 --allowed-cols 0-264 \\
         --n-chains 1000 --n-steps 520000 --trace-every 8000 --trace-schedule log \\
         --device cuda --cache-model
 """

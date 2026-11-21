@@ -1,0 +1,412 @@
+
+================ stage: clamp_graft ================
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/.venv-ptt/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/run_ensemble.py --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_graft/b1/ensembles --critic-col 201 --allowed-cols 165-243 --allow-gap-moves --clamp-critic --lambdas 0 --beta 1 --n-chains 1000 --n-steps 60000 --trace-every 1000 --trace-schedule log --seed 0 --device mps --cache-model
+model loaded in 0.1s from /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21, tokens '-ACDEFGHIKLMNPQRSTVWY')
+Wild type : TRY2_RAT P00763 anionic trypsin, aligned row of iter_aln_v2 (L=265)
+Critic    : MSA column 201 (WT residue D)
+Mutable   : 79 MSA columns -> ['165', '166', '167', '168', '169', '170', '171', '172', '173', '174', '175', '176', '177', '178', '179', '180', '181', '182', '183', '184', '185', '186', '187', '188', '189', '190', '191', '192', '193', '194', '195', '196', '197', '198', '199', '200', '201', '202', '203', '204', '205', '206', '207', '208', '209', '210', '211', '212', '213', '214', '215', '216', '217', '218', '219', '220', '221', '222', '223', '224', '225', '226', '227', '228', '229', '230', '231', '232', '233', '234', '235', '236', '237', '238', '239', '240', '241', '242', '243']
+Note      : the critic site is itself mutable.
+Gaps      : an ordinary state; 12 of the 79 mutable columns are a gap in the wild type, and any column may become one.
+clamped: critic column 201 fixed at 'S'; 78 mutable columns remain
+
+lambda = 0: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.034 | <E> 105.5 | <P(S)> 0.040 | <hamming> 13.3 | <CDE> 0.487
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_graft/b1/ensembles
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/.venv-ptt/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/substitute_critic.py --ensemble-dir /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_graft/b1/ensembles --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_graft/b1/ensembles_serine --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --critic-col 201 --beta 1.0 --device mps --cache-model
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21)
+Critic    : MSA column 201 -> S (wild type has D)
+lambda = 0: 1000 chains, 1000 already S (before: S 1000) | <E> 105.5 | <P(S)> 0.040 | <CDE> 0.487
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_graft/b1/ensembles_serine
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/.venv-ptt/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/add_natural_neighbour.py --ensemble-dir /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_graft/b1/ensembles_serine --natural /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/iter_aln_v2.faa --critic-col 201 --allowed-cols 165-243 --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/data/wt_trypsin.fasta --as-percentage --device mps
+Skipping gap positions of the wild type: [179, 180, 181, 182, 199, 215, 216, 217, 218, 219, 231, 232]
+Natural alignment : 89439 sequences of length 265
+Reference subset  : 9259 with S at column 201 (10.4 %)
+Compared over     : 67 columns, as a percentage of them
+  lam0: median 32.8%  min 22.4%  max 43.3%  -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_graft/b1/ensembles_serine/lam0/observables.csv
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/.venv-ptt/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/run_ensemble.py --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_graft/b1.5/ensembles --critic-col 201 --allowed-cols 165-243 --allow-gap-moves --clamp-critic --lambdas 0 --beta 1.5 --n-chains 1000 --n-steps 60000 --trace-every 1000 --trace-schedule log --seed 0 --device mps --cache-model
+model loaded in 0.1s from /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21, tokens '-ACDEFGHIKLMNPQRSTVWY')
+Wild type : TRY2_RAT P00763 anionic trypsin, aligned row of iter_aln_v2 (L=265)
+Critic    : MSA column 201 (WT residue D)
+Mutable   : 79 MSA columns -> ['165', '166', '167', '168', '169', '170', '171', '172', '173', '174', '175', '176', '177', '178', '179', '180', '181', '182', '183', '184', '185', '186', '187', '188', '189', '190', '191', '192', '193', '194', '195', '196', '197', '198', '199', '200', '201', '202', '203', '204', '205', '206', '207', '208', '209', '210', '211', '212', '213', '214', '215', '216', '217', '218', '219', '220', '221', '222', '223', '224', '225', '226', '227', '228', '229', '230', '231', '232', '233', '234', '235', '236', '237', '238', '239', '240', '241', '242', '243']
+Note      : the critic site is itself mutable.
+Gaps      : an ordinary state; 12 of the 79 mutable columns are a gap in the wild type, and any column may become one.
+clamped: critic column 201 fixed at 'S'; 78 mutable columns remain
+
+lambda = 0: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.012 | <E> 88.8 | <P(S)> 0.001 | <hamming> 9.4 | <CDE> 0.213
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_graft/b1.5/ensembles
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/.venv-ptt/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/substitute_critic.py --ensemble-dir /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_graft/b1.5/ensembles --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_graft/b1.5/ensembles_serine --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --critic-col 201 --beta 1.0 --device mps --cache-model
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21)
+Critic    : MSA column 201 -> S (wild type has D)
+lambda = 0: 1000 chains, 1000 already S (before: S 1000) | <E> 88.8 | <P(S)> 0.004 | <CDE> 0.463
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_graft/b1.5/ensembles_serine
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/.venv-ptt/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/add_natural_neighbour.py --ensemble-dir /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_graft/b1.5/ensembles_serine --natural /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/iter_aln_v2.faa --critic-col 201 --allowed-cols 165-243 --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/data/wt_trypsin.fasta --as-percentage --device mps
+Skipping gap positions of the wild type: [179, 180, 181, 182, 199, 215, 216, 217, 218, 219, 231, 232]
+Natural alignment : 89439 sequences of length 265
+Reference subset  : 9259 with S at column 201 (10.4 %)
+Compared over     : 67 columns, as a percentage of them
+  lam0: median 29.9%  min 20.9%  max 35.8%  -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_graft/b1.5/ensembles_serine/lam0/observables.csv
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/.venv-ptt/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/run_ensemble.py --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_graft/b2/ensembles --critic-col 201 --allowed-cols 165-243 --allow-gap-moves --clamp-critic --lambdas 0 --beta 2 --n-chains 1000 --n-steps 60000 --trace-every 1000 --trace-schedule log --seed 0 --device mps --cache-model
+model loaded in 0.1s from /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21, tokens '-ACDEFGHIKLMNPQRSTVWY')
+Wild type : TRY2_RAT P00763 anionic trypsin, aligned row of iter_aln_v2 (L=265)
+Critic    : MSA column 201 (WT residue D)
+Mutable   : 79 MSA columns -> ['165', '166', '167', '168', '169', '170', '171', '172', '173', '174', '175', '176', '177', '178', '179', '180', '181', '182', '183', '184', '185', '186', '187', '188', '189', '190', '191', '192', '193', '194', '195', '196', '197', '198', '199', '200', '201', '202', '203', '204', '205', '206', '207', '208', '209', '210', '211', '212', '213', '214', '215', '216', '217', '218', '219', '220', '221', '222', '223', '224', '225', '226', '227', '228', '229', '230', '231', '232', '233', '234', '235', '236', '237', '238', '239', '240', '241', '242', '243']
+Note      : the critic site is itself mutable.
+Gaps      : an ordinary state; 12 of the 79 mutable columns are a gap in the wild type, and any column may become one.
+clamped: critic column 201 fixed at 'S'; 78 mutable columns remain
+
+lambda = 0: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.008 | <E> 85.7 | <P(S)> 0.000 | <hamming> 8.3 | <CDE> 0.132
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_graft/b2/ensembles
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/.venv-ptt/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/substitute_critic.py --ensemble-dir /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_graft/b2/ensembles --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_graft/b2/ensembles_serine --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --critic-col 201 --beta 1.0 --device mps --cache-model
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21)
+Critic    : MSA column 201 -> S (wild type has D)
+lambda = 0: 1000 chains, 1000 already S (before: S 1000) | <E> 85.7 | <P(S)> 0.001 | <CDE> 0.459
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_graft/b2/ensembles_serine
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/.venv-ptt/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/add_natural_neighbour.py --ensemble-dir /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_graft/b2/ensembles_serine --natural /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/iter_aln_v2.faa --critic-col 201 --allowed-cols 165-243 --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/data/wt_trypsin.fasta --as-percentage --device mps
+Skipping gap positions of the wild type: [179, 180, 181, 182, 199, 215, 216, 217, 218, 219, 231, 232]
+Natural alignment : 89439 sequences of length 265
+Reference subset  : 9259 with S at column 201 (10.4 %)
+Compared over     : 67 columns, as a percentage of them
+  lam0: median 29.9%  min 22.4%  max 34.3%  -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_graft/b2/ensembles_serine/lam0/observables.csv
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/.venv-ptt/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/run_ensemble.py --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_graft/b3/ensembles --critic-col 201 --allowed-cols 165-243 --allow-gap-moves --clamp-critic --lambdas 0 --beta 3 --n-chains 1000 --n-steps 60000 --trace-every 1000 --trace-schedule log --seed 0 --device mps --cache-model
+model loaded in 0.1s from /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21, tokens '-ACDEFGHIKLMNPQRSTVWY')
+Wild type : TRY2_RAT P00763 anionic trypsin, aligned row of iter_aln_v2 (L=265)
+Critic    : MSA column 201 (WT residue D)
+Mutable   : 79 MSA columns -> ['165', '166', '167', '168', '169', '170', '171', '172', '173', '174', '175', '176', '177', '178', '179', '180', '181', '182', '183', '184', '185', '186', '187', '188', '189', '190', '191', '192', '193', '194', '195', '196', '197', '198', '199', '200', '201', '202', '203', '204', '205', '206', '207', '208', '209', '210', '211', '212', '213', '214', '215', '216', '217', '218', '219', '220', '221', '222', '223', '224', '225', '226', '227', '228', '229', '230', '231', '232', '233', '234', '235', '236', '237', '238', '239', '240', '241', '242', '243']
+Note      : the critic site is itself mutable.
+Gaps      : an ordinary state; 12 of the 79 mutable columns are a gap in the wild type, and any column may become one.
+clamped: critic column 201 fixed at 'S'; 78 mutable columns remain
+
+lambda = 0: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.005 | <E> 84.2 | <P(S)> 0.000 | <hamming> 7.6 | <CDE> 0.077
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_graft/b3/ensembles
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/.venv-ptt/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/substitute_critic.py --ensemble-dir /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_graft/b3/ensembles --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_graft/b3/ensembles_serine --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --critic-col 201 --beta 1.0 --device mps --cache-model
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21)
+Critic    : MSA column 201 -> S (wild type has D)
+lambda = 0: 1000 chains, 1000 already S (before: S 1000) | <E> 84.2 | <P(S)> 0.001 | <CDE> 0.456
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_graft/b3/ensembles_serine
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/.venv-ptt/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/add_natural_neighbour.py --ensemble-dir /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_graft/b3/ensembles_serine --natural /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/iter_aln_v2.faa --critic-col 201 --allowed-cols 165-243 --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/data/wt_trypsin.fasta --as-percentage --device mps
+Skipping gap positions of the wild type: [179, 180, 181, 182, 199, 215, 216, 217, 218, 219, 231, 232]
+Natural alignment : 89439 sequences of length 265
+Reference subset  : 9259 with S at column 201 (10.4 %)
+Compared over     : 67 columns, as a percentage of them
+  lam0: median 29.9%  min 22.4%  max 32.8%  -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_graft/b3/ensembles_serine/lam0/observables.csv
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/.venv-ptt/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/run_ensemble.py --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_graft/b5/ensembles --critic-col 201 --allowed-cols 165-243 --allow-gap-moves --clamp-critic --lambdas 0 --beta 5 --n-chains 1000 --n-steps 60000 --trace-every 1000 --trace-schedule log --seed 0 --device mps --cache-model
+model loaded in 0.1s from /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21, tokens '-ACDEFGHIKLMNPQRSTVWY')
+Wild type : TRY2_RAT P00763 anionic trypsin, aligned row of iter_aln_v2 (L=265)
+Critic    : MSA column 201 (WT residue D)
+Mutable   : 79 MSA columns -> ['165', '166', '167', '168', '169', '170', '171', '172', '173', '174', '175', '176', '177', '178', '179', '180', '181', '182', '183', '184', '185', '186', '187', '188', '189', '190', '191', '192', '193', '194', '195', '196', '197', '198', '199', '200', '201', '202', '203', '204', '205', '206', '207', '208', '209', '210', '211', '212', '213', '214', '215', '216', '217', '218', '219', '220', '221', '222', '223', '224', '225', '226', '227', '228', '229', '230', '231', '232', '233', '234', '235', '236', '237', '238', '239', '240', '241', '242', '243']
+Note      : the critic site is itself mutable.
+Gaps      : an ordinary state; 12 of the 79 mutable columns are a gap in the wild type, and any column may become one.
+clamped: critic column 201 fixed at 'S'; 78 mutable columns remain
+
+lambda = 0: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.003 | <E> 83.5 | <P(S)> 0.000 | <hamming> 7.1 | <CDE> 0.044
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_graft/b5/ensembles
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/.venv-ptt/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/substitute_critic.py --ensemble-dir /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_graft/b5/ensembles --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_graft/b5/ensembles_serine --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --critic-col 201 --beta 1.0 --device mps --cache-model
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21)
+Critic    : MSA column 201 -> S (wild type has D)
+lambda = 0: 1000 chains, 1000 already S (before: S 1000) | <E> 83.5 | <P(S)> 0.001 | <CDE> 0.455
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_graft/b5/ensembles_serine
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/.venv-ptt/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/add_natural_neighbour.py --ensemble-dir /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_graft/b5/ensembles_serine --natural /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/iter_aln_v2.faa --critic-col 201 --allowed-cols 165-243 --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/data/wt_trypsin.fasta --as-percentage --device mps
+Skipping gap positions of the wild type: [179, 180, 181, 182, 199, 215, 216, 217, 218, 219, 231, 232]
+Natural alignment : 89439 sequences of length 265
+Reference subset  : 9259 with S at column 201 (10.4 %)
+Compared over     : 67 columns, as a percentage of them
+  lam0: median 29.9%  min 25.4%  max 32.8%  -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_graft/b5/ensembles_serine/lam0/observables.csv
+
+================ stage: relax_graft ================
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/.venv-ptt/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/run_ensemble.py --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/relax_graft/b1/ensembles --critic-col 201 --allowed-cols 165-243 --allow-gap-moves --lambdas 0 --beta 1 --n-chains 1000 --n-steps 60000 --trace-every 1000 --trace-schedule log --seed 0 --device mps --cache-model
+model loaded in 0.1s from /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21, tokens '-ACDEFGHIKLMNPQRSTVWY')
+Wild type : TRY2_RAT P00763 anionic trypsin, aligned row of iter_aln_v2 (L=265)
+Critic    : MSA column 201 (WT residue D)
+Mutable   : 79 MSA columns -> ['165', '166', '167', '168', '169', '170', '171', '172', '173', '174', '175', '176', '177', '178', '179', '180', '181', '182', '183', '184', '185', '186', '187', '188', '189', '190', '191', '192', '193', '194', '195', '196', '197', '198', '199', '200', '201', '202', '203', '204', '205', '206', '207', '208', '209', '210', '211', '212', '213', '214', '215', '216', '217', '218', '219', '220', '221', '222', '223', '224', '225', '226', '227', '228', '229', '230', '231', '232', '233', '234', '235', '236', '237', '238', '239', '240', '241', '242', '243']
+Note      : the critic site is itself mutable.
+Gaps      : an ordinary state; 12 of the 79 mutable columns are a gap in the wild type, and any column may become one.
+
+lambda = 0: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.029 | <E> 94.5 | <P(S)> 0.001 | <hamming> 11.2 | <CDE> 0.468
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/relax_graft/b1/ensembles
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/.venv-ptt/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/substitute_critic.py --ensemble-dir /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/relax_graft/b1/ensembles --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/relax_graft/b1/ensembles_serine --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --critic-col 201 --beta 1.0 --device mps --cache-model
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21)
+Critic    : MSA column 201 -> S (wild type has D)
+lambda = 0: 1000 chains, 3 already S (before: D 983, G 5, N 4, S 3) | <E> 101.7 | <P(S)> 0.001 | <CDE> 0.479
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/relax_graft/b1/ensembles_serine
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/.venv-ptt/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/add_natural_neighbour.py --ensemble-dir /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/relax_graft/b1/ensembles_serine --natural /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/iter_aln_v2.faa --critic-col 201 --allowed-cols 165-243 --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/data/wt_trypsin.fasta --as-percentage --device mps
+Skipping gap positions of the wild type: [179, 180, 181, 182, 199, 215, 216, 217, 218, 219, 231, 232]
+Natural alignment : 89439 sequences of length 265
+Reference subset  : 9259 with S at column 201 (10.4 %)
+Compared over     : 67 columns, as a percentage of them
+  lam0: median 31.3%  min 20.9%  max 40.3%  -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/relax_graft/b1/ensembles_serine/lam0/observables.csv
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/.venv-ptt/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/run_ensemble.py --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/relax_graft/b2/ensembles --critic-col 201 --allowed-cols 165-243 --allow-gap-moves --lambdas 0 --beta 2 --n-chains 1000 --n-steps 60000 --trace-every 1000 --trace-schedule log --seed 0 --device mps --cache-model
+model loaded in 0.1s from /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21, tokens '-ACDEFGHIKLMNPQRSTVWY')
+Wild type : TRY2_RAT P00763 anionic trypsin, aligned row of iter_aln_v2 (L=265)
+Critic    : MSA column 201 (WT residue D)
+Mutable   : 79 MSA columns -> ['165', '166', '167', '168', '169', '170', '171', '172', '173', '174', '175', '176', '177', '178', '179', '180', '181', '182', '183', '184', '185', '186', '187', '188', '189', '190', '191', '192', '193', '194', '195', '196', '197', '198', '199', '200', '201', '202', '203', '204', '205', '206', '207', '208', '209', '210', '211', '212', '213', '214', '215', '216', '217', '218', '219', '220', '221', '222', '223', '224', '225', '226', '227', '228', '229', '230', '231', '232', '233', '234', '235', '236', '237', '238', '239', '240', '241', '242', '243']
+Note      : the critic site is itself mutable.
+Gaps      : an ordinary state; 12 of the 79 mutable columns are a gap in the wild type, and any column may become one.
+
+lambda = 0: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.007 | <E> 78.3 | <P(S)> 0.000 | <hamming> 7.4 | <CDE> 0.131
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/relax_graft/b2/ensembles
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/.venv-ptt/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/substitute_critic.py --ensemble-dir /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/relax_graft/b2/ensembles --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/relax_graft/b2/ensembles_serine --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --critic-col 201 --beta 1.0 --device mps --cache-model
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21)
+Critic    : MSA column 201 -> S (wild type has D)
+lambda = 0: 1000 chains, 0 already S (before: D 1000) | <E> 86.0 | <P(S)> 0.001 | <CDE> 0.459
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/relax_graft/b2/ensembles_serine
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/.venv-ptt/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/add_natural_neighbour.py --ensemble-dir /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/relax_graft/b2/ensembles_serine --natural /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/iter_aln_v2.faa --critic-col 201 --allowed-cols 165-243 --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/data/wt_trypsin.fasta --as-percentage --device mps
+Skipping gap positions of the wild type: [179, 180, 181, 182, 199, 215, 216, 217, 218, 219, 231, 232]
+Natural alignment : 89439 sequences of length 265
+Reference subset  : 9259 with S at column 201 (10.4 %)
+Compared over     : 67 columns, as a percentage of them
+  lam0: median 28.4%  min 22.4%  max 32.8%  -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/relax_graft/b2/ensembles_serine/lam0/observables.csv
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/.venv-ptt/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/run_ensemble.py --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/relax_graft/b5/ensembles --critic-col 201 --allowed-cols 165-243 --allow-gap-moves --lambdas 0 --beta 5 --n-chains 1000 --n-steps 60000 --trace-every 1000 --trace-schedule log --seed 0 --device mps --cache-model
+model loaded in 0.1s from /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21, tokens '-ACDEFGHIKLMNPQRSTVWY')
+Wild type : TRY2_RAT P00763 anionic trypsin, aligned row of iter_aln_v2 (L=265)
+Critic    : MSA column 201 (WT residue D)
+Mutable   : 79 MSA columns -> ['165', '166', '167', '168', '169', '170', '171', '172', '173', '174', '175', '176', '177', '178', '179', '180', '181', '182', '183', '184', '185', '186', '187', '188', '189', '190', '191', '192', '193', '194', '195', '196', '197', '198', '199', '200', '201', '202', '203', '204', '205', '206', '207', '208', '209', '210', '211', '212', '213', '214', '215', '216', '217', '218', '219', '220', '221', '222', '223', '224', '225', '226', '227', '228', '229', '230', '231', '232', '233', '234', '235', '236', '237', '238', '239', '240', '241', '242', '243']
+Note      : the critic site is itself mutable.
+Gaps      : an ordinary state; 12 of the 79 mutable columns are a gap in the wild type, and any column may become one.
+
+lambda = 0: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.002 | <E> 76.1 | <P(S)> 0.000 | <hamming> 6.1 | <CDE> 0.044
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/relax_graft/b5/ensembles
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/.venv-ptt/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/substitute_critic.py --ensemble-dir /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/relax_graft/b5/ensembles --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/relax_graft/b5/ensembles_serine --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --critic-col 201 --beta 1.0 --device mps --cache-model
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21)
+Critic    : MSA column 201 -> S (wild type has D)
+lambda = 0: 1000 chains, 0 already S (before: D 1000) | <E> 83.6 | <P(S)> 0.001 | <CDE> 0.455
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/relax_graft/b5/ensembles_serine
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/.venv-ptt/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/add_natural_neighbour.py --ensemble-dir /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/relax_graft/b5/ensembles_serine --natural /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/iter_aln_v2.faa --critic-col 201 --allowed-cols 165-243 --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/data/wt_trypsin.fasta --as-percentage --device mps
+Skipping gap positions of the wild type: [179, 180, 181, 182, 199, 215, 216, 217, 218, 219, 231, 232]
+Natural alignment : 89439 sequences of length 265
+Reference subset  : 9259 with S at column 201 (10.4 %)
+Compared over     : 67 columns, as a percentage of them
+  lam0: median 29.9%  min 25.4%  max 32.8%  -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/relax_graft/b5/ensembles_serine/lam0/observables.csv
+
+================ stage: clamp_free ================
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/.venv-ptt/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/run_ensemble.py --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_free/b1/ensembles --critic-col 201 --allowed-cols 0-264 --allow-gap-moves --clamp-critic --lambdas 0 --beta 1 --n-chains 1000 --n-steps 120000 --trace-every 1000 --trace-schedule log --seed 0 --device mps --cache-model
+model loaded in 0.1s from /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21, tokens '-ACDEFGHIKLMNPQRSTVWY')
+Wild type : TRY2_RAT P00763 anionic trypsin, aligned row of iter_aln_v2 (L=265)
+Critic    : MSA column 201 (WT residue D)
+Mutable   : 265 MSA columns -> ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59', '60', '61', '62', '63', '64', '65', '66', '67', '68', '69', '70', '71', '72', '73', '74', '75', '76', '77', '78', '79', '80', '81', '82', '83', '84', '85', '86', '87', '88', '89', '90', '91', '92', '93', '94', '95', '96', '97', '98', '99', '100', '101', '102', '103', '104', '105', '106', '107', '108', '109', '110', '111', '112', '113', '114', '115', '116', '117', '118', '119', '120', '121', '122', '123', '124', '125', '126', '127', '128', '129', '130', '131', '132', '133', '134', '135', '136', '137', '138', '139', '140', '141', '142', '143', '144', '145', '146', '147', '148', '149', '150', '151', '152', '153', '154', '155', '156', '157', '158', '159', '160', '161', '162', '163', '164', '165', '166', '167', '168', '169', '170', '171', '172', '173', '174', '175', '176', '177', '178', '179', '180', '181', '182', '183', '184', '185', '186', '187', '188', '189', '190', '191', '192', '193', '194', '195', '196', '197', '198', '199', '200', '201', '202', '203', '204', '205', '206', '207', '208', '209', '210', '211', '212', '213', '214', '215', '216', '217', '218', '219', '220', '221', '222', '223', '224', '225', '226', '227', '228', '229', '230', '231', '232', '233', '234', '235', '236', '237', '238', '239', '240', '241', '242', '243', '244', '245', '246', '247', '248', '249', '250', '251', '252', '253', '254', '255', '256', '257', '258', '259', '260', '261', '262', '263', '264']
+Note      : the critic site is itself mutable.
+Gaps      : an ordinary state; 42 of the 265 mutable columns are a gap in the wild type, and any column may become one.
+clamped: critic column 201 fixed at 'S'; 264 mutable columns remain
+
+lambda = 0: 1000 chains x 120000 steps on mps  (traced)
+  acceptance 0.053 | <E> 194.7 | <P(S)> 0.350 | <hamming> 81.9 | <CDE> 0.657
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_free/b1/ensembles
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/.venv-ptt/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/substitute_critic.py --ensemble-dir /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_free/b1/ensembles --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_free/b1/ensembles_serine --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --critic-col 201 --beta 1.0 --device mps --cache-model
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21)
+Critic    : MSA column 201 -> S (wild type has D)
+lambda = 0: 1000 chains, 1000 already S (before: S 1000) | <E> 194.7 | <P(S)> 0.350 | <CDE> 0.657
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_free/b1/ensembles_serine
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/.venv-ptt/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/add_natural_neighbour.py --ensemble-dir /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_free/b1/ensembles_serine --natural /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/iter_aln_v2.faa --critic-col 201 --allowed-cols 0-264 --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/data/wt_trypsin.fasta --as-percentage --device mps
+Skipping gap positions of the wild type: [20, 21, 22, 23, 24, 25, 50, 51, 52, 53, 54, 55, 68, 91, 92, 118, 123, 124, 125, 130, 133, 149, 150, 151, 152, 153, 179, 180, 181, 182, 199, 215, 216, 217, 218, 219, 231, 232, 261, 262, 263, 264]
+Natural alignment : 89439 sequences of length 265
+Reference subset  : 9259 with S at column 201 (10.4 %)
+Compared over     : 223 columns, as a percentage of them
+  lam0: median 35.4%  min 10.3%  max 57.4%  -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_free/b1/ensembles_serine/lam0/observables.csv
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/.venv-ptt/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/run_ensemble.py --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_free/b2/ensembles --critic-col 201 --allowed-cols 0-264 --allow-gap-moves --clamp-critic --lambdas 0 --beta 2 --n-chains 1000 --n-steps 120000 --trace-every 1000 --trace-schedule log --seed 0 --device mps --cache-model
+model loaded in 0.1s from /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21, tokens '-ACDEFGHIKLMNPQRSTVWY')
+Wild type : TRY2_RAT P00763 anionic trypsin, aligned row of iter_aln_v2 (L=265)
+Critic    : MSA column 201 (WT residue D)
+Mutable   : 265 MSA columns -> ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59', '60', '61', '62', '63', '64', '65', '66', '67', '68', '69', '70', '71', '72', '73', '74', '75', '76', '77', '78', '79', '80', '81', '82', '83', '84', '85', '86', '87', '88', '89', '90', '91', '92', '93', '94', '95', '96', '97', '98', '99', '100', '101', '102', '103', '104', '105', '106', '107', '108', '109', '110', '111', '112', '113', '114', '115', '116', '117', '118', '119', '120', '121', '122', '123', '124', '125', '126', '127', '128', '129', '130', '131', '132', '133', '134', '135', '136', '137', '138', '139', '140', '141', '142', '143', '144', '145', '146', '147', '148', '149', '150', '151', '152', '153', '154', '155', '156', '157', '158', '159', '160', '161', '162', '163', '164', '165', '166', '167', '168', '169', '170', '171', '172', '173', '174', '175', '176', '177', '178', '179', '180', '181', '182', '183', '184', '185', '186', '187', '188', '189', '190', '191', '192', '193', '194', '195', '196', '197', '198', '199', '200', '201', '202', '203', '204', '205', '206', '207', '208', '209', '210', '211', '212', '213', '214', '215', '216', '217', '218', '219', '220', '221', '222', '223', '224', '225', '226', '227', '228', '229', '230', '231', '232', '233', '234', '235', '236', '237', '238', '239', '240', '241', '242', '243', '244', '245', '246', '247', '248', '249', '250', '251', '252', '253', '254', '255', '256', '257', '258', '259', '260', '261', '262', '263', '264']
+Note      : the critic site is itself mutable.
+Gaps      : an ordinary state; 42 of the 265 mutable columns are a gap in the wild type, and any column may become one.
+clamped: critic column 201 fixed at 'S'; 264 mutable columns remain
+
+lambda = 0: 1000 chains x 120000 steps on mps  (traced)
+  acceptance 0.006 | <E> 63.1 | <P(S)> 0.000 | <hamming> 37.9 | <CDE> 0.101
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_free/b2/ensembles
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/.venv-ptt/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/substitute_critic.py --ensemble-dir /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_free/b2/ensembles --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_free/b2/ensembles_serine --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --critic-col 201 --beta 1.0 --device mps --cache-model
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21)
+Critic    : MSA column 201 -> S (wild type has D)
+lambda = 0: 1000 chains, 1000 already S (before: S 1000) | <E> 63.1 | <P(S)> 0.003 | <CDE> 0.407
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_free/b2/ensembles_serine
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/.venv-ptt/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/add_natural_neighbour.py --ensemble-dir /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_free/b2/ensembles_serine --natural /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/iter_aln_v2.faa --critic-col 201 --allowed-cols 0-264 --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/data/wt_trypsin.fasta --as-percentage --device mps
+Skipping gap positions of the wild type: [20, 21, 22, 23, 24, 25, 50, 51, 52, 53, 54, 55, 68, 91, 92, 118, 123, 124, 125, 130, 133, 149, 150, 151, 152, 153, 179, 180, 181, 182, 199, 215, 216, 217, 218, 219, 231, 232, 261, 262, 263, 264]
+Natural alignment : 89439 sequences of length 265
+Reference subset  : 9259 with S at column 201 (10.4 %)
+Compared over     : 223 columns, as a percentage of them
+  lam0: median 26.9%  min 22.0%  max 34.1%  -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_free/b2/ensembles_serine/lam0/observables.csv
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/.venv-ptt/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/run_ensemble.py --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_free/b5/ensembles --critic-col 201 --allowed-cols 0-264 --allow-gap-moves --clamp-critic --lambdas 0 --beta 5 --n-chains 1000 --n-steps 120000 --trace-every 1000 --trace-schedule log --seed 0 --device mps --cache-model
+model loaded in 0.1s from /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21, tokens '-ACDEFGHIKLMNPQRSTVWY')
+Wild type : TRY2_RAT P00763 anionic trypsin, aligned row of iter_aln_v2 (L=265)
+Critic    : MSA column 201 (WT residue D)
+Mutable   : 265 MSA columns -> ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59', '60', '61', '62', '63', '64', '65', '66', '67', '68', '69', '70', '71', '72', '73', '74', '75', '76', '77', '78', '79', '80', '81', '82', '83', '84', '85', '86', '87', '88', '89', '90', '91', '92', '93', '94', '95', '96', '97', '98', '99', '100', '101', '102', '103', '104', '105', '106', '107', '108', '109', '110', '111', '112', '113', '114', '115', '116', '117', '118', '119', '120', '121', '122', '123', '124', '125', '126', '127', '128', '129', '130', '131', '132', '133', '134', '135', '136', '137', '138', '139', '140', '141', '142', '143', '144', '145', '146', '147', '148', '149', '150', '151', '152', '153', '154', '155', '156', '157', '158', '159', '160', '161', '162', '163', '164', '165', '166', '167', '168', '169', '170', '171', '172', '173', '174', '175', '176', '177', '178', '179', '180', '181', '182', '183', '184', '185', '186', '187', '188', '189', '190', '191', '192', '193', '194', '195', '196', '197', '198', '199', '200', '201', '202', '203', '204', '205', '206', '207', '208', '209', '210', '211', '212', '213', '214', '215', '216', '217', '218', '219', '220', '221', '222', '223', '224', '225', '226', '227', '228', '229', '230', '231', '232', '233', '234', '235', '236', '237', '238', '239', '240', '241', '242', '243', '244', '245', '246', '247', '248', '249', '250', '251', '252', '253', '254', '255', '256', '257', '258', '259', '260', '261', '262', '263', '264']
+Note      : the critic site is itself mutable.
+Gaps      : an ordinary state; 42 of the 265 mutable columns are a gap in the wild type, and any column may become one.
+clamped: critic column 201 fixed at 'S'; 264 mutable columns remain
+
+lambda = 0: 1000 chains x 120000 steps on mps  (traced)
+  acceptance 0.002 | <E> 55.5 | <P(S)> 0.000 | <hamming> 36.0 | <CDE> 0.022
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_free/b5/ensembles
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/.venv-ptt/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/substitute_critic.py --ensemble-dir /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_free/b5/ensembles --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_free/b5/ensembles_serine --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --critic-col 201 --beta 1.0 --device mps --cache-model
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21)
+Critic    : MSA column 201 -> S (wild type has D)
+lambda = 0: 1000 chains, 1000 already S (before: S 1000) | <E> 55.5 | <P(S)> 0.001 | <CDE> 0.394
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_free/b5/ensembles_serine
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/.venv-ptt/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/add_natural_neighbour.py --ensemble-dir /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_free/b5/ensembles_serine --natural /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/iter_aln_v2.faa --critic-col 201 --allowed-cols 0-264 --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/data/wt_trypsin.fasta --as-percentage --device mps
+Skipping gap positions of the wild type: [20, 21, 22, 23, 24, 25, 50, 51, 52, 53, 54, 55, 68, 91, 92, 118, 123, 124, 125, 130, 133, 149, 150, 151, 152, 153, 179, 180, 181, 182, 199, 215, 216, 217, 218, 219, 231, 232, 261, 262, 263, 264]
+Natural alignment : 89439 sequences of length 265
+Reference subset  : 9259 with S at column 201 (10.4 %)
+Compared over     : 223 columns, as a percentage of them
+  lam0: median 26.0%  min 22.9%  max 33.6%  -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/clamp_free/b5/ensembles_serine/lam0/observables.csv
+
+Done. Results under /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp
+
+================ stage: relax_free ================
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/.venv-ptt/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/run_ensemble.py --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/relax_free/b1/ensembles --critic-col 201 --allowed-cols 0-264 --allow-gap-moves --lambdas 0 --beta 1 --n-chains 1000 --n-steps 120000 --trace-every 1000 --trace-schedule log --seed 0 --device mps --cache-model
+model loaded in 0.1s from /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21, tokens '-ACDEFGHIKLMNPQRSTVWY')
+Wild type : TRY2_RAT P00763 anionic trypsin, aligned row of iter_aln_v2 (L=265)
+Critic    : MSA column 201 (WT residue D)
+Mutable   : 265 MSA columns -> ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59', '60', '61', '62', '63', '64', '65', '66', '67', '68', '69', '70', '71', '72', '73', '74', '75', '76', '77', '78', '79', '80', '81', '82', '83', '84', '85', '86', '87', '88', '89', '90', '91', '92', '93', '94', '95', '96', '97', '98', '99', '100', '101', '102', '103', '104', '105', '106', '107', '108', '109', '110', '111', '112', '113', '114', '115', '116', '117', '118', '119', '120', '121', '122', '123', '124', '125', '126', '127', '128', '129', '130', '131', '132', '133', '134', '135', '136', '137', '138', '139', '140', '141', '142', '143', '144', '145', '146', '147', '148', '149', '150', '151', '152', '153', '154', '155', '156', '157', '158', '159', '160', '161', '162', '163', '164', '165', '166', '167', '168', '169', '170', '171', '172', '173', '174', '175', '176', '177', '178', '179', '180', '181', '182', '183', '184', '185', '186', '187', '188', '189', '190', '191', '192', '193', '194', '195', '196', '197', '198', '199', '200', '201', '202', '203', '204', '205', '206', '207', '208', '209', '210', '211', '212', '213', '214', '215', '216', '217', '218', '219', '220', '221', '222', '223', '224', '225', '226', '227', '228', '229', '230', '231', '232', '233', '234', '235', '236', '237', '238', '239', '240', '241', '242', '243', '244', '245', '246', '247', '248', '249', '250', '251', '252', '253', '254', '255', '256', '257', '258', '259', '260', '261', '262', '263', '264']
+Note      : the critic site is itself mutable.
+Gaps      : an ordinary state; 42 of the 265 mutable columns are a gap in the wild type, and any column may become one.
+
+lambda = 0: 1000 chains x 120000 steps on mps  (traced)
+  acceptance 0.049 | <E> 173.3 | <P(S)> 0.011 | <hamming> 69.7 | <CDE> 0.602
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/relax_free/b1/ensembles
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/.venv-ptt/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/substitute_critic.py --ensemble-dir /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/relax_free/b1/ensembles --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/relax_free/b1/ensembles_serine --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --critic-col 201 --beta 1.0 --device mps --cache-model
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21)
+Critic    : MSA column 201 -> S (wild type has D)
+lambda = 0: 1000 chains, 8 already S (before: D 973, G 9, S 8, - 2) | <E> 179.9 | <P(S)> 0.011 | <CDE> 0.613
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/relax_free/b1/ensembles_serine
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/.venv-ptt/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/add_natural_neighbour.py --ensemble-dir /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/relax_free/b1/ensembles_serine --natural /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/iter_aln_v2.faa --critic-col 201 --allowed-cols 0-264 --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/data/wt_trypsin.fasta --as-percentage --device mps
+Skipping gap positions of the wild type: [20, 21, 22, 23, 24, 25, 50, 51, 52, 53, 54, 55, 68, 91, 92, 118, 123, 124, 125, 130, 133, 149, 150, 151, 152, 153, 179, 180, 181, 182, 199, 215, 216, 217, 218, 219, 231, 232, 261, 262, 263, 264]
+Natural alignment : 89439 sequences of length 265
+Reference subset  : 9259 with S at column 201 (10.4 %)
+Compared over     : 223 columns, as a percentage of them
+  lam0: median 35.9%  min 26.0%  max 50.7%  -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/relax_free/b1/ensembles_serine/lam0/observables.csv
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/.venv-ptt/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/run_ensemble.py --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/relax_free/b2/ensembles --critic-col 201 --allowed-cols 0-264 --allow-gap-moves --lambdas 0 --beta 2 --n-chains 1000 --n-steps 120000 --trace-every 1000 --trace-schedule log --seed 0 --device mps --cache-model
+model loaded in 0.1s from /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21, tokens '-ACDEFGHIKLMNPQRSTVWY')
+Wild type : TRY2_RAT P00763 anionic trypsin, aligned row of iter_aln_v2 (L=265)
+Critic    : MSA column 201 (WT residue D)
+Mutable   : 265 MSA columns -> ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59', '60', '61', '62', '63', '64', '65', '66', '67', '68', '69', '70', '71', '72', '73', '74', '75', '76', '77', '78', '79', '80', '81', '82', '83', '84', '85', '86', '87', '88', '89', '90', '91', '92', '93', '94', '95', '96', '97', '98', '99', '100', '101', '102', '103', '104', '105', '106', '107', '108', '109', '110', '111', '112', '113', '114', '115', '116', '117', '118', '119', '120', '121', '122', '123', '124', '125', '126', '127', '128', '129', '130', '131', '132', '133', '134', '135', '136', '137', '138', '139', '140', '141', '142', '143', '144', '145', '146', '147', '148', '149', '150', '151', '152', '153', '154', '155', '156', '157', '158', '159', '160', '161', '162', '163', '164', '165', '166', '167', '168', '169', '170', '171', '172', '173', '174', '175', '176', '177', '178', '179', '180', '181', '182', '183', '184', '185', '186', '187', '188', '189', '190', '191', '192', '193', '194', '195', '196', '197', '198', '199', '200', '201', '202', '203', '204', '205', '206', '207', '208', '209', '210', '211', '212', '213', '214', '215', '216', '217', '218', '219', '220', '221', '222', '223', '224', '225', '226', '227', '228', '229', '230', '231', '232', '233', '234', '235', '236', '237', '238', '239', '240', '241', '242', '243', '244', '245', '246', '247', '248', '249', '250', '251', '252', '253', '254', '255', '256', '257', '258', '259', '260', '261', '262', '263', '264']
+Note      : the critic site is itself mutable.
+Gaps      : an ordinary state; 42 of the 265 mutable columns are a gap in the wild type, and any column may become one.
+
+lambda = 0: 1000 chains x 120000 steps on mps  (traced)
+  acceptance 0.005 | <E> 55.0 | <P(S)> 0.000 | <hamming> 36.3 | <CDE> 0.096
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/relax_free/b2/ensembles
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/.venv-ptt/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/substitute_critic.py --ensemble-dir /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/relax_free/b2/ensembles --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/relax_free/b2/ensembles_serine --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --critic-col 201 --beta 1.0 --device mps --cache-model
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21)
+Critic    : MSA column 201 -> S (wild type has D)
+lambda = 0: 1000 chains, 0 already S (before: D 1000) | <E> 62.7 | <P(S)> 0.001 | <CDE> 0.404
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/relax_free/b2/ensembles_serine
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/.venv-ptt/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/add_natural_neighbour.py --ensemble-dir /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/relax_free/b2/ensembles_serine --natural /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/iter_aln_v2.faa --critic-col 201 --allowed-cols 0-264 --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/data/wt_trypsin.fasta --as-percentage --device mps
+Skipping gap positions of the wild type: [20, 21, 22, 23, 24, 25, 50, 51, 52, 53, 54, 55, 68, 91, 92, 118, 123, 124, 125, 130, 133, 149, 150, 151, 152, 153, 179, 180, 181, 182, 199, 215, 216, 217, 218, 219, 231, 232, 261, 262, 263, 264]
+Natural alignment : 89439 sequences of length 265
+Reference subset  : 9259 with S at column 201 (10.4 %)
+Compared over     : 223 columns, as a percentage of them
+  lam0: median 26.9%  min 22.4%  max 34.5%  -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/relax_free/b2/ensembles_serine/lam0/observables.csv
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/.venv-ptt/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/run_ensemble.py --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/relax_free/b5/ensembles --critic-col 201 --allowed-cols 0-264 --allow-gap-moves --lambdas 0 --beta 5 --n-chains 1000 --n-steps 120000 --trace-every 1000 --trace-schedule log --seed 0 --device mps --cache-model
+model loaded in 0.1s from /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21, tokens '-ACDEFGHIKLMNPQRSTVWY')
+Wild type : TRY2_RAT P00763 anionic trypsin, aligned row of iter_aln_v2 (L=265)
+Critic    : MSA column 201 (WT residue D)
+Mutable   : 265 MSA columns -> ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59', '60', '61', '62', '63', '64', '65', '66', '67', '68', '69', '70', '71', '72', '73', '74', '75', '76', '77', '78', '79', '80', '81', '82', '83', '84', '85', '86', '87', '88', '89', '90', '91', '92', '93', '94', '95', '96', '97', '98', '99', '100', '101', '102', '103', '104', '105', '106', '107', '108', '109', '110', '111', '112', '113', '114', '115', '116', '117', '118', '119', '120', '121', '122', '123', '124', '125', '126', '127', '128', '129', '130', '131', '132', '133', '134', '135', '136', '137', '138', '139', '140', '141', '142', '143', '144', '145', '146', '147', '148', '149', '150', '151', '152', '153', '154', '155', '156', '157', '158', '159', '160', '161', '162', '163', '164', '165', '166', '167', '168', '169', '170', '171', '172', '173', '174', '175', '176', '177', '178', '179', '180', '181', '182', '183', '184', '185', '186', '187', '188', '189', '190', '191', '192', '193', '194', '195', '196', '197', '198', '199', '200', '201', '202', '203', '204', '205', '206', '207', '208', '209', '210', '211', '212', '213', '214', '215', '216', '217', '218', '219', '220', '221', '222', '223', '224', '225', '226', '227', '228', '229', '230', '231', '232', '233', '234', '235', '236', '237', '238', '239', '240', '241', '242', '243', '244', '245', '246', '247', '248', '249', '250', '251', '252', '253', '254', '255', '256', '257', '258', '259', '260', '261', '262', '263', '264']
+Note      : the critic site is itself mutable.
+Gaps      : an ordinary state; 42 of the 265 mutable columns are a gap in the wild type, and any column may become one.
+
+lambda = 0: 1000 chains x 120000 steps on mps  (traced)
+  acceptance 0.002 | <E> 48.1 | <P(S)> 0.000 | <hamming> 35.2 | <CDE> 0.024
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/relax_free/b5/ensembles
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/.venv-ptt/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/substitute_critic.py --ensemble-dir /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/relax_free/b5/ensembles --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/relax_free/b5/ensembles_serine --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --critic-col 201 --beta 1.0 --device mps --cache-model
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21)
+Critic    : MSA column 201 -> S (wild type has D)
+lambda = 0: 1000 chains, 0 already S (before: D 1000) | <E> 55.8 | <P(S)> 0.000 | <CDE> 0.393
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/relax_free/b5/ensembles_serine
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/.venv-ptt/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/add_natural_neighbour.py --ensemble-dir /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/relax_free/b5/ensembles_serine --natural /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/iter_aln_v2.faa --critic-col 201 --allowed-cols 0-264 --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/data/wt_trypsin.fasta --as-percentage --device mps
+Skipping gap positions of the wild type: [20, 21, 22, 23, 24, 25, 50, 51, 52, 53, 54, 55, 68, 91, 92, 118, 123, 124, 125, 130, 133, 149, 150, 151, 152, 153, 179, 180, 181, 182, 199, 215, 216, 217, 218, 219, 231, 232, 261, 262, 263, 264]
+Natural alignment : 89439 sequences of length 265
+Reference subset  : 9259 with S at column 201 (10.4 %)
+Compared over     : 223 columns, as a percentage of them
+  lam0: median 26.0%  min 23.3%  max 33.2%  -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp/relax_free/b5/ensembles_serine/lam0/observables.csv
+
+Done. Results under /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/work/results_clamp
