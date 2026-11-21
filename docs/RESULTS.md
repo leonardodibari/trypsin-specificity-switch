@@ -2,178 +2,272 @@
 
 Written for: whoever picks this project up next.
 
-Everything here comes from the `DCAmodel-serine_protease` model (trained on the
-71,551-sequence train split of `iter_aln_v2`) and the results trees
-`results/ladder/` and `results/clamp/`. Figures are in `figures/ladder/` and
-`figures/clamp/`; rebuild either in seconds with `make_all.py`.
-
-The question throughout: **take wild-type rat trypsin, put a serine where its
-Asp189 is, and ask what the model thinks the rest of the protein should become.**
-MSA column 201 is that site (label `189`); the wild type has `D`, chymotrypsins
-have `S`.
-
----
-
-## 1. The headline
-
-Two protocols were run against each other.
-
-**The λ ladder** (`results/ladder/`) steers sampling with a bias term
-`H = β·E_DCA − λ·log P(S)`, scanning λ and β. It is the main pipeline and it
-produces designs that score well.
-
-**Clamp-and-relax** (`results/clamp/`) has no bias term at all. The critic column
-is simply frozen at `S` and the chains sample `H = β·E_DCA` over everything else.
-Zero free parameters, nothing for an objective to game.
-
-Clamp-and-relax was added as the null control the ladder was missing. It is not
-a null. It produces the single strongest result in the project — but only in one
-corner of its own grid, and that corner is one the ladder never visits.
-
----
-
-## 2. Clamp-and-relax: the full grid
-
-`P(S | context)` is the model's conditional probability of serine at column 201
-given everything else the chains settled on. Under the clamp it is **not** an
-objective — nothing optimises it — so it is a clean diagnostic: it says how well
-the context the model relaxed into actually supports the serine imposed on it.
-
-Four conditions. `graft` = only the 79-column grafting window (165–243) may move;
-`free` = all 265 columns may move. `clamp` = S imposed at 201; `relax` = the
-wild-type D left in place, the matched control.
-
-| condition | β | P(S) median | p90 | frac > 0.5 | hamming to WT | CDE |
-|---|---|---|---|---|---|---|
-| clamp_graft | 1 | 0.00415 | 0.092 | 1.4 % | 13 | 0.485 |
-| clamp_graft | 1.5 | 0.00069 | 0.010 | 0.0 % | 9 | 0.462 |
-| clamp_graft | 2 | 0.00065 | 0.001 | 0.0 % | 8 | 0.458 |
-| clamp_graft | 3 | 0.00065 | 0.001 | 0.0 % | 8 | 0.456 |
-| clamp_graft | 5 | 0.00063 | 0.001 | 0.0 % | 7 | 0.455 |
-| relax_graft | 1 | 0.00061 | 0.002 | 0.0 % | 12 | 0.478 |
-| relax_graft | 2 | 0.00049 | 0.001 | 0.0 % | 8 | 0.459 |
-| relax_graft | 5 | 0.00052 | 0.001 | 0.0 % | 7 | 0.455 |
-| **clamp_free** | **1** | **0.22790** | **0.913** | **34.2 %** | **80** | **0.636** |
-| clamp_free | 2 | 0.00088 | 0.003 | 0.0 % | 38 | 0.403 |
-| clamp_free | 5 | 0.00073 | 0.001 | 0.0 % | 36 | 0.393 |
-| relax_free | 1 | 0.00105 | 0.011 | 0.5 % | 69 | 0.597 |
-| relax_free | 2 | 0.00044 | 0.001 | 0.0 % | 38 | 0.402 |
-| relax_free | 5 | 0.00048 | 0.001 | 0.0 % | 36 | 0.393 |
-
-**One cell out of fourteen is alive.** Everything else sits on a floor of
-≈ 0.0007, which is what `P(S)` looks like when the context is still trypsin.
-
-### 2.1 The one live cell is real
-
-`clamp_free` at β=1 beats its own matched control by **217×** in median `P(S)`,
-and a third of its chains reach contexts that genuinely prefer serine against
-0.5 % of control chains. Crucially both conditions drift about equally far from
-the wild type (80 vs 69 substitutions), so this is not "the clamped run moved
-more". The family is 10.4 % serine at column 201, so a run that merely wandered
-toward the family average would raise `P(S)` on its own — `relax_free` is
-exactly that run, and it does not.
-
-The pocket agrees. Column 241 (label `226`), the site where trypsins and
-chymotrypsins genuinely differ:
-
-| | G | S | A | T |
-|---|---|---|---|---|
-| natural trypsins | 0.91 | 0.03 | 0.04 | — |
-| **natural chymotrypsins** | 0.10 | **0.28** | **0.22** | **0.21** |
-| clamp, all sites free, β=1 | 0.50 | **0.30** | 0.09 | — |
-| no clamp, all sites free, β=1 | 0.95 | 0.03 | 0.02 | — |
-| clamp, grafting window, β=1 | 0.67 | 0.11 | 0.08 | — |
-
-Serine at 226 goes from 3 % in the control to **30 %** under the clamp, against a
-natural-chymotrypsin frequency of 28 %. That column is essentially correct.
-
-### 2.2 Two things kill it, independently
-
-**Window size.** `clamp_graft` reaches `P(S)` = 0.004, fifty times less than
-`clamp_free`. Of the 71 columns that move in `clamp_free`, **50 lie outside the
-grafting segment**. The serine's support is paid for in residues the λ ladder
-never allows to move. The 79-column window is too small, and that is a direct,
-quantitative statement, not an impression.
-
-**Cooling.** β=2 drops `P(S)` by 250× and puts column 226 back to G93. Every
-colder rung is *further* from the chymotrypsins than β=1. Cooling is the
-ladder's mechanism for sharpening designs, and here it destroys the effect.
-
-### 2.3 What the model will not do
-
-Across every β, the clamp leaves these untouched:
-
-* **loop 185–188** stays `FLEG` at 89–100 % (natural chymotrypsins: G34/D18/G35/G30)
-* **172** stays `Y` at 94–100 % (natural chymotrypsins: Y21/**W16**/F13)
-
-Those are precisely the determinants Hedstrom, Szilagyi & Rutter (*Science* 1992,
-255:1249) had to swap to get a functional switch. The model does not reach them.
-
-### 2.4 A pathology that turned out to be an artifact
-
-An earlier pilot steered on the log-odds `log P(S)/P(D)` and turned the pocket
-into **glycine**. Under the clamp, glycine load over the grafting window is
-17.6–19.4 %, against 15.7 % in natural trypsins — and the matched controls give
-18.3–19.3 %, i.e. the same. So the glycine collapse was entirely an artifact of
-a gameable objective, not a property of the model or of cold sampling. This is
-the clearest argument in the project for keeping a zero-parameter control.
-
----
-
-## 3. How to read this against the λ ladder
-
-The ladder's designs score well on `P(S)`, but `P(S)` is what the ladder
-optimises, so the number cannot also be the evidence. Clamp-and-relax provides
-the reading that does not have that circularity, and it says:
-
-* the coupling from column 201 to the rest of the protein is **real but weak and
-  long-ranged** — it reaches 226 strongly, and reaches 50 columns outside the
-  graft window collectively;
-* it is **destroyed by cooling** and **starved by a 79-column window**;
-* so a ladder run that is both cold and windowed is measuring its own bias term
-  more than it is measuring the model.
-
-That is the finding to carry forward.
-
----
-
-## 4. Caveats — read before building on any of this
-
-1. **Acceptance collapses when cold.** 0.034 at β=1, 0.008 at β=2. At β≥2 that is
-   roughly 500 accepted moves over 78 sites. The β=2 and β=5 ensembles differ by
-   two columns out of 265 and have nearly identical flip lists: they are **stuck
-   near the wild type, not converged to a minimum**. Treat every cold rung as a
-   lower bound on movement, not as an equilibrium result.
-
-2. **The one positive result sits at the warmest, most diffuse rung**, which is
-   also the one whose chains are least settled. `SI S6` (`figures/ladder/`) now
-   checks drift from the traces — the worst traced rung moves ~20 % IQR — but the
-   clamp-free β=1 condition deserves a longer run before it goes in a paper.
-
-3. **`d_nat` is not comparable between `graft` and `free`.** `add_natural_neighbour.py`
-   is called with each condition's own `--allowed-cols`, so the graft conditions
-   are scored over 67 columns and the free conditions over ~250. The numbers in
-   the results CSVs are correct; comparing them *across* window sizes is not.
-
-4. **`clamp_free` had no matched control until after the fact.** `relax_free` was
-   run separately and later. Both used the same seed, chains and step count, but
-   they were not run in the same invocation.
-
-5. **`P(S | context)` is a model-internal quantity.** It is not a prediction of
-   catalytic activity, and nothing here has been assayed.
-
----
-
-## 5. Reproducing
+This is the study presented as *"Trypsin → chymotrypsin: designing a specificity
+switch with a Potts model"* (L. Di Bari, S. Rossi, 20 November 2026). **Every
+data figure in that talk is produced by this repository**, from the committed
+results, in about 34 seconds:
 
 ```bash
-bash analysis/run_clamp.sh                   # all four conditions, ~18 min (M-series GPU)
-bash analysis/run_clamp.sh clamp_graft       # one condition
-
-cd analysis/figures_clamp && ../../.venv/bin/python make_all.py    # 3 figures, ~7 s
-cd analysis/figures_ladder && ../../.venv/bin/python make_all.py   # 15 figures, ~34 s
+cd analysis/figures_ladder && ../../.venv/bin/python make_all.py
 ```
 
-Stage 1 writes ensembles; Stage 2 draws from them. They are separate on purpose:
-Stage 2 is cheap and Stage 1 is not. See [`DATA.md`](DATA.md) for what must be
-present before Stage 1 will start.
+Output lands in `figures/ladder/` as 300 dpi PNG and vector PDF. The
+slide-by-slide map is in [§7](#7-the-talk-slide-by-slide).
+
+All numbers below were re-derived from `results/ladder/` while writing this
+document; none were copied from the slides.
+
+---
+
+## 1. The question
+
+Rat trypsin and chymotrypsin share a fold and a catalytic triad but cut
+different substrates. Trypsin's specificity pocket has **aspartate at position
+189**; chymotrypsin has **serine**. In this alignment that site is **MSA column
+201** (label `189`).
+
+The task: start from wild-type rat trypsin and sample sequences that prefer
+serine at that site, under a Potts model of the family — then ask honestly how
+much of a switch that actually is.
+
+## 2. The model
+
+A bmDCA Potts model (adabmDCA 2.1) over the serine-protease family:
+**L = 265 columns, q = 21**, fitted to a **71,551-sequence train split** with
+**17,888 sequences held out and never seen**. Fields say what each site likes,
+couplings what pairs of sites like. No structures, no labels. Low energy means
+"looks like a real member of the family".
+
+Holding out a test set is the whole reason this model replaced its predecessor:
+it makes the discriminator figure a *prediction* rather than a consistency check.
+
+### It tells the two families apart on unseen sequences
+
+Scored on the 17,888 held-out sequences (`fig01_discriminator`):
+
+| score | AUC | AP |
+|---|---|---|
+| log P(S)/P(D) | **0.9835** | 0.9384 |
+| −P(D \| context) | 0.9832 | 0.9227 |
+| P(S \| context) alone | 0.9600 | 0.8750 |
+
+`si01_controls` splits this by sequence novelty and the signal holds: AUC stays
+above 0.97 even in the most unusual novelty bin. So the model has learnt
+something about the family, not about the training rows.
+
+## 3. The method
+
+Sample with
+
+```
+H = β·E_DCA − λ·log P(S | σ_\i*)
+```
+
+λ pays the chain to put a serine at the critic site; β cools the energy term.
+**Gaps are an ordinary state and may move**, so chains can gain or lose
+residues — which is why indels are tracked separately from substitutions
+throughout.
+
+### Scoring a design fairly: Q
+
+A low energy can just mean a rigid, highly-constrained site. So designs are
+scored with
+
+```
+Q = E_DCA − μ·CDE
+```
+
+where CDE is the context-dependent entropy of the surroundings and **μ = 422.62**
+is fixed once, calibrated on 20,000 natural sequences, and never refitted. Q is what is left
+after subtracting what the site would have scored anyway. **Lower Q is better**,
+and it is what lets a cold run and a hot run be compared on a single axis.
+
+## 4. What the ladder does
+
+### Turning up the bias moves everything at once
+
+Grafting window (79 columns, 165–243), β = 1, 1000 chains × 60,000 steps
+(`fig02_corner_grafting`):
+
+| λ | P(S) | substitutions | indels | % pure substitution | Q | % chains P(S) ≥ 0.80 |
+|---|---|---|---|---|---|---|
+| 0 | 0.001 | 12.0 | 0.16 | 87 % | −100.6 | 0 % |
+| 10 | 0.744 | 15.3 | 0.32 | 76 % | −99.7 | 32.5 % |
+| 30 | 0.862 | 15.8 | 0.36 | 73 % | −97.8 | 89.5 % |
+| 100 | 0.935 | 16.8 | 0.52 | 63 % | −95.5 | **100 %** |
+| 300 | 0.971 | 18.2 | 0.98 | 40 % | −91.6 | **100 %** |
+| 1000 | 0.989 | 20.1 | 1.90 | 13 % | −86.5 | **100 %** |
+
+**The bias works**: P(S) goes from 0.001 to 0.99, and from λ = 100 every chain
+clears the 0.80 threshold. But it buys specificity at a steady price — more
+mutations (12 → 22 total Hamming), worse Q, and a collapsing share of designs
+that are pure substitutions rather than indels.
+
+### Cooling makes better designs, but fewer of them
+
+Cool the energy, never the bias (`fig03_cooling`). At matched serine (P(S) ≈ 0.75):
+
+| condition | β | λ | Q | % unique designs |
+|---|---|---|---|---|
+| grafting | 1 | 10 | −99.7 | 100 % |
+| grafting + cooling | 1.5 | 15 | −106.8 | 99.7 % |
+| grafting + cooling | 2 | 20 | −108.2 | 89.2 % |
+| grafting + cooling | 3 | 30 | −108.7 | 54.4 % |
+| grafting + cooling | 5 | 50 | −108.8 | 20.5 % |
+| grafting + cooling | 10 | 100 | −108.7 | 7.9 % |
+
+**Cooling gains ≈ 9 in Q** (−99.7 → −108.8) at the same serine content, and
+almost all of it arrives by β = 2 — after which the library collapses while Q
+barely improves. Cooling also drives indels to essentially zero (`indel_to_wt`
+0.32 → 0.00), so cold designs are pure point mutants.
+
+### Restricting the sites is what concentrates them
+
+The mutation count is set by *how many columns may move*, not by λ
+(`fig08_sector_enrichment`, `fig04_set_overlap`). Six candidate site sets were
+compared inside the grafting segment:
+
+| set | columns | definition |
+|---|---|---|
+| full segment | 79 | every column of the grafting segment |
+| consensus-22 | 22 | where the two families' consensus differs most, relaxed |
+| coupling-20 | 20 | most strongly coupled to site 189 |
+| red sector | 16 | sector columns inside the segment |
+| 1992 construct | 14 | the columns the Hedstrom constructs mutate |
+| consensus-8 | 8 | the 8 columns where the consensus differs most |
+
+**The six sets hardly agree** — six different guesses at which sites matter,
+with modest overlap. Of these, 8, 22 and 79 were sampled.
+
+`consensus-8` reaches P(S) = 0.90 at λ = 100 with **7.5 substitutions**, against
+16.8 for the full 79-column window. Fewer columns means a far smaller library
+though: 41.9 % unique at λ = 100, falling to 12.6 % at λ = 1000.
+
+### The loops are left alone
+
+Gaps may move, and they essentially do not (`si03_gaps`). The mean gap count
+stays at **≈ 42 of 265 columns** — the wild type's own value — across every bias
+and every temperature (range over all 48 runs: 39.0 to 42.6). The designs keep
+the wild type's gap pattern; the surface loops are not being rewritten.
+
+## 5. The grid, and what was chosen
+
+**48 runs**: site sets {8, 22, 79} × β {1, 1.5, 2, 3, 5, 10} × λ {0, 10, 30, 100,
+300, 1000} and their matched-`λ/β` equivalents. The full pool is `si02_table_full`;
+the shortlist is `fig05_table`.
+
+**No run wins everything.** The column winners are spread across conditions:
+fewest mutations → `consensus-8, β=1`; best indel purity → the cold runs; best
+diversity → `grafting, β=1`. Three families, three islands (`fig06_corner_selected`):
+
+* **grafting** — most serine, worst quality, fully diverse
+* **cooling** — best quality, fewest distinct designs
+* **consensus-8** — only ~8 mutations
+
+The selection in `fig05_table` is *hand-picked, not scored*: a few from every
+corner, so the experiment decides rather than a scoring rule. That choice is
+deliberate and is documented in `analysis/figures_ladder/selection.py`.
+
+## 6. What this does **not** show
+
+This is the part to keep in view (`fig07_pca`, `si05_naturals_vs_designs`,
+`si07_construct_context`).
+
+* **The designs stay inside the trypsins.** On a PCA map built from natural
+  sequences only, every design sits beside the wild type. Against 20,000 natural
+  sequences (13,324 trypsins, 1,993 chymotrypsins, 4,683 other), Hamming
+  distance to the wild type runs **81–196** (p1–p99) for the naturals and
+  **6–28** for the designs. The designs occupy a tight patch next to the
+  starting point.
+
+  > The talk quotes "120 to 190" on slide 23; the p1–p99 range the pipeline
+  > reports is 81–196. Use the figure's own numbers — the conclusion is
+  > unchanged and if anything understated.
+* **They close at most ~5 % of the gap to chymotrypsin.** `si07_construct_context`
+  walks the Hedstrom construct ladder and shows the same thing for the
+  constructs that were actually built and assayed:
+
+  | construct | P(S) | → train | → test | gap closed |
+  |---|---|---|---|---|
+  | wild-type trypsin | 0.0005 | 0.0 % | 19.6 % | 0.0 % |
+  | + loops 185–188, 221–225 | 0.0035 | 4.5 % | 23.8 % | 1.2 % |
+  | + 172 | 0.0052 | 4.9 % | 24.2 % | 0.0 % |
+  | + 216, 226 | 0.0504 | 5.3 % | 24.5 % | −1.2 % |
+
+  **The real constructs never leave the trypsins either**, which is the honest
+  frame for our own designs.
+* **A high P(S) is a rewired neighbourhood, not a new enzyme.**
+* **Fewer columns means a smaller library.**
+* **Nothing here has been measured in a lab.**
+
+### Would a different bias change the picks?
+
+`si04_logodds_rerank` re-ranks the pool by log-odds instead of P(S): same
+ranking, different best hundred. Steering *directly* on log-odds was also tried
+and does not work — it turns the pocket into glycine. See
+[`CLAMP_CONTROL.md`](CLAMP_CONTROL.md) §2.4 for why that is a property of a
+gameable objective rather than of the model.
+
+### Are these equilibrium results?
+
+`si06_equilibration` traces every run and checks drift over the second half.
+All five conditions are traced and every observable is flat by the end.
+
+> ⚠ **Read this figure before trusting a cold rung.** It was silently rendering
+> empty placeholders until November 2026 (it resolved traces through an absolute
+> path baked into `summary.json`, which the repository reorganisation
+> invalidated). It now reads the 54 traces that were on disk all along. The
+> worst traced rung moves ~20 % IQR in P(S) — small, but not zero. Acceptance
+> also falls steeply with β (0.029–0.098 at β=1, 0.008–0.027 at β=2,
+> 0.0015–0.0057 at β=10), so on the coldest rungs "converged" and "stuck" are
+> worth distinguishing before a result leans on them.
+
+## 7. The talk, slide by slide
+
+Every slide carrying data, and the script that makes its figure. Verified by
+matching the embedded image dimensions in the PDF against `figures/ladder/`.
+
+| slide | title | figure |
+|---|---|---|
+| 6 | The model tells the two families apart | `fig01_discriminator` |
+| 7 | Turning up the bias moves everything at once | `fig02_corner_grafting` |
+| 8 | Cooling makes better designs, but fewer of them | `fig03_cooling` |
+| 9 | Restricting the sites is what concentrates them | `fig08_sector_enrichment` |
+| 11 | The candidate sets hardly agree | `fig04_set_overlap` |
+| 12 | The loops are left alone | `si03_gaps` |
+| 14 | The runs we kept | `fig05_table` |
+| 15 | Three families, three islands | `fig06_corner_selected` |
+| 17 | The designs stay inside the family | `fig07_pca` |
+| 20 | S1 · the signal survives on unseen sequences | `si01_controls` |
+| 21 | S2 · every run we sampled | `si02_table_full` |
+| 22 | S4 · would a different bias change the picks? | `si04_logodds_rerank` |
+| 23 | S5 · designs against the whole family | `si05_naturals_vs_designs` |
+| 24 | S6 · the chains reached equilibrium | `si06_equilibration` |
+| 25 | S7 · what high P(S) does and does not mean | `si07_construct_context` |
+
+Slides 1–5, 10, 13, 16, 18–19 are title, schematic and summary slides built in
+Keynote; they carry no generated figure. The briefs that specify them are in
+[`presentation/`](presentation/).
+
+Rebuild any single figure with, e.g.:
+
+```bash
+cd analysis/figures_ladder && ../../.venv/bin/python make_all.py fig07
+CAVEATS=1 ../../.venv/bin/python make_all.py     # with the caveat text under each figure
+```
+
+## 8. Reproducing from scratch
+
+Stage 1 samples (expensive, GPU), Stage 2 draws (cheap). The stages of
+`run_ladder.sh` are **not independent** — `derive` reads this model's consensus
+columns out of the cooled grafting run, so `consensus` cannot be sampled until
+`graft` and `derive` have run.
+
+```bash
+bash analysis/run_ladder.sh          # graft, derive, consensus, derive_large, consensus_large (~1.5 h)
+bash analysis/run_ladder_sectors.sh  # the all-sites-free run + sector annotation
+cd analysis/figures_ladder && ../../.venv/bin/python make_all.py
+```
+
+See [`DATA.md`](DATA.md) for what must be present before Stage 1 will start, and
+the caveat there about the designed ensembles being gitignored.
