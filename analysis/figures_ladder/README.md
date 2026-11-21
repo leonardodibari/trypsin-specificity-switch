@@ -154,13 +154,19 @@ Q. That is exactly what F3 fixes.
 
 ### F3 — `fig03_cooling` · cooling buys plausibility
 
-**Shows.** The β / λ̃ scan, regenerated in the shared style from
-`cooling/beta_scan_summary.csv`.
+**Shows.** The β / λ̃ scan over the grafting window, read straight from the run
+directories (`grafting, beta=1` and `grafting + cooling`). The first model's
+pipeline wrote a `beta_scan_summary.csv`; this one does not, and `fig03_cooling`
+discovers the runs instead — see the fallback note in the script.
 
-**Say.** Cooling costs essentially nothing in P(S) (every β reaches ~0.95–0.97)
-and buys a lot in Q: **no β=1 run reaches Q(wild type) = −102.97**; the bar is
-first cleared at β=2. The price is diversity — at β=10, λ̃=100 only 142 of 1000
-chains are distinct.
+**Say.** Cooling costs little in P(S) (the cooled rungs span 0.75–0.93 at matched
+λ̃) and buys a lot in Q: **no β=1 grafting run reaches Q(wild type) = −105.36** —
+the best is −100.64 — and the bar is first cleared at **β=1.5, λ=15** (−106.80).
+The price is diversity: at β=10, λ=100 only **79 of 1000** chains are distinct.
+
+Note the scope. That claim is about the *grafting window*; on a smaller site set
+the picture differs, and `consensus-8` clears the wild type's Q at β=1 already
+(−106.18 at λ=10) simply by mutating less.
 
 **Objection.** *"A library of 142 distinct sequences isn't a library."* Correct,
 and it is why the selection rule tie-breaks on diversity.

@@ -3,27 +3,19 @@
 *Methods draft. Every quantity below is defined once and then reused; each
 subsection ends with the command that reproduces it.*
 
-> ⚠ **This document describes the superseded 260-column setup — the whole
-> document, not only §9.**
+> **Ported to `iter_aln_v2` (L = 265) and `DCAmodel-serine_protease` in
+> November 2026.** Commands, column indices and paths are current and were
+> checked against the scripts they invoke. Quantities recomputed on this model
+> are marked where they appear.
 >
-> It was written against the earlier alignment (`iter_aln_dedup.faa`, L = 260)
-> and the earlier parameter files. Throughout, §1 states `L = 260`, §2 puts the
-> critic site at MSA column **197**, and the command blocks in §§3–7, §9 and §10
-> use `--critic-col 197`, `--allowed-cols 0-259`, `../bmDCA_params.dat`,
-> `../bmDCA_weights.dat` and `../results*/` trees that no longer exist.
+> Two parts are *not* current and say so in place: **§7** (the generative check)
+> reports an unbiased-resampling run that has not been repeated on this model,
+> and **§10.3** quotes a cooling grid superseded by the one in
+> [`RESULTS.md`](RESULTS.md) §4.
 >
-> The project now runs on `iter_aln_v2` (**L = 265**), where the critic site is
-> MSA column **201** (label `189`) and the grafting window is **165–243**, under
-> the model `DCAmodel-serine_protease`. **Do not copy a command out of this file
-> and run it** — the column indices are wrong for the current alignment and will
-> silently address the wrong residues.
->
-> What remains correct and worth reading is the **mathematics**: the energy, the
-> bias, the conditional `P(S)`, the context-dependent entropy, the sample-quality
-> weight μ and the estimators. Those are definitions, and they did not change.
->
-> For current commands see the [README](../README.md) and
-> [`DATA.md`](DATA.md); for current results see [`RESULTS.md`](RESULTS.md).
+> Key coordinates: critic site **MSA column 201** (label `189`), grafting window
+> **165–243** (79 columns), alignment **89,439 sequences × 265 columns**.
+> Gaps are now an ordinary state and may move — see §2.
 
 ---
 
@@ -41,7 +33,7 @@ $$
 with fields $h \in \mathbb{R}^{L \times q}$ and couplings
 $J \in \mathbb{R}^{L \times q \times L \times q}$, symmetric
 ($J_{ij}(a,b) = J_{ji}(b,a)$) and with vanishing diagonal blocks
-($J_{ii} \equiv 0$, checked at load time). The model used here has $L = 260$,
+($J_{ii} \equiv 0$, checked at load time). The model used here has $L = 265$,
 $q = 21$.
 
 Define the **site logits** of site $i$ in the context of $\sigma$,
@@ -70,36 +62,57 @@ substitution. Note that $\ell_i(\cdot \mid \sigma)$ does not depend on $\sigma_i
 ## 2. System and design target
 
 The wild type $\sigma^{\mathrm{wt}}$ is rat anionic trypsin (TRY2_RAT) as its
-aligned row of the family MSA (`data/wt_trypsin.fasta`, $L = 260$).
+aligned row of the family MSA (`data/wt_trypsin.fasta`, $L = 265$).
 
 The **critic site** $i^\star$ is the S1-pocket position that discriminates the two
 specificities — residue 189 in chymotrypsinogen (3TGI) numbering, Asp in trypsin
 and Ser in chymotrypsin. In the alignment used here it is MSA column
-$i^\star = 197$ (0-based), identifiable as the `D` of the `DSCQGDSGGP` motif. The
+$i^\star = 201$ (0-based), identifiable as the `D` of the `DSCQGDSGGP` motif. The
 model reproduces the trypsin signature there:
 
 $$
-P(\mathrm{D} \mid i^\star, \sigma^{\mathrm{wt}}) = 0.979,
+P(\mathrm{D} \mid i^\star, \sigma^{\mathrm{wt}}) = 0.9957,
 \qquad
-P(\mathrm{S} \mid i^\star, \sigma^{\mathrm{wt}}) = 0.008,
+P(\mathrm{S} \mid i^\star, \sigma^{\mathrm{wt}}) = 0.0005,
 \qquad
-E(\sigma^{\mathrm{wt}}) = 219.70 .
+E(\sigma^{\mathrm{wt}}) = 82.87,
+\qquad
+S_{\mathrm{CDE}}(\sigma^{\mathrm{wt}}) = 0.4454 .
 $$
+
+giving $Q_{\mu^\star}(\sigma^{\mathrm{wt}}) = -105.36$ with the $\mu^\star$ of §3.4.
+
+> Energies are gauge-dependent, so none of these transfer between parameter
+> sets. On the earlier 260-column model the same quantities read
+> $P(\mathrm{D}) = 0.979$, $P(\mathrm{S}) = 0.008$, $E = 219.70$. The *signature*
+> is what carries over, not the value.
 
 The **design target** is to raise $P(\mathrm{S} \mid i^\star, \sigma)$ by mutating
 the surrounding pocket. Let $\mathcal{A}$ denote the set of mutable columns. Here
-$\mathcal{A}$ is the window of MSA columns $180$–$220$ minus the five columns
-(211–215) that are gaps in $\sigma^{\mathrm{wt}}$, leaving
-$|\mathcal{A}| = 36$ mutable positions. Gap columns are never mutated and the gap
-symbol is never proposed, so every sampled sequence has the gap pattern of the
-wild type.
+$\mathcal{A}$ is the **grafting segment, MSA columns 165–243**, so
+$|\mathcal{A}| = 79$ — the span that contains every red-sector position except
+one (column 198), chosen because it is the contiguous stretch a graft could
+plausibly replace.
+
+**Gaps are an ordinary state.** This is a change of method from the earlier
+study, where gap columns were frozen and the gap symbol was never proposed. The
+samplers are now run with `--allow-gap-moves`: any of the 79 columns may become a
+gap and any of the 12 columns that are gaps in $\sigma^{\mathrm{wt}}$
+(179–182, 199, 215–219, 231, 232) may acquire a residue. Designs may therefore
+gain or lose length, which is why **indels are counted separately from
+substitutions** in every table downstream.
+
+The consequence is checked rather than assumed: across all 48 runs the mean gap
+count stays at 39.0–42.6 of 265 columns against the wild type's 42, so the
+freedom is available and the model declines to use it (SI S3,
+[`RESULTS.md`](RESULTS.md) §4).
 
 Reproduce the site resolution (loads the model and exits):
 
 ```bash
 python scripts/run_mcmc.py \
-    --wt data/wt_trypsin.fasta --model ../bmDCA_params.dat --output /tmp/out \
-    --critic-col 197 --allowed-cols 180-220 --list-sites --cache-model
+    --wt data/wt_trypsin.fasta --model $TRYP_DATA_ROOT/DCAmodel-serine_protease/params.dat.gz --output /tmp/out \
+    --critic-col 201 --allowed-cols 165-243 --list-sites --cache-model
 ```
 
 ---
@@ -152,34 +165,35 @@ variance removed is $\rho^2$.
 ### 3.4 Result
 
 On $N = 20{,}000$ sequences drawn without replacement (seed 0) from the family
-alignment of 82,021 aligned sequences:
+alignment of 89,439 aligned sequences. These are the values in
+`results/ladder/calibration/mu.json`, which every figure reads:
 
 | quantity | value |
 |---|---|
-| $\rho = \operatorname{corr}(E, S_{\mathrm{CDE}})$ | $0.9765$ |
-| $\mu^\star$ | $307.63$ |
-| $\operatorname{sd}(E)$ | $70.95$ |
-| $\operatorname{sd}(Q_{\mu^\star})$ | $15.30$ |
-| variance removed | $95.4\,\%$ |
-| $\langle E \rangle_{\mathcal{N}}$ | $364.9$ |
-| $\langle S_{\mathrm{CDE}} \rangle_{\mathcal{N}}$ | $1.156$ |
-| $\langle Q_{\mu^\star} \rangle_{\mathcal{N}}$ | $9.2 \pm 15.3$ |
+| $\rho = \operatorname{corr}(E, S_{\mathrm{CDE}})$ | $0.9761$ |
+| $\mu^\star$ | $\mathbf{422.62}$ |
+| $\operatorname{sd}(E)$ | $128.76$ |
+| $\operatorname{sd}(Q_{\mu^\star})$ | $27.99$ |
+| variance removed | $95.3\,\%$ |
+| $\langle E \rangle_{\mathcal{N}}$ | $258.69$ |
+| $\langle S_{\mathrm{CDE}} \rangle_{\mathcal{N}}$ | $0.8426$ |
+| $\langle Q_{\mu^\star} \rangle_{\mathcal{N}}$ | $-97.43 \pm 27.99$ |
 
 Energy and context entropy are nearly collinear within the family. Because
-$S_{\mathrm{CDE}}$ is a *mean* over sites, $\mu^\star / L = 1.183$, so
+$S_{\mathrm{CDE}}$ is a *mean* over sites, $\mu^\star / L = 1.595$, so
 
 $$
 Q_{\mu^\star}(\sigma) \;\simeq\; E(\sigma) - T_{\mathrm{eff}} \sum_{i=1}^{L} H\bigl[P(\cdot \mid \sigma_{\setminus i})\bigr],
-\qquad T_{\mathrm{eff}} = 1.18 ,
+\qquad T_{\mathrm{eff}} = 1.59 ,
 $$
 
 i.e. a free energy at an effective temperature the natural family itself sets.
 
 ```bash
 python scripts/calibrate_mu.py \
-    --natural ../iter_aln_dedup.faa --model ../bmDCA_params.dat \
+    --natural $TRYP_DATA_ROOT/iter_aln_v2.faa --model $TRYP_DATA_ROOT/DCAmodel-serine_protease/params.dat.gz \
     --output calibration/ --max-sequences 20000 --seed 0 \
-    --wt data/wt_trypsin.fasta --critic-col 197 --cache-model
+    --wt data/wt_trypsin.fasta --critic-col 201 --cache-model
 ```
 
 Writes `calibration/mu.json`, `calibration/natural_observables.csv` and the
@@ -302,7 +316,7 @@ $E$ vs $S_{\mathrm{CDE}}$ scatter with the fitted slope $\mu^\star$; the scan of
 $\operatorname{Var}(E - \mu S_{\mathrm{CDE}})$ against $\mu$ with its minimum; and
 the distributions of $E$ and $Q_{\mu^\star}$ on a common scale. Produced by the
 command of §3.4 as `calibration/mu_calibration.png` (copy in
-`docs/mu_calibration.png`).
+`figures/methods/mu_calibration.png`, written by the command below).
 
 ### 6.2 Single-chain sweep and trajectory figure
 
@@ -311,17 +325,17 @@ proposed moves, recording every 25 accepted moves.
 
 ```bash
 python scripts/run_sweep.py \
-    --wt data/wt_trypsin.fasta --model ../bmDCA_params.dat \
-    --output results/ --critic-col 197 --allowed-cols 180-220 \
+    --wt data/wt_trypsin.fasta --model $TRYP_DATA_ROOT/DCAmodel-serine_protease/params.dat.gz \
+    --output results/ --critic-col 201 --allowed-cols 165-243 \
     --lambdas 10 20 50 --threshold 0.80 \
     --max-steps 200000 --record-every 25 \
     --n-runs 4 --seed 1 --n-jobs 12 --cache-model
 
 python scripts/plot_trajectories.py \
     --output-dir results/ --lambdas 10 20 50 --plot-lambda 20 \
-    --critic-col 197 --wt data/wt_trypsin.fasta --model ../bmDCA_params.dat \
-    --target-source data/chymotrypsin_bovine.fasta --allowed-cols 180-220 \
-    --cache-model --save docs/example_sweep.png
+    --critic-col 201 --wt data/wt_trypsin.fasta --model $TRYP_DATA_ROOT/DCAmodel-serine_protease/params.dat.gz \
+    --target-source data/chymotrypsin_bovine.fasta --allowed-cols 165-243 \
+    --cache-model --save figures/methods/example_sweep.png
 ```
 
 The figure is $4 \times 3$, one column per $\lambda$: (i) $P_{\mathrm{S}}$ against
@@ -339,8 +353,8 @@ $\lambda \in \{0, 10, 50, 100, 300, 1000\}$, $\beta = 1$, $|\mathcal{A}| = 36$.
 
 ```bash
 python scripts/run_ensemble.py \
-    --wt data/wt_trypsin.fasta --model ../bmDCA_params.dat \
-    --output ensembles/ --critic-col 197 --allowed-cols 180-220 \
+    --wt data/wt_trypsin.fasta --model $TRYP_DATA_ROOT/DCAmodel-serine_protease/params.dat.gz \
+    --output ensembles/ --critic-col 201 --allowed-cols 165-243 \
     --lambdas 0 10 50 100 300 1000 --n-chains 1000 --n-steps 60000 \
     --trace-every 1000 --trace-schedule log --trace-lambdas 10 100 1000 \
     --seed 0 --device cuda --cache-model
@@ -394,7 +408,7 @@ not family-typical.
 python scripts/plot_ensemble.py \
     --ensemble-dir ensembles/ --mu calibration/mu.json \
     --natural-observables calibration/natural_observables.csv \
-    --max-points 1000 --save docs/ensemble_pairs.png
+    --max-points 1000 --save figures/methods/ensemble_pairs.png
 ```
 
 Lower-triangular scatter matrix of the four observables of §5, one point per final
@@ -407,7 +421,7 @@ sequence, marginals on the diagonal, one shade per $\lambda$ along a single hue
 python scripts/plot_ensemble_trace.py \
     --ensemble-dir ensembles/ --mu calibration/mu.json \
     --natural-observables calibration/natural_observables.csv \
-    --log-x --save docs/ensemble_trace.png
+    --log-x --save figures/methods/ensemble_trace.png
 ```
 
 One panel per observable: batch mean and inter-quartile range across the 1000
@@ -447,15 +461,15 @@ every final sequence and the four observables of §5 are recomputed:
 python scripts/substitute_critic.py \
     --ensemble-dir ../results/ensembles \
     --output ../results_serine/ensembles \
-    --wt data/wt_trypsin.fasta --model ../bmDCA_params.dat \
-    --critic-col 197 --device cuda --cache-model
+    --wt data/wt_trypsin.fasta --model $TRYP_DATA_ROOT/DCAmodel-serine_protease/params.dat.gz \
+    --critic-col 201 --device cuda --cache-model
 
 python scripts/plot_ensemble.py \
     --ensemble-dir ../results_serine/ensembles --mu ../results/calibration/mu.json \
     --natural-observables ../results/calibration/natural_observables.csv \
     --max-points 1000 \
     --title "Final sequences of 1000 chains per lambda, with S written into the critic site" \
-    --save docs/ensemble_pairs_serine.png
+    --save figures/methods/ensemble_pairs_serine.png
 ```
 
 The substitution is applied to the sampled sequences only. The natural alignment
@@ -482,14 +496,14 @@ distance moves by at most one, upward where the chain carried the wild-type D an
 downward where it had already drifted off it.
 
 **The serine is essentially free wherever the bias has done its work.** The per
-chain differences are in `docs/critic_substitution_deltas.png`:
+chain differences are drawn by the command below into `figures/methods/critic_substitution_deltas.png`:
 
 ```bash
 python scripts/plot_critic_deltas.py \
     --ensemble-dir ../results/ensembles \
     --substituted-dir ../results_serine/ensembles \
     --mu ../results/calibration/mu.json \
-    --save docs/critic_substitution_deltas.png
+    --save figures/methods/critic_substitution_deltas.png
 ```
 
 Chains that already ended on S have $\Delta E = \Delta Q = 0$ exactly, and their
@@ -543,8 +557,8 @@ that already has the serine?
 ```bash
 python scripts/add_natural_neighbour.py \
     --ensemble-dir ../results_serine/ensembles \
-    --natural ../iter_aln_dedup.faa --critic-col 197 \
-    --allowed-cols 180-220 --wt data/wt_trypsin.fasta --as-percentage \
+    --natural $TRYP_DATA_ROOT/iter_aln_v2.faa --critic-col 201 \
+    --allowed-cols 165-243 --wt data/wt_trypsin.fasta --as-percentage \
     --natural-observables ../results/calibration/natural_observables.csv --device cuda
 
 python scripts/plot_ensemble.py \
@@ -552,7 +566,7 @@ python scripts/plot_ensemble.py \
     --natural-observables ../results/calibration/natural_observables.csv \
     --max-points 1000 --quantities E_DCA hamming_to_wt P_S Q min_hamming_natural_S_pct \
     --title "Final sequences of 1000 chains per lambda, with S written into the critic site" \
-    --save docs/ensemble_pairs_serine.png
+    --save figures/methods/ensemble_pairs_serine.png
 ```
 
 The distance is computed as the number of compared columns minus the number of
@@ -588,6 +602,27 @@ never mentions the model.
 
 ## 7. Does unbiased resampling reach the training statistics?
 
+> ⚠ **Method current, numbers not.** The commands and column indices below are
+> ported, but **this check has not been re-run on `DCAmodel-serine_protease`**.
+> Every numerical result in §§7.3–7.5 comes from the earlier model and earlier
+> alignment, and energies are gauge-dependent, so none of those values transfer.
+> Read this section for *how* the check is constructed and what it can show.
+>
+> There is a partial substitute: the current model's training log records
+> `final_pearson = 0.9750` on the training $C_{ij}$ and `0.7607` on the 17,888
+> held-out sequences (see [`TRAINING.md`](TRAINING.md)). That is the fit's own
+> convergence measure, not an independent resampling check — it comes from the
+> chains the fit used, so it cannot detect a sampler that fails to equilibrate
+> away from them, which is exactly what this section exists to test.
+>
+> One methodological difference to carry into any re-run: the reweighting
+> described in §7.1 was used for the earlier fit, but
+> `DCAmodel-serine_protease` was trained with **`no_reweighting: True`**
+> ([`TRAINING.md`](TRAINING.md)), so the target frequencies for a current
+> generative check are unweighted.
+>
+> To re-run it, see the command in §7.4; budget a few hours on a GPU.
+
 Everything above takes the model as given. This section asks whether the model
 reproduces the statistics it was fitted on, which is the generative check of a
 Potts model and is independent of the design question.
@@ -602,7 +637,7 @@ $$f_i(a), \qquad f_{ij}(a,b), \qquad C_{ij}(a,b) = f_{ij}(a,b) - f_i(a) f_j(b) \
 
 the last being the connected correlations, whose diagonal blocks are excluded
 because $f_{ii}(a,b) = f_i(a) \delta_{ab}$ is reproduced by construction and would
-flatter any sampler. Weights come from `bmDCA_weights.dat`, one per alignment row: they are
+flatter any sampler. Weights come from a `weights.dat`, one per alignment row: they are
 reciprocals of integers between 1 and 480, i.e. the usual
 $w_a = 1 / |\{b : \mathrm{id}(a,b) > \theta\}|$ reweighting that downweights dense
 clusters of close homologues. They sum to
@@ -643,14 +678,14 @@ not an independent check but a sensitive read-out of the same one.
 
 ```bash
 python scripts/run_generative_check.py \
-    --wt data/wt_trypsin.fasta --model ../bmDCA_params.dat \
-    --natural ../iter_aln_dedup.faa --weights ../bmDCA_weights.dat \
-    --output ../results_generative_gaps/ --critic-col 197 --allowed-cols 0-259 \
+    --wt data/wt_trypsin.fasta --model $TRYP_DATA_ROOT/DCAmodel-serine_protease/params.dat.gz \
+    --natural $TRYP_DATA_ROOT/iter_aln_v2.faa --weights $TRYP_DATA_ROOT/DCAmodel-serine_protease/weights.dat \
+    --output ../results_generative_gaps/ --critic-col 201 --allowed-cols 0-264 \
     --n-chains 1000 --n-steps 520000 --trace-every 8000 --trace-schedule log \
     --seed 0 --device cuda --cache-model
 ```
 
-1000 chains, $5.2 \times 10^5$ proposed moves each (2000 sweeps over all 260
+1000 chains, $5.2 \times 10^5$ proposed moves each (2000 sweeps over all 265
 columns), ≈ 10 min on one RTX 3090.
 
 ### 7.2 The gap must be an ordinary state
@@ -774,7 +809,7 @@ specific -- energies and conditionals computed from these parameters are being
 read off a model whose correlation structure is softer than the family's, which is
 the direction that makes designs look more plausible than they are.
 
-The figure is `docs/generative_check.png`:
+The command below writes `figures/methods/generative_check.png`:
 
 ```bash
 # adabmDCA's own sampler, from each starting point
@@ -792,7 +827,7 @@ python scripts/plot_generative_check.py \
              "Gibbs, started at natural sequences" \
              "Gibbs, started at random sequences" \
              "Metropolis, started at the wild type" \
-    --save docs/generative_check.png
+    --save figures/methods/generative_check.png
 ```
 
 ---
@@ -854,7 +889,7 @@ correlations about 46 % too weak, and neither figure is an artefact of batch siz
 What changes is which statistic carries the claim: quote the slope, 0.538, and
 report the Pearson coefficient only beside the ceiling for its own $M$.
 
-The figure is `docs/generative_check_10k.png`:
+The command below writes `figures/methods/generative_check_10k.png`:
 
 ```bash
 for START in wt random; do
@@ -867,7 +902,7 @@ python scripts/plot_generative_check.py \
     --log-x --no-nogap --figsize 15 8.6 \
     --labels "Gibbs, 10000 chains, started at the wild type" \
              "Gibbs, 10000 chains, started at random sequences" \
-    --save docs/generative_check_10k.png
+    --save figures/methods/generative_check_10k.png
 ```
 
 ---
@@ -889,150 +924,25 @@ python scripts/plot_generative_check.py \
 
 ---
 
-## 9. The same analysis with the `model_pcd_serine_protease` parameters
+## 9. A second model (removed)
 
-> **Superseded — kept for provenance only.** This section documents an earlier
-> model *and* an earlier alignment. Its paths
-> (`../model_pcd_serine_protease/`, `../results_pcd/`, `../iter_aln_dedup.faa`)
-> and its `--critic-col 197` belong to the old **260-column** alignment; the
-> alignment in use now is 265 columns wide and the critic site is column **201**
-> (see `docs/SETUP.md`). Neither that model nor its results survive. Nothing
-> below has been ported or re-run — it is recorded exactly as it was.
+This section documented the same analysis repeated on a second parameter set,
+`model_pcd_serine_protease`. That model, its results and the 260-column
+alignment it was fitted to were deleted in the November 2026 cleanup, so the
+section has been removed rather than ported: every number in it was a property
+of parameters that no longer exist.
 
-A second model of the same family (adabmDCA `bmDCA`, Metropolis PCD, 10 000 chains,
-stopped at its own `target_pearson = 0.95`). Energies are gauge-dependent, so none
-of the numbers in §6 and §7 transfer; everything below is recomputed from scratch.
-The calibration gives $\mu^* = 316.53$ (§3 method unchanged, 20 000 sequences,
-unweighted): it removes 94.7 % of the variance of the energy, with
-$\mathrm{corr}(E, \mathrm{CDE}) = 0.973$. The figure is
-`docs/mu_calibration_pcd.png`.
+The point it made survives and is worth stating once. **Energies are
+gauge-dependent, so nothing transfers between parameter sets** — not $\mu$, not
+a $\lambda$ ladder, not a consensus column set, not a single energy. Each model
+must have its own calibration and its own results tree.
 
-### 9.1 Generative check
-
-Two runs of 25 000 Gibbs chains, 4000 sweeps, every column free and the gap an
-ordinary state, started from uniformly random sequences and from natural sequences.
-
-| start | $f_i$ | $f_{ij}$ | $C_{ij}$ | slope | $\langle E\rangle$ |
-|---|---|---|---|---|---|
-| random (from $E = 1199$) | 0.9926 | 0.9846 | 0.7620 | 0.595 | 373.5 |
-| natural (from $E = 289$) | 0.9928 | 0.9850 | 0.7612 | 0.593 | 373.6 |
-| *ceiling at $M = 25\,000$* | *1.0000* | *0.9999* | *0.9964* | *0.998* | *289.0* |
-
-The two starts agree to 0.1 in energy and 0.0008 in $C_{ij}$ having approached from
-910 apart, so this is equilibrium, not a plateau. At $M = 25\,000$ the finite-sample
-ceiling is 0.996 and no longer limits the reading (§7.5). The conclusion matches
-§7.4 on a different parameter set: composition reproduced, connected correlations
-about 40 % too weak, equilibrium some 85 in energy above the training set.
-
-**The model's own equilibrium sample.** `chains.fasta` holds the 10 000 persistent
-chains at the end of training. Scored through this repository's `NaturalStatistics`
-against the same alignment and `weights.dat`, with the finite-sample ceiling
-measured at the same $M = 10\,000$:
-
-| | $f_i$ | $f_{ij}$ | $C_{ij}$ | slope | $\langle E\rangle$ |
-|---|---|---|---|---|---|
-| training chains ($M = 10\,000$) | 0.9933 | 0.9859 | **0.7550** | 0.576 | 376.4 ± 53.6 |
-| *ceiling at $M = 10\,000$* | *0.9999* | *0.9996* | *0.9797* | *1.004* | *289.0* |
-| 25 000 Gibbs chains from random | 0.9926 | 0.9846 | 0.7620 | 0.595 | 373.5 ± 56.0 |
-
-Excluding the gap state throughout gives 0.7184 with slope 0.504. The training
-chains and an independent run of this repository's sampler therefore describe the
-same distribution — 0.755 against 0.762 in $C_{ij}$, 376.4 against 373.5 in energy,
-from different code and opposite starting points.
-
-**A discrepancy worth recording.** The training log reports `Pearson = 0.950027`
-for those very chains. Rebuilding its own `fij_target` with `DatasetDCA` and
-comparing with `get_correlation_two_points` reproduces the log's
-`M_eff = 25888.93359` and `effective_pseudocount = 3.862654274e-05` exactly, so it
-is the same target, and still gives 0.755; the result is unchanged in float64, and
-`train_graph` saves the very chains the metric was computed on. So `params.dat`,
-`chains.fasta` and `weights.dat` agree with each other and with this repository's
-sampler; the logged 0.95 is the outlier. The log records `package_version: 1.0.0`
-against 2.0.0 installed, which is where to look. Since `target_pearson` is the
-stopping rule, training may have stopped early — which is consistent with the
-measured 0.755 sitting well below the 0.980 that 10 000 samples could reach.
-
-The figure is `docs/generative_check_pcd.png`.
-
-### 9.2 Designs
-
-The same six lambdas as §6, 1000 chains each, 60 000 proposed moves,
-`--allowed-cols 180-220` (36 mutable columns after dropping the wild type's gaps),
-S written into the critic site afterwards as in §6.6.
-
-| $\lambda$ | $\langle E\rangle$ | $\langle d_H^{\mathrm{WT}}\rangle$ | $\langle P_S\rangle$ | $P_S > 0.8$ | $\langle Q_\mu\rangle$ | median distance to nearest natural S-carrier |
-|---|---|---|---|---|---|---|
-| 0 | 155.0 | 6.4 | 0.005 | 0 % | −94.3 | 25.0 % |
-| 10 | 179.8 | 10.2 | 0.138 | 0 % | −84.0 | 33.3 % |
-| 50 | 203.6 | 15.4 | 0.480 | 0 % | −75.9 | 41.7 % |
-| 100 | 216.8 | 18.1 | 0.611 | 0 % | −68.6 | 44.4 % |
-| 300 | 242.1 | 23.0 | 0.748 | 0 % | −53.0 | 50.0 % |
-| 1000 | 266.4 | 27.3 | 0.796 | 23.6 % | −34.9 | 55.6 % |
-| *natural* | *289.6* | *161.0* | *0.110* | — | *−79.1 ± 16.5* | *38.9 %* |
-
-The same trade-off as §6, on different parameters, and monotone in $\lambda$ down
-every column: $P_S$ is bought with energy and with distance from the family. At
-$\lambda = 1000$ the designs are closer to the natural median in energy than the
-$\lambda = 0$ chains are, but their quality $Q_\mu$ has left the natural band
-entirely (−34.9 against −79.1 ± 16.5), and their nearest natural S-carrier is
-55.6 % of the mutable sites away, against a natural median of 38.9 %. $\lambda =
-1000$ is also the only setting that puts any chains above $P_S = 0.8$ (23.6 %);
-at $\lambda = 300$ the mean $P_S$ is already 0.748 but no single chain clears the
-threshold, so the ladder buys its last tenth of specificity at a steep price.
-
-Writing S into the critic site, over the chains not already carrying it, costs a
-median of +5.3 in energy at $\lambda = 0$ and becomes progressively favourable as
-the bias rebuilds the surrounding pocket for it: +1.3 at $\lambda = 10$ (837 chains),
-−1.5 at 50 (506), −2.3 at 100 (370), −3.3 at 300 (262) and −3.6 at 1000 (189).
-
-The figures are `docs/ensemble_pairs_pcd.png` (5×5),
-`docs/ensemble_trace_pcd.png` and `docs/critic_substitution_deltas_pcd.png`, the
-last being the per-chain cost of that substitution (§6.6) on this model: at
-$\lambda = 0$ the distribution sits wholly above zero, at $\lambda = 10$ it straddles
-it, and from $\lambda = 50$ up it is wholly below.
-
-```bash
-python scripts/calibrate_mu.py --natural ../iter_aln_dedup.faa \
-    --model ../model_pcd_serine_protease/params.dat --output ../results_pcd/calibration/ \
-    --max-sequences 20000 --wt data/wt_trypsin.fasta --critic-col 197 --device cuda --cache-model
-
-python scripts/run_ensemble.py --wt data/wt_trypsin.fasta \
-    --model ../model_pcd_serine_protease/params.dat --output ../results_pcd/ensembles/ \
-    --critic-col 197 --allowed-cols 180-220 --lambdas 0 10 50 100 300 1000 \
-    --n-chains 1000 --n-steps 60000 --trace-every 1000 --trace-schedule log \
-    --trace-lambdas 0 100 1000 --device cuda --cache-model
-
-python scripts/substitute_critic.py --ensemble-dir ../results_pcd/ensembles \
-    --output ../results_pcd/ensembles_serine --wt data/wt_trypsin.fasta \
-    --model ../model_pcd_serine_protease/params.dat --critic-col 197 --device cuda --cache-model
-
-python scripts/add_natural_neighbour.py --ensemble-dir ../results_pcd/ensembles_serine \
-    --natural ../iter_aln_dedup.faa --critic-col 197 \
-    --natural-observables ../results_pcd/calibration/natural_observables.csv \
-    --allowed-cols 180-220 --wt data/wt_trypsin.fasta --as-percentage --device cuda
-
-python scripts/plot_ensemble.py --ensemble-dir ../results_pcd/ensembles_serine \
-    --mu ../results_pcd/calibration/mu.json \
-    --natural-observables ../results_pcd/calibration/natural_observables.csv \
-    --quantities E_DCA hamming_to_wt P_S Q min_hamming_natural_S_pct --max-points 1000 \
-    --title "Final sequences of 1000 chains per lambda, with S written into the critic site" \
-    --save docs/ensemble_pairs_pcd.png
-
-python scripts/plot_ensemble_trace.py --ensemble-dir ../results_pcd/ensembles \
-    --mu ../results_pcd/calibration/mu.json \
-    --natural-observables ../results_pcd/calibration/natural_observables.csv \
-    --log-x --save docs/ensemble_trace_pcd.png
-
-for START in random natural; do
-  python scripts/run_generative_check.py --wt data/wt_trypsin.fasta \
-      --model ../model_pcd_serine_protease/params.dat --natural ../iter_aln_dedup.faa \
-      --weights ../model_pcd_serine_protease/weights.dat --critic-col 197 --allowed-cols 0-259 \
-      --sampler gibbs --n-chains 25000 --n-steps 1040000 --trace-every 8000 \
-      --trace-schedule log --device cuda --cache-model --start $START \
-      --output ../results_pcd25k_$START/
-done
-```
-
+That is enforced in code rather than by discipline: both figure pipelines stamp
+each results directory with a fingerprint of the parameter file (size plus
+sha256 of the first and last 1 MB) and refuse to build when it stops matching.
+The failure it prevents is the quiet one — a new model's scores drawn over an
+old model's designed sequences, where nothing looks wrong and every number is
+meaningless. See `analysis/figures_ladder/config.py` and [`DATA.md`](DATA.md).
 
 ## 10. Cooling the Potts term: what $\beta$ buys
 
@@ -1066,6 +976,20 @@ moves both at once.
 
 ### 10.2 The grid
 
+> ⚠ **Superseded numbers.** This grid was run on the earlier model and the
+> earlier 260-column alignment (window `180-220`, 36 mutable columns, critic
+> column 197), and its figures were deleted with it. Energies are
+> gauge-dependent, so no value in the table below transfers.
+>
+> **The current cooling result is in [`RESULTS.md`](RESULTS.md) §4** — 48 runs on
+> the grafting window 165–243, drawn by `fig03_cooling` and tabulated in full by
+> `si02_table_full`. It reaches the same qualitative conclusion by a wider grid:
+> cooling buys ≈ 9 in $Q_\mu$ at matched serine, nearly all of it by $\beta = 2$,
+> and pays for it in library diversity (100 % unique → 7.9 % at $\beta = 10$).
+>
+> What is still worth reading here is **§10.1**, which is a design decision live
+> in the code today, and the *shape* of the trade-off this table first revealed.
+
 Nineteen ensembles, 1000 chains each, `--allowed-cols 180-220`, every one rescored
 at $\beta = 1$ because $\mu$ was calibrated there and a $\beta \neq 1$ conditional is
 not the same observable. Diversity is the mean pairwise Hamming distance *inside*
@@ -1097,7 +1021,7 @@ each library over the 36 mutable columns; the natural alignment scores 21.6 ther
 
 Three figures:
 
-* `docs/beta_scan_pcd.png` -- the grid in six panels. The top row is read against
+* `beta_scan` (figure deleted with the model) -- the grid in six panels. The top row is read against
   $\tilde\lambda$: energy, quality and specificity, with the natural mean, the wild
   type and the $\lambda = 0$ control ruled on each. The bottom row is read against
   the **energy**, which is the quantity the designs are meant to keep comparable to
@@ -1106,10 +1030,10 @@ Three figures:
   line are $\beta = 1$, the thermal reference; diamonds are the cooled runs, joined
   by a dashed line from $\beta = 5$ up where $\beta = 5$ and $\beta = 10$ land on top
   of each other;
-* `docs/beta_matched_pairs_pcd.png` -- the 5×5 at matched $\tilde\lambda = 100$ for
+* `beta_matched_pairs` (figure deleted with the model) -- the 5×5 at matched $\tilde\lambda = 100$ for
   $\beta = 1, 5, 10$. The cold libraries are a tight knot *inside* the warm one,
   which is the collapse seen per chain rather than as a summary statistic;
-* `docs/beta_matched_trace_pcd.png` -- the same three along the run, against
+* `beta_matched_trace` (figure deleted with the model) -- the same three along the run, against
   accepted moves per chain. All three overshoot to $E \approx 232$ before relaxing;
   the cold ones relax further, to 208 against 218, and their inter-quartile bands
   are visibly narrower. Note the axis: in 60 000 proposals $\beta = 1$ accepts some
@@ -1182,14 +1106,18 @@ over the last factor 2.5 in steps, but a quench depends on where it started, and
 colder run explores less of the basin, not more of it. That is a further reason to
 read the diversity column as the real cost.
 
+The commands that produced the table are recorded as run. **They cannot be
+executed now** — the model and results trees they name were deleted. For the
+current equivalent use `analysis/run_ladder.sh` (see [`RESULTS.md`](RESULTS.md) §8).
+
 ```bash
 python scripts/run_ensemble.py --wt data/wt_trypsin.fasta \
     --model ../model_pcd_serine_protease/params.dat --output ../results_pcd/beta_scan/b3/ \
-    --critic-col 197 --allowed-cols 180-220 --lambdas 1000 --beta 3 \
+    --critic-col 201 --allowed-cols 165-243 --lambdas 1000 --beta 3 \
     --n-chains 1000 --n-steps 60000 --trace-every 1000 --trace-schedule log \
     --device cuda --cache-model
 # then substitute_critic.py --beta 1.0 and add_natural_neighbour.py as in 9.2,
 # and finally
 python scripts/plot_beta_scan.py --summary ../results_pcd/beta_scan_summary.csv \
-    --save docs/beta_scan_pcd.png
+    --save beta_scan.png
 ```
