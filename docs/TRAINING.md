@@ -13,7 +13,9 @@ Written for: whoever reruns or reviews this analysis.
 > `iter_aln_v2.faa` with a 17 888-sequence held-out split, stopped on a
 > validation plateau rather than on `--target`. What this document says about
 > what PTT is, where to get it and what it writes applies to both runs; the
-> command block does not.
+> command block does not. **The surviving model's own settings are recorded in
+> [§ The surviving model](#the-surviving-model-dcamodel-serine_protease) at the
+> foot of this file.**
 
 ## What "bmDCA with PTT" is, and where it comes from
 
@@ -129,3 +131,51 @@ recalibrated on this model, and every number in [`RESULTS.md`](RESULTS.md) is re
 from it. Comparisons with the figures in the repository's `docs/` are
 comparisons of *shape*, never of value — and in any case those used a different
 alignment (L = 260) as well as a different model.
+
+---
+
+## The surviving model: `DCAmodel-serine_protease`
+
+This is the model every figure in this repository is built from. The settings
+below are transcribed from its own training log,
+`$TRYP_DATA_ROOT/DCAmodel-serine_protease/adabmDCA.log`, which is the
+authoritative record — not from the command block above, which belongs to a
+different run.
+
+| | |
+|---|---|
+| package | adabmDCA **2.0.0**, model `bmDCA`, seed 0 |
+| trained | 2026-11-18, **6 h 44 m** (24,239 s) on **CUDA**, float32 |
+| train split | `iter_aln_v2.train.fasta` — 71,551 sequences, L = 265, q = 21 |
+| held-out split | `iter_aln_v2.test.fasta` — 17,888 sequences |
+| reweighting | **none** (`no_reweighting: True`); clustering_seqid 0.8 recorded but unused |
+| sampler | `metropolized_gibbs`, strategy **PTT**, 2 replicas, swap target acceptance 0.25 |
+| chains | **10,240**, 10 sweeps per gradient step |
+| optimizer | adaptive, learning rate 0.01, trust radius 0.01, centering on |
+| regularisation | L2 = 0, effective pseudocount 1.3976e-05 |
+| stopping | `validation_stop` (window 100, min gain 0), target_pearson 0.95, max 50,000 steps |
+| **stopped at** | **20,396 gradient steps — `validation_plateau`, converged** |
+| final Pearson | **0.9750** on training C_ij, **0.7607** on the held-out set |
+| density | 1.0 (dense couplings, no decimation) |
+
+Two things about this table are worth pausing on.
+
+**The split is the point.** 71,551 + 17,888 = 89,439, exactly the rows of
+`iter_aln_v2.faa`. Holding out 17,888 sequences is what makes figure F1 and
+SI S1 predictions rather than consistency checks, and it is the only reason
+this model replaced its predecessor. Never regenerate the split by guessing —
+the figure code falls back to the whole alignment and says so, because a
+fabricated split would quietly undermine the one figure meant to answer the
+circularity objection.
+
+**It was stopped by the validation set, not by `--target`.** Training ran to a
+validation plateau at 20,396 steps with training Pearson 0.975 — below the
+0.95 target only in the sense that it passed it and kept going, while the
+held-out Pearson settled at 0.761. The gap between 0.975 and 0.761 is the
+honest measure of how much of the fit is family structure and how much is the
+training rows, and it is why the discriminator figure is scored on the test
+split.
+
+The validation data's own `pearson_to_training` is 0.7796 with slope 1.0174 —
+i.e. the two splits are statistically the same distribution, so the held-out
+set is a fair test rather than an unusual corner of the family.
