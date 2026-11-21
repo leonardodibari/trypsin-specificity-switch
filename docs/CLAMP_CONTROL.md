@@ -171,7 +171,17 @@ That is the finding to carry forward.
 
 ---
 
-## 5. Reproducing
+## 5. The three figures
+
+`analysis/figures_clamp/` draws them into `figures/clamp/`:
+
+| script | figure |
+|---|---|
+| `c01_clamp_result.py` | what a clamped serine costs, and what the model does around it — the three conditions read against each other |
+| `c02_family_gap.py` | does relaxing around a clamped serine move the protein toward the family? The 82-residue gap of SI S7, re-asked without a bias term |
+| `c03_pocket.py` | the pocket column by column: 189, 216, 226, 172 and the loops, against natural trypsins and chymotrypsins |
+
+## 6. Reproducing
 
 ```bash
 bash analysis/run_clamp.sh                   # all four conditions, ~18 min (M-series GPU)

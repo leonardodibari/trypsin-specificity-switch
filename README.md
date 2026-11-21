@@ -942,6 +942,10 @@ scripts/
   plot_generative_check.py  the convergence figure for that check
   plot_ensemble_trace.py  the observables along the run
   annotate_sectors.py     sector enrichment of a designed ensemble
+  plot_sector_mutations.py    where mutations landed: red sector, segment, elsewhere
+  plot_sector_trajectories.py where they happen ALONG the chain, not just at the end
+  plot_gap_abundance.py   how many gaps the designs carry and where (needs --allow-gap-moves)
+  plot_beta_scan.py       observables against beta, for a cooling scan
   extract_aligned_row.py  pull a reference sequence out of the alignment, length-checked
   _common.py              CLI options shared by the scripts
 tests/       energy/conditional consistency and sampler correctness
