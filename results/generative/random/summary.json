@@ -1,0 +1,95 @@
+{
+  "lam": 0.0,
+  "beta": 1.0,
+  "n_chains": 1000,
+  "n_steps": 1060000,
+  "seed": 0,
+  "acceptance_rate": null,
+  "n_mutable_columns": 265,
+  "sampler": "gibbs",
+  "critic_col": 201,
+  "pseudo_count": 0.0,
+  "allow_gap_moves": true,
+  "start": "random",
+  "random_start_columns": 265,
+  "random_start_states": 21,
+  "natural": "/Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/iter_aln_v2.train.fasta",
+  "weights": null,
+  "n_natural": 71551,
+  "n_natural_scored": 71551,
+  "effective_sequences": 71551.0,
+  "kish_ess": 71551.0,
+  "final": {
+    "E_DCA": 273.5487060546875,
+    "hamming_to_wt": 163.004,
+    "P_S": 0.10758669674396515,
+    "CDE": 0.9126228094100952,
+    "n_gaps": 32.649
+  },
+  "natural_weighted": {
+    "E_DCA": {
+      "mean": 225.55749174046787,
+      "std": 112.52511986094464
+    },
+    "hamming_to_wt": {
+      "mean": 161.76116336599068,
+      "std": 18.79370232086881
+    },
+    "P_S": {
+      "mean": 0.1022398498787977,
+      "std": 0.2599843435904771
+    },
+    "CDE": {
+      "mean": 0.7777639804397932,
+      "std": 0.28158874364141007
+    },
+    "n_gaps": {
+      "mean": 32.661514164721666,
+      "std": 8.288061952206466
+    }
+  },
+  "pearson_final": {
+    "pearson_f1": 0.9983608722686768,
+    "pearson_cij": 0.7770261764526367,
+    "slope_cij": 0.9310222268104553,
+    "pearson_f2": 0.9949771761894226,
+    "pearson_f1_nogap": 0.9980621933937073,
+    "pearson_cij_nogap": 0.7400336861610413,
+    "slope_cij_nogap": 0.9184507727622986,
+    "pearson_f2_nogap": 0.9936541318893433
+  },
+  "sampling_ceiling": {
+    "pearson_f1": {
+      "mean": 0.9989185094833374,
+      "std": 1.3378001937848022e-05
+    },
+    "pearson_cij": {
+      "mean": 0.8227597951889039,
+      "std": 0.002297160917881467
+    },
+    "slope_cij": {
+      "mean": 0.9999642372131348,
+      "std": 0.012337449400793643
+    },
+    "pearson_f2": {
+      "mean": 0.996346378326416,
+      "std": 3.0726771922747047e-05
+    },
+    "pearson_f1_nogap": {
+      "mean": 0.9987548232078552,
+      "std": 2.4945710979807582e-05
+    },
+    "pearson_cij_nogap": {
+      "mean": 0.7952699542045594,
+      "std": 0.0035169243746495504
+    },
+    "slope_cij_nogap": {
+      "mean": 1.0056695938110352,
+      "std": 0.017443499346985053
+    },
+    "pearson_f2_nogap": {
+      "mean": 0.9954134583473205,
+      "std": 5.401818183009997e-05
+    }
+  }
+}

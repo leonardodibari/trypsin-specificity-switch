@@ -445,7 +445,7 @@ left out, with their share in the legend; `--include-unchanged` puts them back.
 ```bash
 python scripts/plot_critic_deltas.py \
     --ensemble-dir ../results/ensembles --substituted-dir ../results_serine/ensembles \
-    --mu ../results/calibration/mu.json --save docs/critic_substitution_deltas.png
+    --mu ../results/calibration/mu.json --save figures/methods/critic_substitution_deltas.png
 ```
 
 ### `add_natural_neighbour.py` — how close is a design to something nature has?
@@ -520,7 +520,7 @@ is how the starting points are compared.
 ```bash
 python scripts/plot_generative_check.py \
     --run-dir ../results_gibbs ../results_gibbs_natural ../results_gibbs_random \
-    --log-x --no-nogap --figsize 15 8.6 --save docs/generative_check.png
+    --log-x --no-nogap --figsize 15 8.6 --save figures/methods/generative_check.png
 ```
 
 ### `plot_ensemble_trace.py` — how the ensemble gets there
@@ -757,7 +757,15 @@ not move: 0.539 at 1000 chains, 0.538 at 10 000, with a ceiling of 1.00 at both,
 because adabmDCA regresses the chains' `C_ij` on the natural `C_ij` as predictor
 and noise in the response does not bias that coefficient. The energy gap is
 likewise unmoved (450.5 against 449.3). METHODS §7.5 derives this; the figure is
-`docs/generative_check_10k.png`.
+`figures/methods/generative_check_10k.png`.
+
+> **Re-run November 2026.** The generative check has since been repeated on
+> `DCAmodel-serine_protease` from three starting ensembles; the current numbers
+> and the verdict are in [`docs/METHODS.md`](docs/METHODS.md) §7.4, and the runs
+> are in `results/generative/`. Short version: the fit reproduces its training
+> statistics at the sampling ceiling, but Gibbs from a cold wild-type start does
+> not equilibrate in 4,000 sweeps — and is slower than starting from a *random*
+> sequence, because the wild type is a deep atypical minimum.
 
 Read `docs/METHODS.md` §7 before quoting those numbers: the ceiling, the gap
 treatment and the residual non-convergence of the wild-type run all bear on them.
@@ -803,12 +811,12 @@ site afterwards:
 | *natural* | *289.6* | *161.0* | *0.110* | — | *−79.1 ± 16.5* | *38.9 %* |
 
 The §6 trade-off again, and monotone in λ across the whole ladder: `P_S` is bought
-with energy and with distance from the family. `docs/critic_substitution_deltas_pcd.png`
+with energy and with distance from the family. `figures/methods/critic_substitution_deltas_pcd.png`
 shows what writing S costs per chain: wholly positive at λ = 0, straddling zero at
 λ = 10, wholly negative from λ = 50 up. Only λ = 1000 puts any chains above
 `P_S` = 0.8, and by then ⟨Q⟩ has left the natural band. Figures:
-`docs/mu_calibration_pcd.png`, `docs/ensemble_pairs_pcd.png`,
-`docs/ensemble_trace_pcd.png`, `docs/generative_check_pcd.png`.
+`figures/methods/mu_calibration_pcd.png`, `figures/methods/ensemble_pairs_pcd.png`,
+`figures/methods/ensemble_trace_pcd.png`, `figures/methods/generative_check_pcd.png`.
 
 The model's own equilibrium sample, the 10 000 persistent chains in
 `chains.fasta`, scored the same way, with the ceiling measured at the same M:
@@ -860,9 +868,9 @@ So: `lambda_tilde` places the designs, β sharpens them. Use `lambda_tilde` at �
 β = 1.5–2 is defensible if every chain must carry S unaided. Beyond β ≈ 3 the
 ensemble stops being a library.
 
-Figures: `docs/beta_scan_pcd.png` (the grid), `docs/beta_matched_pairs_pcd.png`
+Figures: `figures/methods/beta_scan_pcd.png` (the grid), `figures/methods/beta_matched_pairs_pcd.png`
 (the 5×5 at matched `lambda_tilde` = 100, where the cold libraries are a tight knot
-inside the warm one) and `docs/beta_matched_trace_pcd.png` (the same three along
+inside the warm one) and `figures/methods/beta_matched_trace_pcd.png` (the same three along
 the run). Detail in METHODS §10.
 
 **One caveat on this model's training log.** It reports `Pearson = 0.950027` for
@@ -901,6 +909,7 @@ and pseudocount exactly, unchanged in float64. `params.dat`, `chains.fasta` and
 analysis/    the study: pipeline drivers and the two figure pipelines
   _paths.sh            shared path resolution + preflight for every driver
   run_clamp.sh         STAGE 1, clamp-and-relax (4 conditions)
+  run_generative.sh    STAGE 1, the generative check (3 starts) -> results/generative/
   run_ladder.sh        STAGE 1, the lambda ladder (stages: graft, derive, consensus)
   run_ladder_sectors.sh  STAGE 1, all-sites-free run and sector annotation
   derive_consensus.py  reads this model's consensus columns from its own cold run

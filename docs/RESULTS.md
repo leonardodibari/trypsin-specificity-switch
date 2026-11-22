@@ -55,6 +55,22 @@ Scored on the 17,888 held-out sequences (`fig01_discriminator`):
 above 0.97 even in the most unusual novelty bin. So the model has learnt
 something about the family, not about the training rows.
 
+### And it reproduces the statistics it was fitted on
+
+A discriminator can score well on a model that generates badly, so this is
+checked separately ([`METHODS.md`](METHODS.md) §7, `results/generative/`).
+Resampling at $\lambda = 0$, $\beta = 1$ from natural sequences reproduces the
+training $f_i$ and $f_{ij}$ at **100 % of the finite-sample ceiling** and $C_{ij}$
+at **99.3 %**, and a start from *random* sequences 252 residues away converges to
+the same place (94.4 %) — so that is the equilibrium, not an artefact of where
+the chains began.
+
+The same check found the one thing worth carrying into the design runs: a start
+at the **wild type** does *not* equilibrate in 4,000 sweeps, and is slower than a
+random start, because the wild type sits ~143 in energy below the family mean and
+the chains must climb out of it. That barrier is the same one behind the cold
+clamp runs sitting at 36–38 substitutions for every $\beta \geq 2$.
+
 ## 3. The method
 
 Sample with

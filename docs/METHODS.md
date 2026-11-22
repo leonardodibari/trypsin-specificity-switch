@@ -602,26 +602,27 @@ never mentions the model.
 
 ## 7. Does unbiased resampling reach the training statistics?
 
-> ⚠ **Method current, numbers not.** The commands and column indices below are
-> ported, but **this check has not been re-run on `DCAmodel-serine_protease`**.
-> Every numerical result in §§7.3–7.5 comes from the earlier model and earlier
-> alignment, and energies are gauge-dependent, so none of those values transfer.
-> Read this section for *how* the check is constructed and what it can show.
+> **Re-run on `DCAmodel-serine_protease`, 21–22 November 2026.** §§7.3–7.4 are
+> current. §7.5 is not and says so.
 >
-> There is a partial substitute: the current model's training log records
-> `final_pearson = 0.9750` on the training $C_{ij}$ and `0.7607` on the 17,888
-> held-out sequences (see [`TRAINING.md`](TRAINING.md)). That is the fit's own
-> convergence measure, not an independent resampling check — it comes from the
-> chains the fit used, so it cannot detect a sampler that fails to equilibrate
-> away from them, which is exactly what this section exists to test.
+> Two choices are forced by how this model was trained ([`TRAINING.md`](TRAINING.md))
+> and differ from the earlier study:
 >
-> One methodological difference to carry into any re-run: the reweighting
-> described in §7.1 was used for the earlier fit, but
-> `DCAmodel-serine_protease` was trained with **`no_reweighting: True`**
-> ([`TRAINING.md`](TRAINING.md)), so the target frequencies for a current
-> generative check are unweighted.
+> * **The reference is the train split**, `iter_aln_v2.train.fasta` (71,551
+>   sequences), not the whole alignment. The question is whether resampling
+>   reproduces the statistics the fit *targeted*; the 17,888 held-out sequences
+>   were never a target, so including them would make this neither a fit check
+>   nor a generalisation test.
+> * **No weights.** The earlier fit used the reweighting described in §7.1; this
+>   model was trained with `no_reweighting: True`, so its target frequencies are
+>   unweighted ($M_{\mathrm{eff}} =$ Kish ESS $= M = 71{,}551$). Passing a weights
+>   file would score the model against statistics it was never asked to match.
 >
-> To re-run it, see the command in §7.4; budget a few hours on a GPU.
+> The fit's own log reports `final_pearson = 0.9750` on the training $C_{ij}$,
+> but that is measured on the chains the fit itself maintained under PTT. It
+> cannot detect a sampler that fails to equilibrate away from them, which is
+> exactly what this section tests — and, as §7.4 shows, is where the interesting
+> behaviour turns out to be.
 
 Everything above takes the model as given. This section asks whether the model
 reproduces the statistics it was fitted on, which is the generative check of a
@@ -722,117 +723,125 @@ same weights measures this directly (`--ceiling-repeats`, five draws):
 
 | | $f_i$ | $f_{ij}$ | $C_{ij}$ | slope of $C_{ij}$ |
 |---|---|---|---|---|
-| ceiling at $M = 1000$ | 0.9988 | 0.9960 | **0.848** ± 0.008 | 1.000 ± 0.029 |
+| ceiling at $M = 1000$ | 0.9989 | 0.9963 | **0.8228** ± 0.0023 | 1.0000 ± 0.0123 |
 
-Every coefficient must be read against that row: 0.85, not 1, is what success
-looks like for $C_{ij}$ with a thousand chains. The row is specific to $M = 1000$
-and rises with $M$ (§7.5 measures it at 10 000), so a Pearson coefficient is only
-meaningful beside the ceiling for its own batch size.
+Every coefficient must be read against that row: **0.82, not 1, is what success
+looks like for $C_{ij}$ with a thousand chains.** The row is specific to
+$M = 1000$ and rises with $M$ — a 200-chain probe during setup put the same
+ceiling at 0.5476, so a raw $C_{ij}$ Pearson quoted without its batch size is not
+a number at all.
+
+This is the single easiest way to misread §7.4. A $C_{ij}$ of 0.78 is 94 % of
+what is achievable, not 78 % of a perfect score.
 
 ### 7.4 Result
 
-Runs identical but for where the chains start: all at the wild type, one natural
-sequence each drawn under the weights (`--start natural`; with the gap a free state
-these are used unmodified), or one uniformly random sequence each over all 21
-states (`--start random`).
+Three runs, identical but for where the chains start: all at the wild type, one
+natural sequence each (`--start natural`, drawn from the train split, used
+unmodified since the gap is a free state), or one uniformly random sequence each
+over all 21 states (`--start random`). Gibbs — the sampler the model was trained
+with — 1000 chains, 1,060,000 proposed moves each (4000 sweeps over all 265
+columns), $\lambda = 0$, $\beta = 1$.
 
-| sampler | start | sweeps | $f_i$ | $f_i$ ng | $f_{ij}$ | $f_{ij}$ ng | $C_{ij}$ | $C_{ij}$ ng | slope | $\langle E\rangle$ | $\langle d_H^{\mathrm{WT}}\rangle$ | $\langle S_{\mathrm{CDE}}\rangle$ |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Metropolis | wild type | 2000 | 0.976 | 0.979 | 0.951 | 0.955 | 0.558 | 0.501 | 0.65 | 435.9 | 151.7 | 1.317 |
-| Metropolis | wild type | 8000 | 0.990 | 0.990 | 0.978 | 0.976 | 0.562 | 0.494 | 0.55 | 449.9 | 168.7 | 1.369 |
-| Metropolis | natural | 2000 | 0.993 | 0.993 | 0.983 | 0.982 | 0.601 | 0.536 | 0.59 | 442.5 | 167.1 | 1.342 |
-| **Gibbs** | **wild type** | **2000** | **0.990** | **0.989** | **0.977** | **0.975** | **0.548** | **0.478** | **0.54** | **449.3** | **168.9** | **1.364** |
-| **Gibbs** | **natural** | **2000** | **0.991** | **0.991** | **0.980** | **0.979** | **0.568** | **0.499** | **0.55** | **450.0** | **168.8** | **1.367** |
-| **Gibbs** | **random** | **2000** | **0.990** | **0.990** | **0.978** | **0.976** | **0.540** | **0.472** | **0.52** | **453.9** | **169.4** | **1.381** |
-| *target* | — | — | *0.999* | *0.999* | *0.996* | *0.995* | *0.848* | *0.826* | *1.000* | *361.8* | *160.4* | *1.147* |
+Read every column against the $M = 1000$ ceiling of §7.3, given in the last column.
 
-**Five runs, two samplers, three starting points, one answer.** The three Gibbs
-runs span mean energies of 449.3, 450.0 and 453.9 and mean distances from the wild
-type of 168.9, 168.8 and 169.4 -- and they reach that common point from three
-different directions. The wild-type chains climb from $E = 220$, the natural chains
-rise from 362, and the random chains fall from 1197, a starting ensemble with
-$C_{ij} = 0.0001$ and 248 substitutions from the wild type, carrying none of the
-family's structure whatever. All three traces fluctuate without trend over the last
-decade of steps. The Metropolis runs land in the same place, 449.9 from the wild
-type at 8000 sweeps, which is the agreement between an exact conditional sampler
-and a Metropolis chain that the equilibrium requires and that neither sampler
-could fake alone.
+| start | $f_i$ | $f_{ij}$ | $C_{ij}$ | slope $C_{ij}$ |
+|---|---|---|---|---|
+| wild type | 0.9793 (98.0 %) | 0.9549 (95.8 %) | **0.6378 (77.5 %)** | 1.0003 |
+| natural | 0.9988 (100.0 %) | 0.9962 (100.0 %) | **0.8170 (99.3 %)** | 0.9880 |
+| random | 0.9984 (99.9 %) | 0.9950 (99.9 %) | **0.7770 (94.4 %)** | 0.9310 |
+| *ceiling* | *0.9989* | *0.9963* | *0.8228* | *1.0000* |
 
-The random start matters because it is the only one that is not already inside the
-family. Chains begun at the wild type or at natural sequences are begun at a point
-the model likes, so a failure to mix would hold them near it -- and would hold both
-near it in the same direction. Random sequences begin 743 in energy *above* the
-equilibrium and arrive at it from above. There is no remaining reading under which
-the ensemble is merely stuck where it started.
+and where the chains ended up:
 
-Gibbs reaches that equilibrium about four times faster per site update, as the
-figure shows, but it does not reach a *different* one. Nothing in the answer
-depended on the sampler.
+| start | $\langle E \rangle$ | $\langle d_H^{\mathrm{WT}} \rangle$ | $\langle P_S \rangle$ | $\langle S_{\mathrm{CDE}} \rangle$ | $\langle n_{\mathrm{gap}} \rangle$ |
+|---|---|---|---|---|---|
+| wild type | 258.1 | 146.0 | 0.067 | 0.862 | 35.8 |
+| natural | 256.9 | 162.7 | 0.101 | 0.860 | 32.6 |
+| random | 273.5 | 163.0 | 0.108 | 0.913 | 32.6 |
+| *train split* | *225.6* | *161.8* | *0.102* | *0.778* | *32.7* |
 
-**That equilibrium is not the natural alignment.** The weighted natural mean is
-361.8, some 88 below where every run settles, and since $E$ is linear in $f_i$ and
-$f_{ij}$ this is the frequency comparison restated on a scale with units. The one-
-and two-point frequencies come close to what 1000 chains permit -- $f_i$ at 0.990
-of a possible 0.999, $f_{ij}$ at 0.978 of 0.996 -- but the connected correlations
-fall far short of theirs, and the **slope of 0.54** rather than 1 says what the
-shortfall is: the resampled correlations are systematically *weaker* than the
-natural ones by about 46 %. The model has learnt the single-site composition of
-the family well, most of the pair composition, and about half of the correlation
-structure that is the whole point of a Potts model.
+**The fit is good, and the random start is what proves it.** Started at natural
+sequences the chains sit at the ceiling from step 1 and never leave — $C_{ij}$
+holds at 0.82 across six decades of steps. On its own that shows only that the
+chains do not wander off. The random start begins 252 residues from the wild type
+at $E = 1515$, with $C_{ij} = 0.0004$, and climbs to 0.7770 — 94 % of the
+ceiling — landing on the same composition as the natural start to within noise
+($d_H$ 163.0 vs 162.7, $n_{\mathrm{gap}}$ 32.6 vs 32.6, $P_S$ 0.108 vs 0.101).
+**The target is reached from far above as well as from exactly on it, so it is the
+equilibrium and not an artefact of where the chains began.**
 
-The slope, not the Pearson coefficient, is the quantity to quote. Section 7.5
-shows why: `_get_slope` regresses the chains' $C_{ij}$ on the natural $C_{ij}$
-with the *natural* values as the predictor, so noise in the chains' estimate
-leaves it unbiased, and it is the same at 1000 chains and at 10 000. The Pearson
-coefficient is attenuated by that noise and moves with $M$.
+**The wild-type start is the one that fails, and that is the interesting part.**
+After the same 4000 sweeps it reaches only $C_{ij} = 0.6378$, keeps 3 gaps too
+many, and sits 17 substitutions short of the equilibrium distance. Its trace is
+still climbing monotonically at the final checkpoint — 0.17 → 0.29 → 0.49 →
+0.638, with no plateau — so these chains have not arrived; they are still
+travelling.
 
-Three controls show that this is the model and not the measurement. Quadrupling the
-Metropolis run (2000 to 8000 sweeps) lifted $f_i$ from 0.976 to 0.990 and left
-$C_{ij}$ at 0.56, so the shortfall is not a convergence artefact -- more sampling
-fixes the composition and does not touch the correlations. And the natural-start
-Gibbs run begins, after twelve site updates, at $C_{ij} = 0.832$ against a ceiling
-of 0.848: the data itself sits where it should, and it is the model's own
-dynamics, not the statistic, that carries the ensemble away from it. The random
-start closes the last gap, arriving at $C_{ij} = 0.54$ from $C_{ij} = 0.0001$:
-the equilibrium is reached from below as well as from above, and sits in the same
-place either way.
+Note what that means: **starting at the wild type is slower than starting at a
+random sequence.** The reason is in the energies. The wild type sits at
+$E = 82.9$, roughly 143 below the training mean and 174 below this model's own
+equilibrium, so a chain launched there begins deep inside an atypical minimum and
+must climb *out* against an entropic barrier. A random sequence starts at
+$E = 1515$, far above everything, and falls into the typical set quickly: by step
+32,000 it has already reached $d_H = 176$, which the wild-type chains have not
+managed by step 127,000.
 
-**What this establishes.** The earlier caveats are closed. The gap is a free state
-(§7.2), both samplers equilibrate and agree, three independent starting ensembles
-converge on one answer, and the finite-sample ceiling is measured rather than
-assumed (§7.3). What remains is a property of the parameters:
-at $\beta = 1$ this model generates sequences about 88 in energy above its own
-training set, reproducing its composition but under-reproducing its connected
-correlations by roughly 46 % -- both figures confirmed at ten times the batch size
-in §7.5. For the design work of §6 the consequence is
-specific -- energies and conditionals computed from these parameters are being
-read off a model whose correlation structure is softer than the family's, which is
-the direction that makes designs look more plausible than they are.
+So the check separates two things a single run would have conflated:
 
-The command below writes `figures/methods/generative_check.png`:
+* **the fit** reproduces its training statistics as well as 1000 chains allow —
+  $f_i$ and $f_{ij}$ at 100 % of ceiling, $C_{ij}$ at 99.3 %;
+* **the cold-start sampler** mixes slowly, and 4000 Gibbs sweeps from the wild
+  type are not enough to equilibrate over all 265 columns.
+
+The second is consistent with how the model was fitted: adabmDCA used PTT with
+two replicas precisely because plain Gibbs from a cold start is slow on this
+landscape ([`TRAINING.md`](TRAINING.md)).
+
+**One standing observation.** Both equilibrated runs settle near $E \approx 257$
+while the training sequences average $225.6$ — the natural start climbs from 234
+to 257 in energy while its $f_i$, $f_{ij}$ and $C_{ij}$ stay pinned at the
+ceiling. Real sequences are atypically low in energy relative to the model's own
+Boltzmann ensemble. That is expected — bmDCA matches frequencies, not energies —
+but it is worth holding in view whenever an energy is used as a score.
+
+**What this does *not* say about the design runs.** Those sample a biased,
+restricted ensemble over 79 columns, not the model's free equilibrium over 265,
+so this section does not bear on whether they converged; SI S6 traces them
+directly. It does explain something SI S6 and the clamp control both observe
+independently: the wild type is a deep trap, and cold chains started there stay
+near it. The same barrier is behind the clamp runs sitting at 36–38 substitutions
+for every $\beta \geq 2$.
+
+Reproduce with:
 
 ```bash
-# adabmDCA's own sampler, from each starting point
-python scripts/run_generative_check.py ... --sampler gibbs --output ../results_gibbs/
-python scripts/run_generative_check.py ... --sampler gibbs --start natural \
-    --output ../results_gibbs_natural/
-python scripts/run_generative_check.py ... --sampler gibbs --start random \
-    --output ../results_gibbs_random/
-
-python scripts/plot_generative_check.py \
-    --run-dir ../results_gibbs ../results_gibbs_natural ../results_gibbs_random \
-              ../results_generative_gaps_long \
-    --log-x --no-nogap --figsize 15 8.6 \
-    --labels "Gibbs, started at the wild type" \
-             "Gibbs, started at natural sequences" \
-             "Gibbs, started at random sequences" \
-             "Metropolis, started at the wild type" \
-    --save figures/methods/generative_check.png
+bash analysis/run_generative.sh                 # all three starts
+bash analysis/run_generative.sh random          # one start
 ```
 
----
+Roughly 2.5 h per start on an M-series GPU. Most of that is *scoring*, not
+sampling: each traced checkpoint recomputes $f_i$, $f_{ij}$ and $C_{ij}$ against
+71,551 sequences, and $f_{ij}$ alone is a $(265 \times 21)^2$ comparison. The log
+trace schedule front-loads those checkpoints, so the first decade of steps costs
+far more wall-clock than the last. Thin `--trace-every` if you only want the
+endpoint.
+
 
 ### 7.5 Ten thousand chains: which numbers are properties of the model
+
+> ⚠ **Not re-run on this model.** The table below is from the earlier model and
+> alignment; its ceilings and energies do not transfer. The *argument* does, and
+> it is the right next step for `DCAmodel-serine_protease`: §7.4's three starts
+> all ran at $M = 1000$, where the $C_{ij}$ ceiling is 0.8228, so the question
+> it cannot answer is which of those numbers are properties of the model and
+> which are properties of the batch size.
+>
+> The experiment is one line — `NCHAINS=10000 bash analysis/run_generative.sh
+> natural random` — and the discriminating prediction is already stated below:
+> a coefficient that is sampling-limited rises with the ceiling, while a
+> **slope** that is model-limited does not move. Budget considerably more than
+> 2.5 h per start, and thin the trace first.
 
 Every Pearson coefficient above is read against a ceiling measured at $M = 1000$.
 Raising $M$ raises the ceiling, and the question is which of the measured numbers

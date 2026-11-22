@@ -141,7 +141,7 @@ meaningless.
 | source, scripts, docs | small | yes |
 | `data/` reference sequences, sector maps, weights | 4 MB | yes |
 | `figures/ladder/`, `figures/clamp/` rendered PNG + PDF | 28 MB | **yes** |
-| `results/**/observables.csv`, `summary.json`, `trace.csv` | 13 MB | **yes** |
+| `results/**/observables.csv`, `summary.json`, `trace.csv` | 14 MB | **yes** |
 | `results/**/final_sequences.fasta` designed ensembles | 36 MB | no |
 | `iter_aln_v2.faa`, `params.dat.gz` | 161 MB | no |
 
@@ -156,8 +156,9 @@ the figures cannot be re-rendered until the ensembles are regenerated**. The
 committed PNGs are there to look at; regenerating them means re-running Stage 1:
 
 ```bash
-bash analysis/run_clamp.sh     # ~18 min on an M-series GPU, all four conditions
-bash analysis/run_ladder.sh    # ~1.5 h
+bash analysis/run_clamp.sh       # ~18 min on an M-series GPU, all four conditions
+bash analysis/run_ladder.sh      # ~1.5 h
+bash analysis/run_generative.sh  # ~2.5 h per start, three starts
 ```
 
 If you would rather trade 36 MB for a repo that rebuilds its own figures from a
