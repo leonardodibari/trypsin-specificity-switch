@@ -5,6 +5,7 @@ The sampled Hamiltonian is
 .. math::
     H(\\sigma) = \\beta\\, E_{\\mathrm{DCA}}(\\sigma)
                  - \\lambda \\log P(S \\mid i_{\\mathrm{critic}}, \\sigma)
+                 + t\\, d_H(\\sigma, \\sigma^{\\mathrm{WT}})
 
 where :math:`P(S \\mid i_{\\mathrm{critic}}, \\sigma)` is the single-site
 conditional of the model at the specificity-switching site (3TGI 189) evaluated
@@ -32,7 +33,7 @@ import json
 import math
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
-from typing import List, Sequence
+from typing import List, Optional, Sequence
 
 import numpy as np
 import pandas as pd
@@ -57,6 +58,24 @@ class MCMCConfig:
     seed: int = 42
     target_residue: str = "S"
     allow_gap_moves: bool = False  # treat the gap as an ordinary state (see run_mcmc)
+    #: Hamming restraint toward the starting sequence: ``+ t * d_H(sigma, start)``
+    #: in the Hamiltonian. t > 0 holds the chain near the wild type, t < 0 pushes
+    #: it away, t = 0 is the original. See :mod:`ensemble` for the full note.
+    t: float = 0.0
+    #: The restraint split by move type -- ``t_sub`` prices substitutions,
+    #: ``t_indel`` prices gained or lost residues, and ``None`` falls back to
+    #: ``t``. Needed because with ``allow_gap_moves`` a single ``t`` charges an
+    #: indel at the substitution price without saying so. See :mod:`ensemble`.
+    t_sub: Optional[float] = None
+    t_indel: Optional[float] = None
+
+    @property
+    def t_sub_effective(self) -> float:
+        return self.t if self.t_sub is None else self.t_sub
+
+    @property
+    def t_indel_effective(self) -> float:
+        return self.t if self.t_indel is None else self.t_indel
 
 
 @dataclass
@@ -154,7 +173,29 @@ def run_mcmc(
     energy = model.energy(sequence)
     logits = model.site_logits(critic_col, sequence).clone()
     log_p = log_conditional_from_logits(logits, target_state, CRITIC_BETA)
-    hamiltonian = config.beta * energy - config.lam * log_p
+    # The Hamming restraint is measured from the starting sequence (the wild
+    # type), over the allowed columns only, split into its substitution and
+    # indel parts, and carried incrementally: a move changes each by -1, 0 or +1.
+    # Over a run whose allowed set is all of L the restriction is a no-op; where
+    # it is not, it keeps a frozen difference out of a distance no move can
+    # change. See :mod:`ensemble` for the full note.
+    gap_index = alphabet.gap_index
+    t_sub = float(config.t_sub_effective)
+    t_indel = float(config.t_indel_effective)
+    reference = np.array(start_sequence, dtype=np.int64, copy=True)
+
+    def _split_distance(current: np.ndarray) -> tuple[int, int]:
+        """``(d_sub, d_indel)`` over the allowed columns, disjoint, summing to d_H."""
+        differs = current[sites] != reference[sites]
+        indel = differs & ((current[sites] == gap_index) | (reference[sites] == gap_index))
+        return int((differs & ~indel).sum()), int(indel.sum())
+
+    d_sub, d_indel = _split_distance(sequence)
+
+    def _restraint(sub: int, indel: int) -> float:
+        return t_sub * sub + t_indel * indel
+
+    hamiltonian = config.beta * energy - config.lam * log_p + _restraint(d_sub, d_indel)
 
     records = [
         Record(
@@ -194,12 +235,29 @@ def run_mcmc(
             )
             new_log_p = log_conditional_from_logits(new_logits, target_state, CRITIC_BETA)
 
-        delta_h = config.beta * delta_energy - config.lam * (new_log_p - log_p)
+        # Both parts are needed even when their sum is unchanged: a residue -> gap
+        # move at a site whose reference residue is present converts a
+        # substitution into an indel, repricing it from t_sub to t_indel.
+        reference_state = int(reference[site])
+        reference_is_gap = reference_state == gap_index
+        old_differs = int(old_state) != reference_state
+        new_differs = int(new_state) != reference_state
+        old_indel = old_differs and (int(old_state) == gap_index or reference_is_gap)
+        new_indel = new_differs and (int(new_state) == gap_index or reference_is_gap)
+        delta_sub = int(new_differs and not new_indel) - int(old_differs and not old_indel)
+        delta_indel = int(new_indel) - int(old_indel)
+        delta_h = (
+            config.beta * delta_energy
+            - config.lam * (new_log_p - log_p)
+            + _restraint(delta_sub, delta_indel)
+        )
         if delta_h <= 0.0 or rng.random() < math.exp(-delta_h):
             sequence[site] = new_state
             energy += delta_energy
             logits = new_logits
             log_p = new_log_p
+            d_sub += delta_sub
+            d_indel += delta_indel
             hamiltonian += delta_h
             accepted += 1
 
@@ -216,7 +274,7 @@ def run_mcmc(
                         aa_to=alphabet.tokens[new_state],
                         E_DCA=energy,
                         logP_S=log_p,
-                        H_eff=config.beta * energy - config.lam * log_p,
+                        H_eff=config.beta * energy - config.lam * log_p + _restraint(d_sub, d_indel),
                         sequence=alphabet.decode(sequence),
                     )
                 )
@@ -237,7 +295,7 @@ def run_mcmc(
                 aa_to=None,
                 E_DCA=energy,
                 logP_S=log_p,
-                H_eff=config.beta * energy - config.lam * log_p,
+                H_eff=config.beta * energy - config.lam * log_p + _restraint(d_sub, d_indel),
                 sequence=alphabet.decode(sequence),
             )
         )
@@ -245,6 +303,16 @@ def run_mcmc(
     # Guard against incremental drift over very long chains.
     energy = model.energy(sequence)
     log_p = model.log_conditional(critic_col, sequence, target_state, beta=CRITIC_BETA)
+    # The same guard on the restraint's two counters. They are checked separately:
+    # their sum can be right while weight has leaked between them, which is the
+    # error a split restraint makes possible and a single total would hide.
+    exact_sub, exact_indel = _split_distance(sequence)
+    if (exact_sub, exact_indel) != (d_sub, d_indel):
+        raise RuntimeError(
+            "Incremental Hamming distance drifted: carried "
+            f"(sub={d_sub}, indel={d_indel}), recomputed "
+            f"(sub={exact_sub}, indel={exact_indel})"
+        )
 
     return MCMCResult(
         records=records,

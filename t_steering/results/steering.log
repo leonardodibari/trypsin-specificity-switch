@@ -1,0 +1,394 @@
+
+================ t-steering: redsector ================
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/.venv/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/run_ensemble.py --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/redsector/beta1 --critic-col 201 --allowed-cols 165,177,189,192,193,197,198,201,204,228,229,233,235,241,242,243 --allow-gap-moves --lambdas 100 300 --t-values 0 0.5 1 2 --beta 1 --mu /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/results/ladder/calibration/mu.json --n-chains 1000 --n-steps 60000 --trace-every 1000 --trace-schedule linear --seed 0 --device mps --cache-model
+model loaded in 0.1s from /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21, tokens '-ACDEFGHIKLMNPQRSTVWY')
+Wild type : TRY2_RAT P00763 anionic trypsin, aligned row of iter_aln_v2 (L=265) -- the MCMC wild type
+Critic    : MSA column 201 (WT residue D)
+Mutable   : 16 MSA columns -> ['165', '177', '189', '192', '193', '197', '198', '201', '204', '228', '229', '233', '235', '241', '242', '243']
+Note      : the critic site is itself mutable.
+Gaps      : an ordinary state; 0 of the 16 mutable columns are a gap in the wild type, and any column may become one.
+
+lambda = 100, t_sub = 0: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.023 | <E> 109.2 | <P(S)> 0.914 | <hamming> 4.8 (var 1.1) | <CDE> 0.479
+
+lambda = 100, t_sub = 0.5: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.017 | <E> 107.6 | <P(S)> 0.911 | <hamming> 4.4 (var 0.9) | <CDE> 0.477
+
+lambda = 100, t_sub = 1: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.014 | <E> 106.2 | <P(S)> 0.904 | <hamming> 4.0 (var 0.8) | <CDE> 0.475
+
+lambda = 100, t_sub = 2: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.009 | <E> 104.4 | <P(S)> 0.894 | <hamming> 3.4 (var 0.5) | <CDE> 0.473
+
+lambda = 300, t_sub = 0: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.023 | <E> 117.3 | <P(S)> 0.960 | <hamming> 6.0 (var 1.2) | <CDE> 0.481
+
+lambda = 300, t_sub = 0.5: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.016 | <E> 115.8 | <P(S)> 0.958 | <hamming> 5.5 (var 1.0) | <CDE> 0.478
+
+lambda = 300, t_sub = 1: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.012 | <E> 113.8 | <P(S)> 0.954 | <hamming> 5.2 (var 0.7) | <CDE> 0.477
+
+lambda = 300, t_sub = 2: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.007 | <E> 111.8 | <P(S)> 0.950 | <hamming> 4.7 (var 0.5) | <CDE> 0.474
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/redsector/beta1
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/.venv/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/run_ensemble.py --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/redsector/beta1.5 --critic-col 201 --allowed-cols 165,177,189,192,193,197,198,201,204,228,229,233,235,241,242,243 --allow-gap-moves --lambdas 100 300 --t-values 0 0.5 1 2 --beta 1.5 --mu /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/results/ladder/calibration/mu.json --n-chains 1000 --n-steps 60000 --trace-every 1000 --trace-schedule linear --seed 0 --device mps --cache-model
+model loaded in 0.2s from /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21, tokens '-ACDEFGHIKLMNPQRSTVWY')
+Wild type : TRY2_RAT P00763 anionic trypsin, aligned row of iter_aln_v2 (L=265) -- the MCMC wild type
+Critic    : MSA column 201 (WT residue D)
+Mutable   : 16 MSA columns -> ['165', '177', '189', '192', '193', '197', '198', '201', '204', '228', '229', '233', '235', '241', '242', '243']
+Note      : the critic site is itself mutable.
+Gaps      : an ordinary state; 0 of the 16 mutable columns are a gap in the wild type, and any column may become one.
+
+lambda = 100, t_sub = 0: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.006 | <E> 102.9 | <P(S)> 0.977 | <hamming> 3.5 (var 0.5) | <CDE> 0.210
+
+lambda = 100, t_sub = 0.5: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.005 | <E> 102.3 | <P(S)> 0.975 | <hamming> 3.4 (var 0.3) | <CDE> 0.209
+
+lambda = 100, t_sub = 1: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.004 | <E> 101.7 | <P(S)> 0.974 | <hamming> 3.2 (var 0.2) | <CDE> 0.209
+
+lambda = 100, t_sub = 2: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.003 | <E> 101.3 | <P(S)> 0.973 | <hamming> 3.1 (var 0.1) | <CDE> 0.209
+
+lambda = 300, t_sub = 0: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.006 | <E> 109.9 | <P(S)> 0.992 | <hamming> 4.7 (var 0.5) | <CDE> 0.210
+
+lambda = 300, t_sub = 0.5: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.005 | <E> 108.9 | <P(S)> 0.992 | <hamming> 4.4 (var 0.4) | <CDE> 0.209
+
+lambda = 300, t_sub = 1: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.004 | <E> 108.0 | <P(S)> 0.991 | <hamming> 4.3 (var 0.3) | <CDE> 0.209
+
+lambda = 300, t_sub = 2: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.002 | <E> 107.7 | <P(S)> 0.991 | <hamming> 4.2 (var 0.2) | <CDE> 0.209
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/redsector/beta1.5
+
+================ t-steering: coupling20 ================
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/.venv/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/run_ensemble.py --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/coupling20/beta1 --critic-col 201 --allowed-cols 165,175,176,184,186,194,195,197,200,202,204,212,223,229,230,233,235,236,239,241 --allow-gap-moves --lambdas 100 300 --t-values 0 0.5 1 2 --beta 1 --mu /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/results/ladder/calibration/mu.json --n-chains 1000 --n-steps 60000 --trace-every 1000 --trace-schedule linear --seed 0 --device mps --cache-model
+model loaded in 0.2s from /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21, tokens '-ACDEFGHIKLMNPQRSTVWY')
+Wild type : TRY2_RAT P00763 anionic trypsin, aligned row of iter_aln_v2 (L=265) -- the MCMC wild type
+Critic    : MSA column 201 (WT residue D)
+Mutable   : 20 MSA columns -> ['165', '175', '176', '184', '186', '194', '195', '197', '200', '202', '204', '212', '223', '229', '230', '233', '235', '236', '239', '241']
+Gaps      : an ordinary state; 0 of the 20 mutable columns are a gap in the wild type, and any column may become one.
+
+lambda = 100, t_sub = 0: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.047 | <E> 114.6 | <P(S)> 0.911 | <hamming> 5.6 (var 1.7) | <CDE> 0.476
+
+lambda = 100, t_sub = 0.5: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.037 | <E> 112.3 | <P(S)> 0.907 | <hamming> 4.9 (var 1.4) | <CDE> 0.473
+
+lambda = 100, t_sub = 1: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.030 | <E> 110.7 | <P(S)> 0.904 | <hamming> 4.3 (var 1.1) | <CDE> 0.471
+
+lambda = 100, t_sub = 2: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.019 | <E> 108.6 | <P(S)> 0.898 | <hamming> 3.3 (var 0.8) | <CDE> 0.467
+
+lambda = 300, t_sub = 0: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.048 | <E> 125.3 | <P(S)> 0.960 | <hamming> 7.0 (var 1.8) | <CDE> 0.481
+
+lambda = 300, t_sub = 0.5: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.040 | <E> 122.6 | <P(S)> 0.957 | <hamming> 6.3 (var 1.4) | <CDE> 0.478
+
+lambda = 300, t_sub = 1: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.033 | <E> 120.2 | <P(S)> 0.953 | <hamming> 5.7 (var 1.2) | <CDE> 0.475
+
+lambda = 300, t_sub = 2: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.021 | <E> 117.4 | <P(S)> 0.947 | <hamming> 4.8 (var 1.0) | <CDE> 0.471
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/coupling20/beta1
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/.venv/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/run_ensemble.py --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/coupling20/beta1.5 --critic-col 201 --allowed-cols 165,175,176,184,186,194,195,197,200,202,204,212,223,229,230,233,235,236,239,241 --allow-gap-moves --lambdas 100 300 --t-values 0 0.5 1 2 --beta 1.5 --mu /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/results/ladder/calibration/mu.json --n-chains 1000 --n-steps 60000 --trace-every 1000 --trace-schedule linear --seed 0 --device mps --cache-model
+model loaded in 0.1s from /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21, tokens '-ACDEFGHIKLMNPQRSTVWY')
+Wild type : TRY2_RAT P00763 anionic trypsin, aligned row of iter_aln_v2 (L=265) -- the MCMC wild type
+Critic    : MSA column 201 (WT residue D)
+Mutable   : 20 MSA columns -> ['165', '175', '176', '184', '186', '194', '195', '197', '200', '202', '204', '212', '223', '229', '230', '233', '235', '236', '239', '241']
+Gaps      : an ordinary state; 0 of the 20 mutable columns are a gap in the wild type, and any column may become one.
+
+lambda = 100, t_sub = 0: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.017 | <E> 107.9 | <P(S)> 0.981 | <hamming> 4.2 (var 0.7) | <CDE> 0.214
+
+lambda = 100, t_sub = 0.5: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.015 | <E> 107.3 | <P(S)> 0.981 | <hamming> 3.9 (var 0.7) | <CDE> 0.213
+
+lambda = 100, t_sub = 1: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.014 | <E> 106.9 | <P(S)> 0.980 | <hamming> 3.6 (var 0.6) | <CDE> 0.212
+
+lambda = 100, t_sub = 2: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.011 | <E> 106.4 | <P(S)> 0.979 | <hamming> 3.0 (var 0.5) | <CDE> 0.210
+
+lambda = 300, t_sub = 0: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.020 | <E> 114.8 | <P(S)> 0.992 | <hamming> 5.4 (var 1.0) | <CDE> 0.217
+
+lambda = 300, t_sub = 0.5: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.017 | <E> 113.8 | <P(S)> 0.992 | <hamming> 5.0 (var 0.8) | <CDE> 0.216
+
+lambda = 300, t_sub = 1: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.015 | <E> 112.6 | <P(S)> 0.991 | <hamming> 4.7 (var 0.7) | <CDE> 0.215
+
+lambda = 300, t_sub = 2: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.011 | <E> 111.5 | <P(S)> 0.990 | <hamming> 4.1 (var 0.6) | <CDE> 0.214
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/coupling20/beta1.5
+
+================ t-steering: segment ================
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/.venv/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/run_ensemble.py --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/segment/beta1 --critic-col 201 --allowed-cols 165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,240,241,242,243 --allow-gap-moves --lambdas 100 300 --t-values 0 0.5 1 2 --beta 1 --mu /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/results/ladder/calibration/mu.json --n-chains 1000 --n-steps 60000 --trace-every 1000 --trace-schedule linear --seed 0 --device mps --cache-model
+model loaded in 0.1s from /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21, tokens '-ACDEFGHIKLMNPQRSTVWY')
+Wild type : TRY2_RAT P00763 anionic trypsin, aligned row of iter_aln_v2 (L=265) -- the MCMC wild type
+Critic    : MSA column 201 (WT residue D)
+Mutable   : 79 MSA columns -> ['165', '166', '167', '168', '169', '170', '171', '172', '173', '174', '175', '176', '177', '178', '179', '180', '181', '182', '183', '184', '185', '186', '187', '188', '189', '190', '191', '192', '193', '194', '195', '196', '197', '198', '199', '200', '201', '202', '203', '204', '205', '206', '207', '208', '209', '210', '211', '212', '213', '214', '215', '216', '217', '218', '219', '220', '221', '222', '223', '224', '225', '226', '227', '228', '229', '230', '231', '232', '233', '234', '235', '236', '237', '238', '239', '240', '241', '242', '243']
+Note      : the critic site is itself mutable.
+Gaps      : an ordinary state; 12 of the 79 mutable columns are a gap in the wild type, and any column may become one.
+
+lambda = 100, t_sub = 0: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.043 | <E> 122.8 | <P(S)> 0.935 | <hamming> 17.1 (var 6.8) | <CDE> 0.515
+
+lambda = 100, t_sub = 0.5: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.031 | <E> 114.7 | <P(S)> 0.929 | <hamming> 14.1 (var 5.1) | <CDE> 0.500
+
+lambda = 100, t_sub = 1: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.023 | <E> 109.5 | <P(S)> 0.923 | <hamming> 11.6 (var 4.5) | <CDE> 0.490
+
+lambda = 100, t_sub = 2: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.017 | <E> 104.1 | <P(S)> 0.909 | <hamming> 8.0 (var 2.9) | <CDE> 0.479
+
+lambda = 300, t_sub = 0: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.046 | <E> 131.9 | <P(S)> 0.971 | <hamming> 19.2 (var 7.2) | <CDE> 0.528
+
+lambda = 300, t_sub = 0.5: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.035 | <E> 123.2 | <P(S)> 0.967 | <hamming> 15.9 (var 5.5) | <CDE> 0.510
+
+lambda = 300, t_sub = 1: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.027 | <E> 117.9 | <P(S)> 0.964 | <hamming> 13.5 (var 4.5) | <CDE> 0.499
+
+lambda = 300, t_sub = 2: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.019 | <E> 111.5 | <P(S)> 0.956 | <hamming> 10.1 (var 3.0) | <CDE> 0.486
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/segment/beta1
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/.venv/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/run_ensemble.py --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/segment/beta1.5 --critic-col 201 --allowed-cols 165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,240,241,242,243 --allow-gap-moves --lambdas 100 300 --t-values 0 0.5 1 2 --beta 1.5 --mu /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/results/ladder/calibration/mu.json --n-chains 1000 --n-steps 60000 --trace-every 1000 --trace-schedule linear --seed 0 --device mps --cache-model
+model loaded in 0.1s from /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21, tokens '-ACDEFGHIKLMNPQRSTVWY')
+Wild type : TRY2_RAT P00763 anionic trypsin, aligned row of iter_aln_v2 (L=265) -- the MCMC wild type
+Critic    : MSA column 201 (WT residue D)
+Mutable   : 79 MSA columns -> ['165', '166', '167', '168', '169', '170', '171', '172', '173', '174', '175', '176', '177', '178', '179', '180', '181', '182', '183', '184', '185', '186', '187', '188', '189', '190', '191', '192', '193', '194', '195', '196', '197', '198', '199', '200', '201', '202', '203', '204', '205', '206', '207', '208', '209', '210', '211', '212', '213', '214', '215', '216', '217', '218', '219', '220', '221', '222', '223', '224', '225', '226', '227', '228', '229', '230', '231', '232', '233', '234', '235', '236', '237', '238', '239', '240', '241', '242', '243']
+Note      : the critic site is itself mutable.
+Gaps      : an ordinary state; 12 of the 79 mutable columns are a gap in the wild type, and any column may become one.
+
+lambda = 100, t_sub = 0: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.015 | <E> 101.5 | <P(S)> 0.985 | <hamming> 12.3 (var 3.2) | <CDE> 0.222
+
+lambda = 100, t_sub = 0.5: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.012 | <E> 99.7 | <P(S)> 0.983 | <hamming> 10.8 (var 2.6) | <CDE> 0.219
+
+lambda = 100, t_sub = 1: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.010 | <E> 98.3 | <P(S)> 0.981 | <hamming> 9.5 (var 2.3) | <CDE> 0.216
+
+lambda = 100, t_sub = 2: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.009 | <E> 97.3 | <P(S)> 0.979 | <hamming> 7.5 (var 1.6) | <CDE> 0.213
+
+lambda = 300, t_sub = 0: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.017 | <E> 108.5 | <P(S)> 0.995 | <hamming> 14.2 (var 3.5) | <CDE> 0.227
+
+lambda = 300, t_sub = 0.5: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.015 | <E> 106.2 | <P(S)> 0.995 | <hamming> 12.6 (var 3.0) | <CDE> 0.223
+
+lambda = 300, t_sub = 1: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.012 | <E> 105.2 | <P(S)> 0.994 | <hamming> 11.3 (var 2.8) | <CDE> 0.220
+
+lambda = 300, t_sub = 2: 1000 chains x 60000 steps on mps  (traced)
+  acceptance 0.010 | <E> 103.1 | <P(S)> 0.993 | <hamming> 9.1 (var 1.9) | <CDE> 0.215
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/segment/beta1.5
+
+================ t-steering: post ================
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/.venv/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/substitute_critic.py --ensemble-dir /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/coupling20/beta1 --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/coupling20/beta1_serine --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --critic-col 201 --beta 1.0 --against-residue D --device mps --cache-model
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21)
+Critic    : MSA column 201 -> S (wild type has D)
+lambda = 100: 1000 chains, 0 already S (before: D 1000) | <E> 109.7 | <P(S)> 0.911 | <CDE> 0.487
+lambda = 100: 1000 chains, 0 already S (before: D 1000) | <E> 107.5 | <P(S)> 0.907 | <CDE> 0.484
+lambda = 100: 1000 chains, 0 already S (before: D 1000) | <E> 106.0 | <P(S)> 0.904 | <CDE> 0.481
+lambda = 100: 1000 chains, 0 already S (before: D 1000) | <E> 104.1 | <P(S)> 0.898 | <CDE> 0.478
+lambda = 300: 1000 chains, 0 already S (before: D 1000) | <E> 118.9 | <P(S)> 0.960 | <CDE> 0.493
+lambda = 300: 1000 chains, 0 already S (before: D 1000) | <E> 116.2 | <P(S)> 0.957 | <CDE> 0.489
+lambda = 300: 1000 chains, 0 already S (before: D 1000) | <E> 113.9 | <P(S)> 0.953 | <CDE> 0.486
+lambda = 300: 1000 chains, 0 already S (before: D 1000) | <E> 111.3 | <P(S)> 0.947 | <CDE> 0.482
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/coupling20/beta1_serine
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/.venv/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/substitute_critic.py --ensemble-dir /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/coupling20/beta1.5 --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/coupling20/beta1.5_serine --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --critic-col 201 --beta 1.0 --against-residue D --device mps --cache-model
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21)
+Critic    : MSA column 201 -> S (wild type has D)
+lambda = 100: 1000 chains, 0 already S (before: D 1000) | <E> 103.2 | <P(S)> 0.896 | <CDE> 0.479
+lambda = 100: 1000 chains, 0 already S (before: D 1000) | <E> 102.5 | <P(S)> 0.895 | <CDE> 0.478
+lambda = 100: 1000 chains, 0 already S (before: D 1000) | <E> 102.2 | <P(S)> 0.893 | <CDE> 0.477
+lambda = 100: 1000 chains, 0 already S (before: D 1000) | <E> 101.8 | <P(S)> 0.888 | <CDE> 0.476
+lambda = 300: 1000 chains, 0 already S (before: D 1000) | <E> 109.3 | <P(S)> 0.937 | <CDE> 0.484
+lambda = 300: 1000 chains, 0 already S (before: D 1000) | <E> 108.4 | <P(S)> 0.934 | <CDE> 0.483
+lambda = 300: 1000 chains, 0 already S (before: D 1000) | <E> 107.4 | <P(S)> 0.930 | <CDE> 0.482
+lambda = 300: 1000 chains, 0 already S (before: D 1000) | <E> 106.5 | <P(S)> 0.926 | <CDE> 0.480
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/coupling20/beta1.5_serine
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/.venv/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/substitute_critic.py --ensemble-dir /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/redsector/beta1 --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/redsector/beta1_serine --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --critic-col 201 --beta 1.0 --against-residue D --device mps --cache-model
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21)
+Critic    : MSA column 201 -> S (wild type has D)
+lambda = 100: 1000 chains, 923 already S (before: S 923, A 22, G 18, T 15) | <E> 108.9 | <P(S)> 0.914 | <CDE> 0.479
+lambda = 100: 1000 chains, 930 already S (before: S 930, A 20, G 17, T 14) | <E> 107.3 | <P(S)> 0.911 | <CDE> 0.477
+lambda = 100: 1000 chains, 888 already S (before: S 888, D 25, G 25, A 21) | <E> 105.8 | <P(S)> 0.904 | <CDE> 0.476
+lambda = 100: 1000 chains, 848 already S (before: S 848, D 57, G 27, A 26) | <E> 103.7 | <P(S)> 0.894 | <CDE> 0.474
+lambda = 300: 1000 chains, 961 already S (before: S 961, G 11, T 10, A 8) | <E> 117.1 | <P(S)> 0.960 | <CDE> 0.481
+lambda = 300: 1000 chains, 951 already S (before: S 951, G 16, A 15, T 10) | <E> 115.6 | <P(S)> 0.958 | <CDE> 0.478
+lambda = 300: 1000 chains, 952 already S (before: S 952, G 18, A 13, T 8) | <E> 113.6 | <P(S)> 0.954 | <CDE> 0.477
+lambda = 300: 1000 chains, 947 already S (before: S 947, G 15, A 13, T 10) | <E> 111.5 | <P(S)> 0.950 | <CDE> 0.474
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/redsector/beta1_serine
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/.venv/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/substitute_critic.py --ensemble-dir /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/redsector/beta1.5 --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/redsector/beta1.5_serine --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --critic-col 201 --beta 1.0 --against-residue D --device mps --cache-model
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21)
+Critic    : MSA column 201 -> S (wild type has D)
+lambda = 100: 1000 chains, 973 already S (before: S 973, A 15, N 5, G 4) | <E> 102.8 | <P(S)> 0.885 | <CDE> 0.473
+lambda = 100: 1000 chains, 979 already S (before: S 979, A 12, D 3, N 3) | <E> 102.3 | <P(S)> 0.881 | <CDE> 0.473
+lambda = 100: 1000 chains, 964 already S (before: S 964, A 15, G 6, D 5) | <E> 101.6 | <P(S)> 0.877 | <CDE> 0.472
+lambda = 100: 1000 chains, 973 already S (before: S 973, A 11, N 6, G 5) | <E> 101.2 | <P(S)> 0.875 | <CDE> 0.472
+lambda = 300: 1000 chains, 995 already S (before: S 995, G 2, A 2, T 1) | <E> 109.9 | <P(S)> 0.943 | <CDE> 0.475
+lambda = 300: 1000 chains, 989 already S (before: S 989, T 4, G 3, A 3) | <E> 108.9 | <P(S)> 0.940 | <CDE> 0.474
+lambda = 300: 1000 chains, 992 already S (before: S 992, G 3, T 3, A 2) | <E> 108.0 | <P(S)> 0.937 | <CDE> 0.474
+lambda = 300: 1000 chains, 989 already S (before: S 989, A 8, T 2, G 1) | <E> 107.6 | <P(S)> 0.936 | <CDE> 0.473
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/redsector/beta1.5_serine
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/.venv/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/substitute_critic.py --ensemble-dir /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/segment/beta1 --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/segment/beta1_serine --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --critic-col 201 --beta 1.0 --against-residue D --device mps --cache-model
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21)
+Critic    : MSA column 201 -> S (wild type has D)
+lambda = 100: 1000 chains, 944 already S (before: S 944, A 20, G 9, N 7) | <E> 122.5 | <P(S)> 0.935 | <CDE> 0.515
+lambda = 100: 1000 chains, 926 already S (before: S 926, A 25, G 16, T 11) | <E> 114.4 | <P(S)> 0.929 | <CDE> 0.500
+lambda = 100: 1000 chains, 922 already S (before: S 922, A 27, G 15, N 11) | <E> 109.2 | <P(S)> 0.923 | <CDE> 0.490
+lambda = 100: 1000 chains, 853 already S (before: S 853, D 54, A 36, G 27) | <E> 103.5 | <P(S)> 0.909 | <CDE> 0.479
+lambda = 300: 1000 chains, 973 already S (before: S 973, G 9, A 8, T 4) | <E> 131.7 | <P(S)> 0.971 | <CDE> 0.528
+lambda = 300: 1000 chains, 961 already S (before: S 961, A 15, G 11, T 8) | <E> 123.0 | <P(S)> 0.967 | <CDE> 0.510
+lambda = 300: 1000 chains, 965 already S (before: S 965, G 11, T 11, A 7) | <E> 117.7 | <P(S)> 0.964 | <CDE> 0.499
+lambda = 300: 1000 chains, 959 already S (before: S 959, D 11, A 8, G 8) | <E> 111.3 | <P(S)> 0.956 | <CDE> 0.486
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/segment/beta1_serine
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/.venv/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/substitute_critic.py --ensemble-dir /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/segment/beta1.5 --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/segment/beta1.5_serine --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --critic-col 201 --beta 1.0 --against-residue D --device mps --cache-model
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21)
+Critic    : MSA column 201 -> S (wild type has D)
+lambda = 100: 1000 chains, 984 already S (before: S 984, A 8, G 3, N 3) | <E> 101.4 | <P(S)> 0.912 | <CDE> 0.483
+lambda = 100: 1000 chains, 984 already S (before: S 984, A 12, G 2, N 1) | <E> 99.6 | <P(S)> 0.908 | <CDE> 0.479
+lambda = 100: 1000 chains, 986 already S (before: S 986, A 7, G 5, N 2) | <E> 98.3 | <P(S)> 0.902 | <CDE> 0.475
+lambda = 100: 1000 chains, 967 already S (before: S 967, A 19, G 7, D 4) | <E> 97.2 | <P(S)> 0.893 | <CDE> 0.472
+lambda = 300: 1000 chains, 992 already S (before: S 992, A 5, G 1, P 1) | <E> 108.5 | <P(S)> 0.957 | <CDE> 0.492
+lambda = 300: 1000 chains, 993 already S (before: S 993, P 2, A 2, T 1) | <E> 106.2 | <P(S)> 0.953 | <CDE> 0.487
+lambda = 300: 1000 chains, 994 already S (before: S 994, G 6) | <E> 105.2 | <P(S)> 0.951 | <CDE> 0.483
+lambda = 300: 1000 chains, 994 already S (before: S 994, T 2, G 2, A 1) | <E> 103.1 | <P(S)> 0.944 | <CDE> 0.477
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/segment/beta1.5_serine
+
+================ t-steering: check ================
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/.venv/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/hamming-restraint/analysis/saturation.py /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/coupling20/beta1 --csv /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/saturation_coupling20_beta1.csv
+run                                        acc  acc/site   worst  verdict
+--------------------------------------------------------------------------------
+lam300                                  0.0477     143.1   0.000  NOT SATURATED: indel_to_wt
+lam100                                  0.0465     139.5   0.000  SATURATED
+lam100_t0.5                             0.0371     111.3   0.000  SATURATED
+lam100_t1                               0.0302      90.5   0.000  SATURATED
+lam100_t2                               0.0187      56.2   0.000  SATURATED
+lam300_t0.5                             0.0396     118.9   0.000  SATURATED
+lam300_t1                               0.0327      98.0   0.000  SATURATED
+lam300_t2                               0.0209      62.7   0.000  SATURATED
+--------------------------------------------------------------------------------
+7/8 runs saturated on every observable
+table -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/saturation_coupling20_beta1.csv
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/.venv/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/hamming-restraint/analysis/saturation.py /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/coupling20/beta1.5 --csv /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/saturation_coupling20_beta1.5.csv
+run                                        acc  acc/site   worst  verdict
+--------------------------------------------------------------------------------
+lam100                                  0.0174      52.2   0.000  SATURATED
+lam100_t0.5                             0.0154      46.3   0.000  SATURATED
+lam100_t1                               0.0141      42.2   0.000  SATURATED
+lam100_t2                               0.0105      31.5   0.000  SATURATED
+lam300                                  0.0195      58.6   0.000  SATURATED
+lam300_t0.5                             0.0173      51.8   0.000  SATURATED
+lam300_t1                               0.0154      46.1   0.000  SATURATED
+lam300_t2                               0.0113      33.8   0.000  SATURATED
+--------------------------------------------------------------------------------
+8/8 runs saturated on every observable
+table -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/saturation_coupling20_beta1.5.csv
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/.venv/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/hamming-restraint/analysis/saturation.py /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/redsector/beta1 --csv /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/saturation_redsector_beta1.csv
+run                                        acc  acc/site   worst  verdict
+--------------------------------------------------------------------------------
+lam100                                  0.0230      86.3   0.000  SATURATED
+lam100_t0.5                             0.0173      64.8   0.000  SATURATED
+lam100_t1                               0.0136      51.0   0.000  SATURATED
+lam100_t2                               0.0094      35.4   0.000  SATURATED
+lam300                                  0.0227      85.0   0.019  SATURATED
+lam300_t0.5                             0.0162      60.9   0.032  SATURATED
+lam300_t1                               0.0121      45.5   0.018  SATURATED
+lam300_t2                               0.0068      25.5   0.013  SATURATED
+--------------------------------------------------------------------------------
+8/8 runs saturated on every observable
+table -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/saturation_redsector_beta1.csv
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/.venv/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/hamming-restraint/analysis/saturation.py /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/redsector/beta1.5 --csv /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/saturation_redsector_beta1.5.csv
+run                                        acc  acc/site   worst  verdict
+--------------------------------------------------------------------------------
+lam100                                  0.0063      23.4   0.000  SATURATED
+lam100_t0.5                             0.0048      18.0   0.000  SATURATED
+lam100_t1                               0.0038      14.4   0.000  SATURATED
+lam100_t2                               0.0031      11.7   0.000  SATURATED
+lam300                                  0.0062      23.2   0.000  SATURATED
+lam300_t0.5                             0.0046      17.2   0.000  SATURATED
+lam300_t1                               0.0037      13.7   0.000  SATURATED
+lam300_t2                               0.0021       8.0   0.000  SATURATED
+--------------------------------------------------------------------------------
+8/8 runs saturated on every observable
+table -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/saturation_redsector_beta1.5.csv
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/.venv/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/hamming-restraint/analysis/saturation.py /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/segment/beta1 --csv /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/saturation_segment_beta1.csv
+run                                        acc  acc/site   worst  verdict
+--------------------------------------------------------------------------------
+lam100                                  0.0428      32.5   0.000  SATURATED
+lam100_t0.5                             0.0306      23.2   0.000  SATURATED
+lam100_t1                               0.0233      17.7   0.000  SATURATED
+lam100_t2                               0.0166      12.6   0.000  SATURATED
+lam300                                  0.0464      35.2   0.030  SATURATED
+lam300_t0.5                             0.0352      26.7   0.023  SATURATED
+lam300_t1                               0.0272      20.6   0.018  SATURATED
+lam300_t2                               0.0186      14.1   0.000  SATURATED
+--------------------------------------------------------------------------------
+8/8 runs saturated on every observable
+table -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/saturation_segment_beta1.csv
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/.venv/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/hamming-restraint/analysis/saturation.py /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/segment/beta1.5 --csv /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/saturation_segment_beta1.5.csv
+run                                        acc  acc/site   worst  verdict
+--------------------------------------------------------------------------------
+lam300                                  0.0173      13.1     inf  NOT SATURATED: indel_to_wt
+lam100                                  0.0155      11.7   0.000  SATURATED
+lam100_t0.5                             0.0117       8.9   0.000  SATURATED
+lam100_t1                               0.0098       7.4   0.000  SATURATED
+lam100_t2                               0.0088       6.7   0.000  SATURATED
+lam300_t0.5                             0.0147      11.2   0.000  SATURATED
+lam300_t1                               0.0122       9.3   0.000  SATURATED
+lam300_t2                               0.0099       7.5   0.000  SATURATED
+--------------------------------------------------------------------------------
+7/8 runs saturated on every observable
+table -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/saturation_segment_beta1.5.csv
+
+Done. Results under /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results

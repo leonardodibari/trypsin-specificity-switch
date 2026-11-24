@@ -1,0 +1,19 @@
+
+================ postprocess: serine ================
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/.venv/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/substitute_critic.py --ensemble-dir /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/hamming-restraint/results/a1_graft --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/hamming-restraint/results/a1_graft_serine --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --critic-col 201 --beta 1.0 --device mps --cache-model
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21)
+Critic    : MSA column 201 -> S (wild type has D)
+lambda = 10: 1000 chains, 759 already S (before: S 759, A 76, D 60, G 43) | <E> 114.2 | <P(S)> 0.751 | <CDE> 0.507
+lambda = 100: 1000 chains, 936 already S (before: S 936, A 22, G 16, D 9) | <E> 121.6 | <P(S)> 0.934 | <CDE> 0.514
+lambda = 30: 1000 chains, 871 already S (before: S 871, A 41, G 27, D 24) | <E> 117.2 | <P(S)> 0.862 | <CDE> 0.509
+lambda = 300: 1000 chains, 972 already S (before: S 972, G 12, A 5, T 5) | <E> 131.8 | <P(S)> 0.971 | <CDE> 0.528
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/hamming-restraint/results/a1_graft_serine
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/.venv/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/substitute_critic.py --ensemble-dir /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/hamming-restraint/results/a2_free_lam100 --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/hamming-restraint/results/a2_free_lam100_serine --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --critic-col 201 --beta 1.0 --device mps --cache-model
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21)
+Critic    : MSA column 201 -> S (wild type has D)
+lambda = 100: 1000 chains, 988 already S (before: S 988, G 4, A 3, - 1) | <E> 192.1 | <P(S)> 0.981 | <CDE> 0.645
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/hamming-restraint/results/a2_free_lam100_serine

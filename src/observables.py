@@ -149,6 +149,27 @@ def critic_probability(
     return site_probabilities(model, sequences, site, beta=beta, chunk=chunk)[:, state]
 
 
+def critic_log_odds(
+    model: PottsModel,
+    sequences: torch.Tensor | np.ndarray,
+    site: int,
+    state: int,
+    against: int,
+    beta: float = 1.0,
+    chunk: int = DEFAULT_CHUNK,
+) -> np.ndarray:
+    """``log P(state | rest) / P(against | rest)`` for every sequence.
+
+    The better readout once ``P(S)`` saturates: log P(S) flattens to 0 while the
+    log-odds keeps resolving a context that merely favours S from one that has
+    also stopped favouring D. A READOUT only -- steering on it turns the pocket
+    into glycine (see docs/CLAMP_CONTROL.md section 2.4).
+    """
+    probabilities = site_probabilities(model, sequences, site, beta=beta, chunk=chunk)
+    with np.errstate(divide="ignore"):
+        return np.log(probabilities[:, state]) - np.log(probabilities[:, against])
+
+
 def context_dependent_entropy(
     model: PottsModel,
     sequences: torch.Tensor | np.ndarray,
@@ -199,6 +220,7 @@ def describe(
     target_state: int,
     beta: float = 1.0,
     chunk: int = DEFAULT_CHUNK,
+    against_state: int | None = None,
 ) -> Dict[str, np.ndarray]:
     """All observables of a set of sequences, as a dict of 1-D arrays.
 
@@ -208,13 +230,20 @@ def describe(
     says how far a design has drifted from the wild type's gap pattern.
     """
     encoded = _as_batch(model, sequences)
-    return {
+    probabilities = site_probabilities(model, encoded, critic_col, beta=beta, chunk=chunk)
+    out = {
         "E_DCA": energies(model, encoded, chunk=chunk),
         "hamming_to_wt": hamming_distance(encoded, reference),
-        "P_S": critic_probability(model, encoded, critic_col, target_state, beta=beta, chunk=chunk),
+        "P_S": probabilities[:, target_state],
         "CDE": context_dependent_entropy(model, encoded, beta=beta, chunk=chunk),
         "n_gaps": gap_count(model, encoded),
     }
+    if against_state is not None:
+        with np.errstate(divide="ignore"):
+            out["LOR"] = np.log(probabilities[:, target_state]) - np.log(
+                probabilities[:, against_state]
+            )
+    return out
 
 
 def gap_count(model: PottsModel, sequences: torch.Tensor | np.ndarray) -> np.ndarray:

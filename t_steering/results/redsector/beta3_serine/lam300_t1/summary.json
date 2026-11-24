@@ -1,0 +1,42 @@
+{
+  "lam": 300.0,
+  "t": 1.0,
+  "t_indel": 1.0,
+  "beta": 1.0,
+  "n_chains": 1000,
+  "critic_col": 201,
+  "target_residue": "S",
+  "source": "t_steering/results/redsector/beta3/lam300_t1/final_sequences.fasta",
+  "chains_already_target": 1000,
+  "critic_residue_counts_before": {
+    "S": 1000
+  },
+  "mean_E_DCA": 105.70246887207031,
+  "mean_P_S": 0.9229913353919983,
+  "mean_LOR": 6.692640781402588,
+  "mean_hamming_to_wt": 3.92,
+  "mean_CDE": 0.4725845754146576,
+  "allowed_cols": [
+    165,
+    177,
+    189,
+    192,
+    193,
+    197,
+    198,
+    201,
+    204,
+    228,
+    229,
+    233,
+    235,
+    241,
+    242,
+    243
+  ],
+  "n_allowed_sites": 16,
+  "allow_gap_moves": true,
+  "n_steps": 60000,
+  "seed": 2,
+  "mean_n_gaps": 42.04
+}

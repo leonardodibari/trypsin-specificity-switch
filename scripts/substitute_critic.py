@@ -31,6 +31,7 @@ import pandas as pd
 
 from _common import _SRC  # noqa: F401  (puts src/ on sys.path)
 
+from ensemble import parse_run_dirname_full
 from encoding import Alphabet, read_sequences, read_single_sequence  # noqa: E402
 from observables import describe  # noqa: E402
 from potts import PottsModel  # noqa: E402
@@ -44,6 +45,14 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--model", required=True, help="adabmDCA parameter file or model directory")
     parser.add_argument("--critic-col", type=int, required=True, help="MSA column of the critic site (0-based)")
     parser.add_argument("--target-residue", default="S", help="Residue to stamp in (default: S)")
+    parser.add_argument(
+        "--against-residue",
+        default="D",
+        help="Denominator of the log-odds LOR = log P(target)/P(against) (default: D, "
+        "the wild-type trypsin residue). Rescoring without it leaves the LOR column "
+        "empty, and the log-odds is the only readout that keeps resolving once P(S) "
+        "has saturated at 0.99 -- which it does at every lambda the ladder uses",
+    )
     parser.add_argument("--beta", type=float, default=1.0, help="Inverse temperature (default: 1.0)")
     parser.add_argument("--alphabet", default="protein", help="adabmDCA alphabet (default: protein)")
     parser.add_argument("--device", default="cpu", help="torch device (default: cpu)")
@@ -70,6 +79,9 @@ def main() -> None:
     target_state = alphabet.index(args.target_residue)
     if target_state == alphabet.gap_index:
         raise SystemExit("The target residue may not be the gap")
+    against_state = alphabet.index(args.against_residue)
+    if against_state == target_state:
+        raise SystemExit("--against-residue must differ from --target-residue")
 
     print(f"Model     : {model.source}  (L={model.L}, q={model.q})")
     print(
@@ -87,7 +99,7 @@ def main() -> None:
         if not directory.is_dir() or not fasta.is_file():
             continue
         try:
-            lam = float(directory.name[3:])
+            lam, t, t_indel = parse_run_dirname_full(directory.name)
         except ValueError:
             continue
 
@@ -108,9 +120,11 @@ def main() -> None:
             critic_col=critic,
             target_state=target_state,
             beta=args.beta,
+            against_state=against_state,
         )
         frame = pd.DataFrame({"chain": np.arange(substituted.shape[0]), **observables})
         frame.insert(1, "lam", lam)
+        frame.insert(2, "t", t)
         frame["critic_residue_before"] = [alphabet.tokens[int(state)] for state in before]
 
         target = output / directory.name
@@ -123,6 +137,10 @@ def main() -> None:
         counts = pd.Series([alphabet.tokens[int(state)] for state in before]).value_counts()
         summary = {
             "lam": lam,
+            "t": t,
+            # The indel price as sampled; equal to t for every run whose name
+            # carries no _ti, that being exactly what such a name meant.
+            "t_indel": t_indel,
             "beta": args.beta,
             "n_chains": int(substituted.shape[0]),
             "critic_col": critic,
@@ -132,6 +150,7 @@ def main() -> None:
             "critic_residue_counts_before": {str(k): int(v) for k, v in counts.items()},
             "mean_E_DCA": float(frame["E_DCA"].mean()),
             "mean_P_S": float(frame["P_S"].mean()),
+            "mean_LOR": float(frame["LOR"].mean()),
             "mean_hamming_to_wt": float(frame["hamming_to_wt"].mean()),
             "mean_CDE": float(frame["CDE"].mean()),
         }

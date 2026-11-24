@@ -1,0 +1,48 @@
+
+================ phase A completion: fix ================
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/.venv/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/substitute_critic.py --ensemble-dir /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/hamming-restraint/results/a1_graft --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/hamming-restraint/results/a1_graft_serine --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --critic-col 201 --beta 1.0 --device mps --cache-model
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21)
+Critic    : MSA column 201 -> S (wild type has D)
+lambda = 10: 1000 chains, 759 already S (before: S 759, A 76, D 60, G 43) | <E> 114.2 | <P(S)> 0.751 | <CDE> 0.507
+lambda = 100: 1000 chains, 936 already S (before: S 936, A 22, G 16, D 9) | <E> 121.6 | <P(S)> 0.934 | <CDE> 0.514
+lambda = 100: 1000 chains, 936 already S (before: S 936, A 23, G 13, T 8) | <E> 118.4 | <P(S)> 0.932 | <CDE> 0.507
+lambda = 100: 1000 chains, 938 already S (before: S 938, A 18, G 16, T 12) | <E> 114.5 | <P(S)> 0.929 | <CDE> 0.500
+lambda = 100: 1000 chains, 910 already S (before: S 910, A 22, G 18, N 16) | <E> 108.8 | <P(S)> 0.922 | <CDE> 0.490
+lambda = 100: 1000 chains, 868 already S (before: S 868, D 49, A 33, G 21) | <E> 103.5 | <P(S)> 0.911 | <CDE> 0.479
+lambda = 10: 1000 chains, 723 already S (before: S 723, A 87, D 83, G 44) | <E> 110.0 | <P(S)> 0.737 | <CDE> 0.498
+lambda = 10: 1000 chains, 708 already S (before: S 708, D 103, A 75, G 55) | <E> 106.7 | <P(S)> 0.729 | <CDE> 0.493
+lambda = 10: 1000 chains, 650 already S (before: S 650, D 174, A 84, G 44) | <E> 102.0 | <P(S)> 0.724 | <CDE> 0.485
+lambda = 10: 1000 chains, 509 already S (before: S 509, D 359, A 73, G 29) | <E> 97.8 | <P(S)> 0.687 | <CDE> 0.475
+lambda = 30: 1000 chains, 871 already S (before: S 871, A 41, G 27, D 24) | <E> 117.2 | <P(S)> 0.862 | <CDE> 0.509
+lambda = 300: 1000 chains, 972 already S (before: S 972, G 12, A 5, T 5) | <E> 131.8 | <P(S)> 0.971 | <CDE> 0.528
+lambda = 300: 1000 chains, 965 already S (before: S 965, A 10, G 10, T 8) | <E> 127.0 | <P(S)> 0.969 | <CDE> 0.518
+lambda = 300: 1000 chains, 970 already S (before: S 970, A 12, G 8, T 7) | <E> 123.4 | <P(S)> 0.967 | <CDE> 0.511
+lambda = 300: 1000 chains, 956 already S (before: S 956, G 13, A 13, T 9) | <E> 117.9 | <P(S)> 0.964 | <CDE> 0.500
+lambda = 300: 1000 chains, 945 already S (before: S 945, A 13, G 12, D 12) | <E> 111.3 | <P(S)> 0.956 | <CDE> 0.487
+lambda = 30: 1000 chains, 876 already S (before: S 876, A 36, G 29, D 20) | <E> 113.0 | <P(S)> 0.857 | <CDE> 0.501
+lambda = 30: 1000 chains, 865 already S (before: S 865, A 48, D 29, G 28) | <E> 109.4 | <P(S)> 0.854 | <CDE> 0.495
+lambda = 30: 1000 chains, 820 already S (before: S 820, D 65, A 59, G 30) | <E> 104.7 | <P(S)> 0.847 | <CDE> 0.486
+lambda = 30: 1000 chains, 715 already S (before: S 715, D 167, A 62, G 20) | <E> 100.0 | <P(S)> 0.836 | <CDE> 0.476
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/hamming-restraint/results/a1_graft_serine
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/.venv/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/substitute_critic.py --ensemble-dir /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/hamming-restraint/results/a2_free_lam100 --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/hamming-restraint/results/a2_free_lam100_serine --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --critic-col 201 --beta 1.0 --device mps --cache-model
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21)
+Critic    : MSA column 201 -> S (wild type has D)
+lambda = 100: 1000 chains, 988 already S (before: S 988, G 4, A 3, - 1) | <E> 192.1 | <P(S)> 0.981 | <CDE> 0.645
+lambda = 100: 1000 chains, 980 already S (before: S 980, D 5, A 5, G 5) | <E> 178.7 | <P(S)> 0.978 | <CDE> 0.611
+lambda = 100: 1000 chains, 972 already S (before: S 972, D 8, G 6, A 5) | <E> 170.8 | <P(S)> 0.972 | <CDE> 0.601
+lambda = 100: 1000 chains, 961 already S (before: S 961, A 12, G 9, D 7) | <E> 152.4 | <P(S)> 0.964 | <CDE> 0.565
+lambda = 100: 1000 chains, 940 already S (before: S 940, D 19, N 12, G 11) | <E> 126.3 | <P(S)> 0.956 | <CDE> 0.513
+lambda = 100: 1000 chains, 979 already S (before: S 979, G 7, A 4, N 3) | <E> 231.7 | <P(S)> 0.982 | <CDE> 0.758
+lambda = 100: 1000 chains, 977 already S (before: S 977, G 8, A 5, T 4) | <E> 337.3 | <P(S)> 0.980 | <CDE> 1.078
+lambda = 100: 1000 chains, 976 already S (before: S 976, T 8, G 6, A 5) | <E> 421.1 | <P(S)> 0.978 | <CDE> 1.332
+lambda = 100: 1000 chains, 980 already S (before: S 980, A 6, T 4, G 4) | <E> 471.8 | <P(S)> 0.974 | <CDE> 1.469
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/hamming-restraint/results/a2_free_lam100_serine
+
+================ phase A completion: a2_top ================
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/.venv/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/scripts/run_ensemble.py --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/hamming-restraint/results/a2_free_lam100 --critic-col 201 --allowed-cols 0-264 --allow-gap-moves --lambdas 100 --t-values -0.4 -0.3 -0.2 -0.15 -0.05 0.05 2 --beta 1 --mu /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/results/ladder/calibration/mu.json --n-chains 1000 --n-steps 120000 --trace-every 1000 --trace-schedule linear --seed 100 --device mps --cache-model
+hamming-restraint/run_phase_a2.sh: line 50: 79908 Terminated: 15          "$@"

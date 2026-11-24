@@ -1,0 +1,22 @@
+=== GPU free; sampling the t = -0.5 rung ===
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/segment/beta1
+
+Done. Results under /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results
+=== rescoring segment/beta1 ===
+
+written to t_steering/results/segment/beta1_serine
+=== S5 ===
+  GATE: dropping 1 run(s) that failed on E_DCA/Q/hamming_to_wt/P_S:
+    - segment/beta1/lam300_tm0.5 (E_DCA,hamming_to_wt)
+  t = -0.5: not sampled or failed the gate -- skipped
+
+  the ladder: segment, beta=1, lambda=300, 4 rungs
+        t   hamming  hamming_sd         Q       P_S       LOR  n_unique  divergence_ratio  accepted_per_site
+    0.000    19.167       2.674   -91.561     0.971     8.305      1000             1.042             35.217
+    0.500    15.937       2.341   -92.680     0.967     7.892      1000             1.021             26.726
+    1.000    13.543       2.111   -93.124     0.964     7.613      1000             1.016             20.629
+    2.000    10.071       1.714   -94.279     0.956     7.341       996             0.952             14.098
+wrote /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/figures/s05_ladder.png
+wrote /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/figures/s05_ladder_table.png
+wrote /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/s05_ladder.csv
+=== LADDER DONE ===

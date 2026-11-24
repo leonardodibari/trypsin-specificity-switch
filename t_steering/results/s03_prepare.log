@@ -1,0 +1,46 @@
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/coupling20/beta1_serine  (window 165-243)
+Skipping gap positions of the wild type: [179, 180, 181, 182, 199, 215, 216, 217, 218, 219, 231, 232]
+Natural alignment : 89439 sequences of length 265
+Reference subset  : 9259 with S at column 201 (10.4 %)
+Compared over     : 67 columns, as a percentage of them
+  lam100: median 32.8%  min 28.4%  max 37.3%  -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/coupling20/beta1_serine/lam100/observables.csv
+  lam100_t0.5: median 32.8%  min 28.4%  max 37.3%  -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/coupling20/beta1_serine/lam100_t0.5/observables.csv
+  lam100_t1: median 32.8%  min 28.4%  max 35.8%  -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/coupling20/beta1_serine/lam100_t1/observables.csv
+  lam100_t2: median 32.8%  min 29.9%  max 37.3%  -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/coupling20/beta1_serine/lam100_t2/observables.csv
+  lam300: median 34.3%  min 26.9%  max 38.8%  -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/coupling20/beta1_serine/lam300/observables.csv
+  lam300_t0.5: median 34.3%  min 28.4%  max 38.8%  -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/coupling20/beta1_serine/lam300_t0.5/observables.csv
+  lam300_t1: median 32.8%  min 28.4%  max 38.8%  -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/coupling20/beta1_serine/lam300_t1/observables.csv
+  lam300_t2: median 32.8%  min 28.4%  max 37.3%  -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/coupling20/beta1_serine/lam300_t2/observables.csv
+  lam300_t4: median 32.8%  min 29.9%  max 35.8%  -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/coupling20/beta1_serine/lam300_t4/observables.csv
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/redsector/beta1_serine  (window 165-243)
+Skipping gap positions of the wild type: [179, 180, 181, 182, 199, 215, 216, 217, 218, 219, 231, 232]
+Natural alignment : 89439 sequences of length 265
+Reference subset  : 9259 with S at column 201 (10.4 %)
+Compared over     : 67 columns, as a percentage of them
+  lam100: median 32.8%  min 29.9%  max 38.8%  -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/redsector/beta1_serine/lam100/observables.csv
+  lam100_t0.5: median 32.8%  min 29.9%  max 38.8%  -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/redsector/beta1_serine/lam100_t0.5/observables.csv
+  lam100_t1: median 32.8%  min 29.9%  max 37.3%  -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/redsector/beta1_serine/lam100_t1/observables.csv
+  lam100_t2: median 32.8%  min 31.3%  max 35.8%  -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/redsector/beta1_serine/lam100_t2/observables.csv
+  lam300: median 35.8%  min 29.9%  max 40.3%  -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/redsector/beta1_serine/lam300/observables.csv
+  lam300_t0.5: median 35.8%  min 31.3%  max 38.8%  -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/redsector/beta1_serine/lam300_t0.5/observables.csv
+  lam300_t1: median 34.3%  min 31.3%  max 38.8%  -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/redsector/beta1_serine/lam300_t1/observables.csv
+  lam300_t2: median 34.3%  min 31.3%  max 38.8%  -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/redsector/beta1_serine/lam300_t2/observables.csv
+  lam300_t4: median 32.8%  min 31.3%  max 37.3%  -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/redsector/beta1_serine/lam300_t4/observables.csv
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/segment/beta1.5_serine  (window 165-243)
+Skipping gap positions of the wild type: [179, 180, 181, 182, 199, 215, 216, 217, 218, 219, 231, 232]
+Natural alignment : 89439 sequences of length 265
+Reference subset  : 9259 with S at column 201 (10.4 %)
+Compared over     : 67 columns, as a percentage of them
+  lam100: median 31.3%  min 25.4%  max 37.3%  -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/segment/beta1.5_serine/lam100/observables.csv
+  lam100_t0.5: median 31.3%  min 25.4%  max 35.8%  -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/segment/beta1.5_serine/lam100_t0.5/observables.csv
+  lam100_t1: median 31.3%  min 26.9%  max 35.8%  -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/segment/beta1.5_serine/lam100_t1/observables.csv
+  lam100_t2: median 31.3%  min 25.4%  max 34.3%  -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/segment/beta1.5_serine/lam100_t2/observables.csv
+  lam300: median 32.8%  min 25.4%  max 38.8%  -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/segment/beta1.5_serine/lam300/observables.csv
+  lam300_t0.5: median 32.8%  min 25.4%  max 37.3%  -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/segment/beta1.5_serine/lam300_t0.5/observables.csv
+  lam300_t1: median 32.8%  min 26.9%  max 37.3%  -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/segment/beta1.5_serine/lam300_t1/observables.csv
+  lam300_t2: median 31.3%  min 28.4%  max 37.3%  -> /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/segment/beta1.5_serine/lam300_t2/observables.csv
+
+Done. s03_corner.py will now draw the 5x5.

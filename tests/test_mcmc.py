@@ -120,3 +120,88 @@ def test_outputs_are_written(model, start, tmp_path):
 def test_an_all_gap_site_is_rejected(model, start):
     with pytest.raises(ValueError, match="gap"):
         run_mcmc(model, start, 8, [2], MCMCConfig(max_steps=10))
+
+
+# --- the Hamming restraint, single chain ----------------------------------------
+# The same term as in :mod:`ensemble`, over the allowed columns and split into its
+# substitution and indel parts: H += t_sub * d_sub + t_indel * d_indel. The chain
+# carries both incrementally and recomputes them at the end, so a leak between the
+# two parts raises rather than quietly repricing the run.
+
+
+def test_t_zero_reproduces_the_unrestrained_chain(model, start):
+    """Every single-chain result sampled before the restraint existed still stands."""
+    plain = MCMCConfig(lam=3.0, threshold=1.01, max_steps=2_000, record_every=10, seed=8)
+    restrained = MCMCConfig(lam=3.0, threshold=1.01, max_steps=2_000, record_every=10,
+                            seed=8, t=0.0, t_sub=None, t_indel=None)
+    first = run_mcmc(model, start, critic_col=8, allowed_cols=_allowed(model), config=plain)
+    second = run_mcmc(model, start, critic_col=8, allowed_cols=_allowed(model),
+                      config=restrained)
+    assert first.final_sequence == second.final_sequence
+    assert first.accepted_steps == second.accepted_steps
+    assert first.final_energy == second.final_energy
+
+
+def test_the_restraint_holds_the_chain_near_the_wild_type(model, start, alphabet):
+    """<d> is monotone decreasing in the price: an identity, not a tendency."""
+    distances = []
+    for t in (-0.5, 0.0, 2.0, 6.0):
+        result = run_mcmc(
+            model, start, critic_col=8, allowed_cols=_allowed(model),
+            config=MCMCConfig(lam=1.0, threshold=1.01, max_steps=8_000, record_every=10_000,
+                              seed=12, t=t),
+        )
+        final = alphabet.encode(result.final_sequence)
+        distances.append(int(np.sum(final != start)))
+    assert all(a >= b for a, b in zip(distances, distances[1:])), distances
+    assert distances[-1] < distances[0]
+
+
+def test_the_recorded_H_eff_carries_the_split_restraint(model, start, alphabet):
+    """H_eff must equal beta*E - lam*logP + t_sub*d_sub + t_indel*d_indel recomputed
+    from the recorded sequence itself -- which is also the check that the restraint
+    is measured over the ALLOWED columns and not over all of L."""
+    t_sub, t_indel, lam, beta = 0.6, -0.9, 2.0, 1.1
+    allowed = _allowed(model)
+    gap = alphabet.gap_index
+    result = run_mcmc(
+        model, start, critic_col=8, allowed_cols=allowed,
+        config=MCMCConfig(lam=lam, beta=beta, threshold=1.01, max_steps=3_000,
+                          record_every=1, seed=14, t_sub=t_sub, t_indel=t_indel,
+                          allow_gap_moves=True),
+    )
+    state = alphabet.index("S")
+    for record in result.records[::11]:
+        sequence = alphabet.encode(record.sequence)
+        differs = sequence[allowed] != start[allowed]
+        indel = differs & ((sequence[allowed] == gap) | (start[allowed] == gap))
+        expected = (
+            beta * model.energy(sequence)
+            - lam * model.log_conditional(8, sequence, state, beta=1.0)
+            + t_sub * int((differs & ~indel).sum())
+            + t_indel * int(indel.sum())
+        )
+        assert record.H_eff == pytest.approx(expected, abs=1e-6)
+
+
+def test_a_dear_indel_price_suppresses_gaps_in_the_single_chain(model, start, alphabet):
+    """t_indel acts on the indels alone, which is the whole reason it is separate."""
+    allowed = _allowed(model)
+    gap = alphabet.gap_index
+
+    def indel_count(t_indel):
+        result = run_mcmc(
+            model, start, critic_col=8, allowed_cols=allowed,
+            config=MCMCConfig(lam=1.0, threshold=1.01, max_steps=12_000, record_every=10_000,
+                              seed=15, t_sub=0.0, t_indel=t_indel, allow_gap_moves=True),
+        )
+        final = alphabet.encode(result.final_sequence)
+        differs = final[allowed] != start[allowed]
+        indel = differs & ((final[allowed] == gap) | (start[allowed] == gap))
+        return int(indel.sum()), int((differs & ~indel).sum())
+
+    free_indel, free_sub = indel_count(-2.0)
+    dear_indel, dear_sub = indel_count(8.0)
+    assert dear_indel < free_indel, (free_indel, dear_indel)
+    # The substitutions were never priced in either run.
+    assert dear_sub > 0 and free_sub > 0

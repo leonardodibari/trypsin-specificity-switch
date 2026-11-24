@@ -29,6 +29,28 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--lam", type=float, default=1.0, help="Bias strength lambda (default: 1.0)")
     parser.add_argument("--seed", type=int, default=42, help="RNG seed (default: 42)")
     parser.add_argument(
+        "--t",
+        type=float,
+        default=0.0,
+        help="Hamming restraint: the Hamiltonian carries + t * d_H(sigma, WT) over the "
+        "mutable columns, so t > 0 holds the chain near the wild type, t < 0 pays it to "
+        "leave and t = 0 (the default) is the original chain, bit for bit",
+    )
+    parser.add_argument(
+        "--t-sub",
+        type=float,
+        default=None,
+        help="Price of a substitution, overriding --t for that part of d_H alone",
+    )
+    parser.add_argument(
+        "--t-indel",
+        type=float,
+        default=None,
+        help="Price of an indel (a gained or lost residue), overriding --t for that part "
+        "of d_H alone. Unset, an indel costs the same as a substitution, which with "
+        "--allow-gap-moves charges the substitution budget for indels without saying so",
+    )
+    parser.add_argument(
         "--ungapped-fasta",
         action="store_true",
         help="Write sequences.fasta without the alignment gaps",
@@ -62,6 +84,9 @@ def main() -> None:
         seed=args.seed,
         target_residue=args.target_residue,
         allow_gap_moves=args.allow_gap_moves,
+        t=args.t,
+        t_sub=args.t_sub,
+        t_indel=args.t_indel,
     )
 
     result = run_mcmc(

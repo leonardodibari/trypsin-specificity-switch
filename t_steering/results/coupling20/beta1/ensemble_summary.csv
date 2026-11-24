@@ -1,0 +1,2 @@
+lam,t,mu,beta,n_chains,n_steps,seed,acceptance_rate,critic_col,n_allowed_sites,allowed_cols,allow_gap_moves,clamp_critic,bias,against_residue,mean_E_DCA,mean_n_gaps,mean_P_S,mean_hamming_to_wt,mean_CDE,mean_LOR,var_hamming_to_wt,mean_Q
+300.0,4.0,422.61675577706455,1.0,1000,60000,0,0.008779516666666667,201,20,"[165, 175, 176, 184, 186, 194, 195, 197, 200, 202, 204, 212, 223, 229, 230, 233, 235, 236, 239, 241]",True,False,logp,D,114.2834243774414,42.259,0.9365390539169312,3.475,0.4655764698982239,5.824666976928711,0.46784284284284283,-82.47699737548828

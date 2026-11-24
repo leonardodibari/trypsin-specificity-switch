@@ -1,0 +1,59 @@
+  t = 0: not sampled or failed the gate -- skipped
+  t = 0.5: not sampled or failed the gate -- skipped
+  t = 1: not sampled or failed the gate -- skipped
+  t = 2: not sampled or failed the gate -- skipped
+  t = 4: not sampled or failed the gate -- skipped
+the ladder needs at least two rungs; found 0. Sample the missing t with:
+  t = 0: not sampled or failed the gate -- skipped
+  t = 0.5: not sampled or failed the gate -- skipped
+  t = 1: not sampled or failed the gate -- skipped
+  t = 2: not sampled or failed the gate -- skipped
+  t = 4: not sampled or failed the gate -- skipped
+the ladder needs at least two rungs; found 0. Sample the missing t with:
+  t = 0: not sampled or failed the gate -- skipped
+  t = 0.5: not sampled or failed the gate -- skipped
+  t = 1: not sampled or failed the gate -- skipped
+  t = 2: not sampled or failed the gate -- skipped
+  t = 4: not sampled or failed the gate -- skipped
+the ladder needs at least two rungs; found 0. Sample the missing t with:
+  red-sector enrichment, beta = 3, lambda = 300
+  (share of mutations in red) / (share of MUTABLE columns in red)
+       set        t  n_mutable  n_red_mutable  baseline  red_share  enrichment  degenerate
+   segment    0.000         79             16     0.203      0.272       1.342       False
+   segment    0.500         79             16     0.203      0.297       1.466       False
+   segment    1.000         79             16     0.203      0.328       1.618       False
+   segment    2.000         79             16     0.203      0.365       1.803       False
+   segment    4.000         79             16     0.203      0.441       2.178       False
+ redsector    0.000         16             16     1.000      1.000       1.000        True
+ redsector    0.500         16             16     1.000      1.000       1.000        True
+ redsector    1.000         16             16     1.000      1.000       1.000        True
+ redsector    2.000         16             16     1.000      1.000       1.000        True
+ redsector    4.000         16             16     1.000      1.000       1.000        True
+coupling20    0.000         20              7     0.350      0.540       1.542       False
+coupling20    0.500         20              7     0.350      0.537       1.535       False
+coupling20    1.000         20              7     0.350      0.600       1.715       False
+coupling20    2.000         20              7     0.350      0.618       1.767       False
+coupling20    4.000         20              7     0.350      0.737       2.106       False
+wrote /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/s07_sectors_beta3.csv
+wrote /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/figures/s07_sectors_beta3.png
+
+  indel composition and gap abundance (beta = 3, lambda = 300; wild type carries 42 gaps)
+       set        t  d_total    d_sub  d_indel  indel_share   n_gaps  gaps_vs_wt
+   segment    0.000   11.535   11.498    0.037        0.003   42.013       0.013
+   segment    0.500   10.626   10.598    0.028        0.003   42.024       0.024
+   segment    1.000    9.670    9.583    0.087        0.009   42.087       0.087
+   segment    2.000    8.406    8.392    0.014        0.002   42.006       0.006
+   segment    4.000    6.940    6.923    0.017        0.002   42.017       0.017
+ redsector    0.000    4.003    3.933    0.070        0.017   42.070       0.070
+ redsector    0.500    3.977    3.907    0.070        0.018   42.070       0.070
+ redsector    1.000    3.920    3.880    0.040        0.010   42.040       0.040
+ redsector    2.000    3.740    3.694    0.046        0.012   42.046       0.046
+ redsector    4.000    3.334    3.300    0.034        0.010   42.034       0.034
+coupling20    0.000    4.202    4.129    0.073        0.017   42.073       0.073
+coupling20    0.500    4.042    4.008    0.034        0.008   42.034       0.034
+coupling20    1.000    4.156    4.061    0.095        0.023   42.095       0.095
+coupling20    2.000    3.770    3.713    0.057        0.015   42.057       0.057
+coupling20    4.000    3.168    3.088    0.080        0.025   42.080       0.080
+wrote /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/results/s08_indels_beta3.csv
+wrote /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/t_steering/figures/s08_indels_beta3.png
+=== BETA3 FIGURES DONE ===

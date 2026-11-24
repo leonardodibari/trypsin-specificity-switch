@@ -1,0 +1,193 @@
+
+================ bracket: c1_wt ================
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/.venv/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/hamming-restraint/scripts/run_ensemble_annealed.py --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/hamming-restraint/results/c1_lam100_from_wt --critic-col 201 --allowed-cols 0-264 --allow-gap-moves --lam 100 --t-values -1 -0.5 -0.4 -0.3 -0.25 -0.2 -0.15 -0.1 -0.05 0 0.05 0.1 0.25 0.5 1 2 --beta 1 --mu /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/results/ladder/calibration/mu.json --n-chains 1000 --n-steps 150000 --trace-every 2000 --trace-schedule linear --seed 1000 --device mps --cache-model
+model loaded in 0.1s from /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21, tokens '-ACDEFGHIKLMNPQRSTVWY')
+Wild type : TRY2_RAT P00763 anionic trypsin, aligned row of iter_aln_v2 (L=265) -- the MCMC wild type
+Critic    : MSA column 201 (WT residue D)
+Mutable   : 265 MSA columns -> ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59', '60', '61', '62', '63', '64', '65', '66', '67', '68', '69', '70', '71', '72', '73', '74', '75', '76', '77', '78', '79', '80', '81', '82', '83', '84', '85', '86', '87', '88', '89', '90', '91', '92', '93', '94', '95', '96', '97', '98', '99', '100', '101', '102', '103', '104', '105', '106', '107', '108', '109', '110', '111', '112', '113', '114', '115', '116', '117', '118', '119', '120', '121', '122', '123', '124', '125', '126', '127', '128', '129', '130', '131', '132', '133', '134', '135', '136', '137', '138', '139', '140', '141', '142', '143', '144', '145', '146', '147', '148', '149', '150', '151', '152', '153', '154', '155', '156', '157', '158', '159', '160', '161', '162', '163', '164', '165', '166', '167', '168', '169', '170', '171', '172', '173', '174', '175', '176', '177', '178', '179', '180', '181', '182', '183', '184', '185', '186', '187', '188', '189', '190', '191', '192', '193', '194', '195', '196', '197', '198', '199', '200', '201', '202', '203', '204', '205', '206', '207', '208', '209', '210', '211', '212', '213', '214', '215', '216', '217', '218', '219', '220', '221', '222', '223', '224', '225', '226', '227', '228', '229', '230', '231', '232', '233', '234', '235', '236', '237', '238', '239', '240', '241', '242', '243', '244', '245', '246', '247', '248', '249', '250', '251', '252', '253', '254', '255', '256', '257', '258', '259', '260', '261', '262', '263', '264']
+Note      : the critic site is itself mutable.
+Gaps      : an ordinary state; 42 of the 265 mutable columns are a gap in the wild type, and any column may become one.
+start: the wild type (TRY2_RAT P00763 anionic trypsin, aligned row of iter_aln_v2 (L=265) -- the MCMC wild type), d_H = 0
+annealed chain (descending): lambda=100, t = 2 -> 1 -> 0.5 -> 0.25 -> 0.1 -> 0.05 -> 0 -> -0.05 -> -0.1 -> -0.15 -> -0.2 -> -0.25 -> -0.3 -> -0.4 -> -0.5 -> -1
+
+rung 1/16: lambda=100, t=2  (1000 chains x 150000 steps, mps)
+  acceptance 0.014 | <E> 104.8 | <P(S)> 0.943 | <hamming> 19.1 (var 11.0) | <CDE> 0.477
+
+rung 2/16: lambda=100, t=1  (1000 chains x 150000 steps, mps)
+  acceptance 0.025 | <E> 125.2 | <P(S)> 0.956 | <hamming> 35.8 (var 25.4) | <CDE> 0.511
+
+rung 3/16: lambda=100, t=0.5  (1000 chains x 150000 steps, mps)
+  acceptance 0.038 | <E> 153.7 | <P(S)> 0.963 | <hamming> 52.2 (var 52.2) | <CDE> 0.567
+
+rung 4/16: lambda=100, t=0.25  (1000 chains x 150000 steps, mps)
+  acceptance 0.047 | <E> 167.3 | <P(S)> 0.972 | <hamming> 72.7 (var 156.5) | <CDE> 0.590
+
+rung 5/16: lambda=100, t=0.1  (1000 chains x 150000 steps, mps)
+  acceptance 0.047 | <E> 152.3 | <P(S)> 0.981 | <hamming> 92.2 (var 91.9) | <CDE> 0.534
+
+rung 6/16: lambda=100, t=0.05  (1000 chains x 150000 steps, mps)
+  acceptance 0.040 | <E> 141.0 | <P(S)> 0.985 | <hamming> 96.7 (var 61.2) | <CDE> 0.497
+
+rung 7/16: lambda=100, t=0  (1000 chains x 150000 steps, mps)
+  acceptance 0.039 | <E> 138.9 | <P(S)> 0.985 | <hamming> 98.4 (var 73.2) | <CDE> 0.490
+
+rung 8/16: lambda=100, t=-0.05  (1000 chains x 150000 steps, mps)
+  acceptance 0.039 | <E> 141.9 | <P(S)> 0.986 | <hamming> 100.2 (var 104.1) | <CDE> 0.494
+
+rung 9/16: lambda=100, t=-0.1  (1000 chains x 150000 steps, mps)
+  acceptance 0.040 | <E> 147.9 | <P(S)> 0.986 | <hamming> 102.0 (var 139.4) | <CDE> 0.507
+
+rung 10/16: lambda=100, t=-0.15  (1000 chains x 150000 steps, mps)
+  acceptance 0.043 | <E> 156.6 | <P(S)> 0.986 | <hamming> 104.7 (var 210.1) | <CDE> 0.526
+
+rung 11/16: lambda=100, t=-0.2  (1000 chains x 150000 steps, mps)
+  acceptance 0.046 | <E> 166.1 | <P(S)> 0.986 | <hamming> 107.9 (var 315.4) | <CDE> 0.550
+
+rung 12/16: lambda=100, t=-0.25  (1000 chains x 150000 steps, mps)
+  acceptance 0.051 | <E> 181.2 | <P(S)> 0.986 | <hamming> 113.1 (var 545.1) | <CDE> 0.595
+
+rung 13/16: lambda=100, t=-0.3  (1000 chains x 150000 steps, mps)
+  acceptance 0.060 | <E> 211.3 | <P(S)> 0.986 | <hamming> 123.2 (var 979.9) | <CDE> 0.680
+
+rung 14/16: lambda=100, t=-0.4  (1000 chains x 150000 steps, mps)
+  acceptance 0.084 | <E> 290.2 | <P(S)> 0.983 | <hamming> 152.3 (var 1662.6) | <CDE> 0.922
+
+rung 15/16: lambda=100, t=-0.5  (1000 chains x 150000 steps, mps)
+  acceptance 0.122 | <E> 389.9 | <P(S)> 0.979 | <hamming> 193.5 (var 916.9) | <CDE> 1.233
+
+rung 16/16: lambda=100, t=-1  (1000 chains x 150000 steps, mps)
+  acceptance 0.167 | <E> 467.5 | <P(S)> 0.975 | <hamming> 232.6 (var 42.4) | <CDE> 1.455
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/hamming-restraint/results/c1_lam100_from_wt
+
+================ bracket: c1_chymo ================
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/.venv/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/hamming-restraint/scripts/run_ensemble_annealed.py --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/hamming-restraint/results/c1_lam100_from_chymo --critic-col 201 --allowed-cols 0-264 --allow-gap-moves --lam 100 --t-values -1 -0.5 -0.4 -0.3 -0.25 -0.2 -0.15 -0.1 -0.05 0 0.05 0.1 0.25 0.5 1 2 --beta 1 --mu /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/results/ladder/calibration/mu.json --n-chains 1000 --n-steps 150000 --trace-every 2000 --trace-schedule linear --seed 2000 --device mps --cache-model --start-fasta /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/data/chymotrypsin_bovine.fasta
+model loaded in 0.1s from /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21, tokens '-ACDEFGHIKLMNPQRSTVWY')
+Wild type : TRY2_RAT P00763 anionic trypsin, aligned row of iter_aln_v2 (L=265) -- the MCMC wild type
+Critic    : MSA column 201 (WT residue D)
+Mutable   : 265 MSA columns -> ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59', '60', '61', '62', '63', '64', '65', '66', '67', '68', '69', '70', '71', '72', '73', '74', '75', '76', '77', '78', '79', '80', '81', '82', '83', '84', '85', '86', '87', '88', '89', '90', '91', '92', '93', '94', '95', '96', '97', '98', '99', '100', '101', '102', '103', '104', '105', '106', '107', '108', '109', '110', '111', '112', '113', '114', '115', '116', '117', '118', '119', '120', '121', '122', '123', '124', '125', '126', '127', '128', '129', '130', '131', '132', '133', '134', '135', '136', '137', '138', '139', '140', '141', '142', '143', '144', '145', '146', '147', '148', '149', '150', '151', '152', '153', '154', '155', '156', '157', '158', '159', '160', '161', '162', '163', '164', '165', '166', '167', '168', '169', '170', '171', '172', '173', '174', '175', '176', '177', '178', '179', '180', '181', '182', '183', '184', '185', '186', '187', '188', '189', '190', '191', '192', '193', '194', '195', '196', '197', '198', '199', '200', '201', '202', '203', '204', '205', '206', '207', '208', '209', '210', '211', '212', '213', '214', '215', '216', '217', '218', '219', '220', '221', '222', '223', '224', '225', '226', '227', '228', '229', '230', '231', '232', '233', '234', '235', '236', '237', '238', '239', '240', '241', '242', '243', '244', '245', '246', '247', '248', '249', '250', '251', '252', '253', '254', '255', '256', '257', '258', '259', '260', '261', '262', '263', '264']
+Note      : the critic site is itself mutable.
+Gaps      : an ordinary state; 42 of the 265 mutable columns are a gap in the wild type, and any column may become one.
+start: CTRB_BOVIN P00767 bovine chymotrypsinogen B, aligned row of iter_aln_v2 (L=265) from /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/data/chymotrypsin_bovine.fasta, d_H to the wild type = 145
+annealed chain (ascending): lambda=100, t = -1 -> -0.5 -> -0.4 -> -0.3 -> -0.25 -> -0.2 -> -0.15 -> -0.1 -> -0.05 -> 0 -> 0.05 -> 0.1 -> 0.25 -> 0.5 -> 1 -> 2
+
+rung 1/16: lambda=100, t_sub=-1  (1000 chains x 150000 steps, mps)
+  acceptance 0.129 | <E> 467.8 | <P(S)> 0.974 | <hamming> 230.4 (var 48.4) | <CDE> 1.453
+
+rung 2/16: lambda=100, t_sub=-0.5  (1000 chains x 150000 steps, mps)
+  acceptance 0.162 | <E> 424.6 | <P(S)> 0.978 | <hamming> 213.7 (var 72.3) | <CDE> 1.354
+
+rung 3/16: lambda=100, t_sub=-0.4  (1000 chains x 150000 steps, mps)
+  acceptance 0.152 | <E> 399.5 | <P(S)> 0.979 | <hamming> 207.4 (var 68.9) | <CDE> 1.288
+
+rung 4/16: lambda=100, t_sub=-0.3  (1000 chains x 150000 steps, mps)
+  acceptance 0.142 | <E> 375.9 | <P(S)> 0.980 | <hamming> 201.2 (var 79.7) | <CDE> 1.221
+
+rung 5/16: lambda=100, t_sub=-0.25  (1000 chains x 150000 steps, mps)
+  acceptance 0.133 | <E> 355.8 | <P(S)> 0.980 | <hamming> 197.9 (var 87.9) | <CDE> 1.163
+
+rung 6/16: lambda=100, t_sub=-0.2  (1000 chains x 150000 steps, mps)
+  acceptance 0.126 | <E> 343.1 | <P(S)> 0.982 | <hamming> 194.7 (var 90.7) | <CDE> 1.131
+
+rung 7/16: lambda=100, t_sub=-0.15  (1000 chains x 150000 steps, mps)
+  acceptance 0.121 | <E> 329.8 | <P(S)> 0.982 | <hamming> 191.3 (var 105.0) | <CDE> 1.090
+
+rung 8/16: lambda=100, t_sub=-0.1  (1000 chains x 150000 steps, mps)
+  acceptance 0.114 | <E> 313.3 | <P(S)> 0.982 | <hamming> 188.0 (var 126.4) | <CDE> 1.044
+
+rung 9/16: lambda=100, t_sub=-0.05  (1000 chains x 150000 steps, mps)
+  acceptance 0.108 | <E> 303.5 | <P(S)> 0.983 | <hamming> 185.3 (var 146.6) | <CDE> 1.018
+
+rung 10/16: lambda=100, t_sub=0  (1000 chains x 150000 steps, mps)
+  acceptance 0.105 | <E> 296.1 | <P(S)> 0.983 | <hamming> 182.3 (var 159.3) | <CDE> 0.997
+
+rung 11/16: lambda=100, t_sub=0.05  (1000 chains x 150000 steps, mps)
+  acceptance 0.101 | <E> 287.7 | <P(S)> 0.984 | <hamming> 179.0 (var 187.4) | <CDE> 0.974
+
+rung 12/16: lambda=100, t_sub=0.1  (1000 chains x 150000 steps, mps)
+  acceptance 0.098 | <E> 281.2 | <P(S)> 0.984 | <hamming> 175.5 (var 213.7) | <CDE> 0.957
+
+rung 13/16: lambda=100, t_sub=0.25  (1000 chains x 150000 steps, mps)
+  acceptance 0.094 | <E> 272.9 | <P(S)> 0.985 | <hamming> 164.2 (var 396.5) | <CDE> 0.935
+
+rung 14/16: lambda=100, t_sub=0.5  (1000 chains x 150000 steps, mps)
+  acceptance 0.081 | <E> 229.3 | <P(S)> 0.979 | <hamming> 120.1 (var 2153.2) | <CDE> 0.802
+
+rung 15/16: lambda=100, t_sub=1  (1000 chains x 150000 steps, mps)
+  acceptance 0.039 | <E> 131.7 | <P(S)> 0.957 | <hamming> 40.0 (var 360.4) | <CDE> 0.528
+
+rung 16/16: lambda=100, t_sub=2  (1000 chains x 150000 steps, mps)
+  acceptance 0.013 | <E> 105.3 | <P(S)> 0.944 | <hamming> 19.0 (var 11.8) | <CDE> 0.478
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/hamming-restraint/results/c1_lam100_from_chymo
+
+================ bracket: c2_wt ================
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/.venv/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/hamming-restraint/scripts/run_ensemble_annealed.py --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/hamming-restraint/results/c2_lam0_from_wt --critic-col 201 --allowed-cols 0-264 --allow-gap-moves --lam 0 --t-values -1 -0.5 -0.4 -0.3 -0.25 -0.2 -0.15 -0.1 -0.05 0 0.05 0.1 0.25 0.5 1 2 --beta 1 --mu /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/results/ladder/calibration/mu.json --n-chains 1000 --n-steps 150000 --trace-every 2000 --trace-schedule linear --seed 3000 --device mps --cache-model
+model loaded in 0.1s from /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz
+Model     : /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz  (L=265, q=21, tokens '-ACDEFGHIKLMNPQRSTVWY')
+Wild type : TRY2_RAT P00763 anionic trypsin, aligned row of iter_aln_v2 (L=265) -- the MCMC wild type
+Critic    : MSA column 201 (WT residue D)
+Mutable   : 265 MSA columns -> ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59', '60', '61', '62', '63', '64', '65', '66', '67', '68', '69', '70', '71', '72', '73', '74', '75', '76', '77', '78', '79', '80', '81', '82', '83', '84', '85', '86', '87', '88', '89', '90', '91', '92', '93', '94', '95', '96', '97', '98', '99', '100', '101', '102', '103', '104', '105', '106', '107', '108', '109', '110', '111', '112', '113', '114', '115', '116', '117', '118', '119', '120', '121', '122', '123', '124', '125', '126', '127', '128', '129', '130', '131', '132', '133', '134', '135', '136', '137', '138', '139', '140', '141', '142', '143', '144', '145', '146', '147', '148', '149', '150', '151', '152', '153', '154', '155', '156', '157', '158', '159', '160', '161', '162', '163', '164', '165', '166', '167', '168', '169', '170', '171', '172', '173', '174', '175', '176', '177', '178', '179', '180', '181', '182', '183', '184', '185', '186', '187', '188', '189', '190', '191', '192', '193', '194', '195', '196', '197', '198', '199', '200', '201', '202', '203', '204', '205', '206', '207', '208', '209', '210', '211', '212', '213', '214', '215', '216', '217', '218', '219', '220', '221', '222', '223', '224', '225', '226', '227', '228', '229', '230', '231', '232', '233', '234', '235', '236', '237', '238', '239', '240', '241', '242', '243', '244', '245', '246', '247', '248', '249', '250', '251', '252', '253', '254', '255', '256', '257', '258', '259', '260', '261', '262', '263', '264']
+Note      : the critic site is itself mutable.
+Gaps      : an ordinary state; 42 of the 265 mutable columns are a gap in the wild type, and any column may become one.
+start: the wild type (TRY2_RAT P00763 anionic trypsin, aligned row of iter_aln_v2 (L=265) -- the MCMC wild type), d_H = 0
+annealed chain (descending): lambda=0, t = 2 -> 1 -> 0.5 -> 0.25 -> 0.1 -> 0.05 -> 0 -> -0.05 -> -0.1 -> -0.15 -> -0.2 -> -0.25 -> -0.3 -> -0.4 -> -0.5 -> -1
+
+rung 1/16: lambda=0, t_sub=2  (1000 chains x 150000 steps, mps)
+  acceptance 0.010 | <E> 81.7 | <P(S)> 0.001 | <hamming> 13.7 (var 10.5) | <CDE> 0.441
+
+rung 2/16: lambda=0, t_sub=1  (1000 chains x 150000 steps, mps)
+  acceptance 0.021 | <E> 98.4 | <P(S)> 0.001 | <hamming> 28.1 (var 20.6) | <CDE> 0.462
+
+rung 3/16: lambda=0, t_sub=0.5  (1000 chains x 150000 steps, mps)
+  acceptance 0.031 | <E> 121.5 | <P(S)> 0.001 | <hamming> 41.4 (var 35.6) | <CDE> 0.497
+
+rung 4/16: lambda=0, t_sub=0.25  (1000 chains x 150000 steps, mps)
+  acceptance 0.039 | <E> 139.2 | <P(S)> 0.002 | <hamming> 51.0 (var 49.8) | <CDE> 0.530
+
+rung 5/16: lambda=0, t_sub=0.1  (1000 chains x 150000 steps, mps)
+  acceptance 0.045 | <E> 155.3 | <P(S)> 0.004 | <hamming> 60.7 (var 84.1) | <CDE> 0.561
+
+rung 6/16: lambda=0, t_sub=0.05  (1000 chains x 150000 steps, mps)
+  acceptance 0.048 | <E> 165.7 | <P(S)> 0.010 | <hamming> 66.7 (var 164.7) | <CDE> 0.586
+
+rung 7/16: lambda=0, t_sub=0  (1000 chains x 150000 steps, mps)
+  acceptance 0.053 | <E> 180.4 | <P(S)> 0.016 | <hamming> 75.1 (var 345.6) | <CDE> 0.623
+
+rung 8/16: lambda=0, t_sub=-0.05  (1000 chains x 150000 steps, mps)
+  acceptance 0.062 | <E> 207.1 | <P(S)> 0.038 | <hamming> 90.8 (var 694.1) | <CDE> 0.696
+
+rung 9/16: lambda=0, t_sub=-0.1  (1000 chains x 150000 steps, mps)
+  acceptance 0.077 | <E> 250.0 | <P(S)> 0.057 | <hamming> 115.5 (var 1061.7) | <CDE> 0.821
+
+rung 10/16: lambda=0, t_sub=-0.15  (1000 chains x 150000 steps, mps)
+  acceptance 0.096 | <E> 291.3 | <P(S)> 0.087 | <hamming> 139.5 (var 1073.2) | <CDE> 0.946
+
+rung 11/16: lambda=0, t_sub=-0.2  (1000 chains x 150000 steps, mps)
+  acceptance 0.113 | <E> 329.4 | <P(S)> 0.102 | <hamming> 162.5 (var 1049.4) | <CDE> 1.060
+
+rung 12/16: lambda=0, t_sub=-0.25  (1000 chains x 150000 steps, mps)
+  acceptance 0.130 | <E> 365.0 | <P(S)> 0.121 | <hamming> 180.9 (var 944.0) | <CDE> 1.167
+
+rung 13/16: lambda=0, t_sub=-0.3  (1000 chains x 150000 steps, mps)
+  acceptance 0.143 | <E> 388.8 | <P(S)> 0.110 | <hamming> 192.8 (var 795.3) | <CDE> 1.244
+
+rung 14/16: lambda=0, t_sub=-0.4  (1000 chains x 150000 steps, mps)
+  acceptance 0.156 | <E> 417.9 | <P(S)> 0.101 | <hamming> 205.5 (var 587.4) | <CDE> 1.328
+
+rung 15/16: lambda=0, t_sub=-0.5  (1000 chains x 150000 steps, mps)
+  acceptance 0.168 | <E> 442.8 | <P(S)> 0.080 | <hamming> 216.9 (var 313.0) | <CDE> 1.402
+
+rung 16/16: lambda=0, t_sub=-1  (1000 chains x 150000 steps, mps)
+  acceptance 0.185 | <E> 486.8 | <P(S)> 0.034 | <hamming> 238.7 (var 32.1) | <CDE> 1.514
+
+written to /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/hamming-restraint/results/c2_lam0_from_wt
+
+================ bracket: c2_chymo ================
+
+### /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/.venv/bin/python /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/hamming-restraint/scripts/run_ensemble_annealed.py --wt /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/data/wt_trypsin.fasta --model /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/DCAmodel-serine_protease/params.dat.gz --output /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/hamming-restraint/results/c2_lam0_from_chymo --critic-col 201 --allowed-cols 0-264 --allow-gap-moves --lam 0 --t-values -1 -0.5 -0.4 -0.3 -0.25 -0.2 -0.15 -0.1 -0.05 0 0.05 0.1 0.25 0.5 1 2 --beta 1 --mu /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/results/ladder/calibration/mu.json --n-chains 1000 --n-steps 150000 --trace-every 2000 --trace-schedule linear --seed 4000 --device mps --cache-model --start-fasta /Users/leonardodibari/Documents/work/PHD/tryp2chymotryp/trypsin-specificity-switch/data/chymotrypsin_bovine.fasta

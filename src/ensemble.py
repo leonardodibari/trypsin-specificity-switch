@@ -1,7 +1,8 @@
 """Many independent biased chains at once, vectorised over chains (CPU or GPU).
 
 Same Hamiltonian and same move set as :mod:`mcmc` -- ``H = beta * E_DCA -
-lambda * log P(S | critic)``, with the critic conditional always at beta = 1
+lambda * log P(S | critic) + t * d_H(sigma, wild type)``, with the critic
+conditional always at beta = 1
 (see ``CRITIC_BETA``), single-residue substitutions at the allowed,
 non-gap sites, Metropolis acceptance ``min(1, exp(-dH))`` -- but a thousand
 chains advance together as one tensor, which is what makes a sweep over lambda
@@ -56,6 +57,50 @@ class EnsembleConfig:
     bias: str = "logp"
     #: The residue the log-odds divides by. Only used when bias == "logodds".
     against_residue: str = "D"
+    #: Strength of the Hamming restraint toward the reference (the wild type):
+    #: the sampled Hamiltonian carries ``+ t * d_H(sigma, reference)``.
+    #:
+    #:   t > 0  restrains the chains near the wild type (few-mutation designs)
+    #:   t = 0  the original Hamiltonian, bit for bit
+    #:   t < 0  pays the chains to LEAVE the wild type
+    #:
+    #: ``d_H`` is a sum of single-site indicators, so this is exactly a uniform
+    #: field of ``+t`` on every non-wild-type state: the sampled distribution is
+    #: still a Potts model, the update is O(1) per move, and ``t`` is the
+    #: chemical potential conjugate to the Hamming distance. The scan over t
+    #: therefore traces ``<d>(t)`` and, by ``-d<d>/dt = Var(d)``, its
+    #: susceptibility.
+    t: float = 0.0
+    #: The restraint split by move type. ``d_H`` counts two physically different
+    #: things at once: a substitution (both residues present, different) and an
+    #: indel (exactly one of the two is a gap). With ``allow_gap_moves`` on, a
+    #: single ``t`` prices them identically, so asking for a 10-substitution
+    #: design also, silently, charges ``t`` per gained or lost residue. These
+    #: split that price:
+    #:
+    #:     H += t_sub * d_sub(sigma, reference) + t_indel * d_indel(sigma, reference)
+    #:
+    #: ``None`` falls back to ``t``, so ``t`` alone is the old single-knob
+    #: behaviour exactly and every run sampled under it still reproduces. Each
+    #: is still a single-site indicator, so the sum is still exactly a field:
+    #: at a site whose reference residue is ``r``, the shift is 0 on ``r``,
+    #: ``t_indel`` on the gap-vs-residue states, and ``t_sub`` on the rest.
+    t_sub: Optional[float] = None
+    t_indel: Optional[float] = None
+    #: mu of the quality score ``Q = E_DCA - mu * CDE``. Only used to put Q in the
+    #: trace, so that saturation can be checked on the quantity the designs are
+    #: actually scored by rather than on its two parts separately. None = no Q.
+    mu: Optional[float] = None
+
+    @property
+    def t_sub_effective(self) -> float:
+        """The substitution price actually sampled: ``t_sub``, else ``t``."""
+        return self.t if self.t_sub is None else self.t_sub
+
+    @property
+    def t_indel_effective(self) -> float:
+        """The indel price actually sampled: ``t_indel``, else ``t``."""
+        return self.t if self.t_indel is None else self.t_indel
 
 
 @dataclass
@@ -169,6 +214,35 @@ def run_ensemble(
     reference = torch.as_tensor(np.asarray(reference_sequence), device=device, dtype=torch.long)
     trace_steps = _trace_steps(config)
 
+    # The Hamming restraint, split into its substitution and its indel part and
+    # defined over the ALLOWED columns only. A frozen column can never
+    # contribute a move, so counting it would add only a constant to H -- but
+    # that constant is not zero whenever the reference differs from the start
+    # outside the allowed set (which is exactly the grafted starts), and it would
+    # then be reported as part of a distance the sampler has no way to change.
+    # Where the allowed set is all of L -- the free runs -- the two definitions
+    # coincide exactly, column for column.
+    gap_index = alphabet.gap_index
+    t_sub = float(config.t_sub_effective)
+    t_indel = float(config.t_indel_effective)
+    reference_at_sites = reference[site_tensor]  # (n_sites,)
+    reference_gap_at_sites = reference_at_sites == gap_index
+
+    def _split_distance(block: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+        """``(d_sub, d_indel)`` of an ``(n, n_sites)`` block against the reference.
+
+        An indel is a position where exactly one of the two is a gap; everything
+        else that differs is a substitution. The two are disjoint and sum to
+        ``d_H`` over the allowed columns.
+        """
+        differs = block != reference_at_sites.unsqueeze(0)
+        indel = differs & ((block == gap_index) | reference_gap_at_sites.unsqueeze(0))
+        return (differs & ~indel).sum(dim=1).to(dtype), indel.sum(dim=1).to(dtype)
+
+    # Both are carried incrementally -- a move changes each by -1, 0 or +1 -- and
+    # both are recomputed from the chains at the end as a guard against drift.
+    d_sub, d_indel = _split_distance(chains[:, site_tensor])
+
     for step in range(1, int(config.n_steps) + 1):
         site = int(site_tensor[torch.randint(sites.size, (1,), generator=generator, device=device)])
         old_state = chains[:, site]
@@ -190,7 +264,25 @@ def run_ensemble(
             new_critic_logits = critic_logits + block[:, new_state].T - block[:, old_state].T
             new_log_p = bias_value(new_critic_logits)
 
-        delta_h = config.beta * delta_energy - config.lam * (new_log_p - log_p)
+        # d_H changes only at the site being proposed, and the move can also move
+        # weight between the two parts: a residue -> gap move at a site whose
+        # reference residue is present turns a substitution into an indel, so
+        # both deltas are needed even though their sum may be 0.
+        reference_state = reference[site]
+        reference_is_gap = reference_state == gap_index
+        old_differs = old_state != reference_state
+        new_differs = new_state != reference_state
+        old_indel = old_differs & ((old_state == gap_index) | reference_is_gap)
+        new_indel = new_differs & ((new_state == gap_index) | reference_is_gap)
+        delta_sub = (new_differs & ~new_indel).to(dtype) - (old_differs & ~old_indel).to(dtype)
+        delta_indel = new_indel.to(dtype) - old_indel.to(dtype)
+
+        delta_h = (
+            config.beta * delta_energy
+            - config.lam * (new_log_p - log_p)
+            + t_sub * delta_sub
+            + t_indel * delta_indel
+        )
         uniform = torch.rand(n, generator=generator, device=device)
         accept = (delta_h <= 0) | (uniform < torch.exp(-delta_h.clamp(min=-80.0, max=80.0)))
 
@@ -201,6 +293,8 @@ def run_ensemble(
             chains[index, site] = new_state[accept]
             critic_logits = torch.where(accept.unsqueeze(1), new_critic_logits, critic_logits)
             log_p = torch.where(accept, new_log_p, log_p)
+            d_sub = torch.where(accept, d_sub + delta_sub, d_sub)
+            d_indel = torch.where(accept, d_indel + delta_indel, d_indel)
             accepted_total += int(accept.sum())
 
         if step in trace_steps:
@@ -214,11 +308,13 @@ def run_ensemble(
                 chains=chains,
                 x=x,
                 log_p=_log_softmax_at(critic_logits, target_state, CRITIC_BETA),
+                log_odds=_log_odds(critic_logits, target_state, against_state, CRITIC_BETA),
                 reference=reference,
                 step=step,
                 accepted=accepted_total / n,
                 with_cde=config.trace_cde,
                 beta=CRITIC_BETA,
+                mu=config.mu,
                 extra=trace_hook(chains, x) if trace_hook is not None else None,
             )
         if progress_every and step % progress_every == 0:
@@ -229,6 +325,18 @@ def run_ensemble(
                 f"acceptance={accepted_total / (step * n):.3f}",
                 flush=True,
             )
+
+    # Guard against incremental drift in d_H over a long run, the same guard
+    # run_mcmc keeps on the energy. Both parts are checked separately: their sum
+    # can be right while weight has leaked between them, which is precisely the
+    # error that a split restraint makes possible.
+    exact_sub, exact_indel = _split_distance(chains[:, site_tensor])
+    drift = max(
+        float((exact_sub - d_sub).abs().max()),
+        float((exact_indel - d_indel).abs().max()),
+    )
+    if drift > 1e-6:
+        raise RuntimeError(f"Incremental Hamming distance drifted by {drift}")
 
     return EnsembleResult(
         sequences=chains.cpu().numpy(),
@@ -270,6 +378,15 @@ def run_ensemble_gibbs(
 
     if config.lam != 0.0:
         raise ValueError("The Gibbs sampler is only correct for the unbiased ensemble (lam = 0)")
+    if config.t != 0.0 or config.t_sub_effective != 0.0 or config.t_indel_effective != 0.0:
+        # Unlike the bias, the restraint IS a single-site term and could be folded
+        # into the conditional -- but gibbs_step_uniform_sites draws from the
+        # model's own fields, which do not carry it. Refuse rather than sample the
+        # wrong distribution silently.
+        raise ValueError(
+            "The Gibbs sampler does not carry the Hamming restraint "
+            "(t = t_sub = t_indel = 0 only)"
+        )
 
     device = model.bias.device
     dtype = model.bias.dtype
@@ -304,6 +421,7 @@ def run_ensemble_gibbs(
             _record(
                 trace, model=model, chains=encoded, x=x, log_p=log_p, reference=reference,
                 step=step, accepted=float(step), with_cde=config.trace_cde, beta=CRITIC_BETA,
+                mu=config.mu,
                 extra=trace_hook(encoded, x) if trace_hook is not None else None,
             )
         if progress_every and step % progress_every == 0:
@@ -352,23 +470,47 @@ def _record(
     accepted: float,
     with_cde: bool,
     beta: float,
+    log_odds: Optional[torch.Tensor] = None,
+    mu: Optional[float] = None,
     extra: Optional[Dict[str, float]] = None,
 ) -> None:
     """Append the batch's observables at this step: mean and quartiles of each.
+
+    Everything a result is ever read off is traced, so that saturation can be
+    checked on each of them rather than inferred from one: the energy, the
+    quality ``Q = E - mu*CDE`` the designs are ranked by, the Hamming distance
+    (and its indel part), ``P(S)`` and the log-odds. A run counts as settled
+    only when every one of them has stopped moving.
 
     ``extra`` holds the scalars of a ``trace_hook``, recorded as they come.
     """
     from observables import context_dependent_entropy
 
+    gap_index = model.alphabet.gap_index
+    differs = chains != reference.unsqueeze(0)
+    indel = differs & ((chains == gap_index) | (reference.unsqueeze(0) == gap_index))
     values: Dict[str, torch.Tensor] = {
         "E_DCA": _energy(model, x),
-        "hamming_to_wt": (chains != reference.unsqueeze(0)).sum(dim=1).to(torch.float32),
+        "hamming_to_wt": differs.sum(dim=1).to(torch.float32),
+        # The part of the Hamming distance that is a gain or loss of a residue
+        # rather than a substitution: with --allow-gap-moves the restraint acts
+        # on both, so both are traced.
+        "indel_to_wt": indel.sum(dim=1).to(torch.float32),
+        # ...and the substitution part beside it, so that the two prices the
+        # restraint now charges separately (t_sub, t_indel) are each read off the
+        # quantity they act on rather than inferred by subtraction.
+        "sub_to_wt": (differs & ~indel).sum(dim=1).to(torch.float32),
         "P_S": log_p.exp(),
     }
+    if log_odds is not None:
+        values["LOR"] = log_odds
     if with_cde:
-        values["CDE"] = torch.as_tensor(
+        cde = torch.as_tensor(
             context_dependent_entropy(model, chains, beta=beta), device=chains.device
         )
+        values["CDE"] = cde
+        if mu is not None:
+            values["Q"] = values["E_DCA"].to(cde.dtype) - float(mu) * cde
     trace.setdefault("step", []).append(float(step))
     trace.setdefault("accepted_per_chain", []).append(float(accepted))
     for name, tensor in values.items():
@@ -385,6 +527,11 @@ def _log_softmax_at(logits: torch.Tensor, state: int, beta: float) -> torch.Tens
     return torch.log_softmax(beta * logits, dim=1)[:, state]
 
 
+def _log_odds(logits: torch.Tensor, state: int, against: int, beta: float) -> torch.Tensor:
+    """``log P(state | .) / P(against | .)``; the softmax cancels exactly."""
+    return beta * (logits[:, state] - logits[:, against])
+
+
 def _energy(model: PottsModel, x: torch.Tensor) -> torch.Tensor:
     from adabmDCA.statmech import compute_energy
 
@@ -396,4 +543,69 @@ def lam_dirname(lam: float) -> str:
     return f"lam{lam:g}"
 
 
-__all__ = ["EnsembleConfig", "EnsembleResult", "run_ensemble", "run_ensemble_gibbs", "lam_dirname"]
+def _t_token(t: float) -> str:
+    return f"{t:g}".replace("-", "m")
+
+
+def run_dirname(lam: float, t: float = 0.0, t_indel: Optional[float] = None) -> str:
+    """``(10, 0) -> 'lam10'``, ``(10, 0.5) -> 'lam10_t0.5'``, ``(10, -1) -> 'lam10_tm1'``.
+
+    An unrestrained run keeps its old directory name exactly, so the restraint
+    runs land beside the ladder's without renaming a single existing result.
+
+    ``t_indel`` is appended only when it differs from ``t``:
+    ``(10, 0.5, 0) -> 'lam10_t0.5_ti0'``. A run that prices substitutions and
+    indels alike is therefore named exactly as before the split, which is what
+    keeps the already-sampled trees readable.
+    """
+    if t_indel is not None and t_indel != t:
+        return f"{lam_dirname(lam)}_t{_t_token(t)}_ti{_t_token(t_indel)}"
+    if t == 0.0:
+        return lam_dirname(lam)
+    return f"{lam_dirname(lam)}_t{_t_token(t)}"
+
+
+def parse_run_dirname(name: str) -> tuple[float, float]:
+    """The inverse of :func:`run_dirname`: ``'lam100_t0.5' -> (100.0, 0.5)``.
+
+    Returns ``(lam, t_sub)``; use :func:`parse_run_dirname_full` when the indel
+    price matters. Raises ``ValueError`` on anything that is not a run
+    directory, so a caller can filter with it. Everything that reads a tree of
+    ensembles must go through this: ``float(name[3:])`` silently drops every
+    restrained run, which is a failure that looks exactly like a run that was
+    never sampled.
+    """
+    lam, t, _ = parse_run_dirname_full(name)
+    return lam, t
+
+
+def parse_run_dirname_full(name: str) -> tuple[float, float, float]:
+    """``'lam10_t0.5_ti0' -> (10.0, 0.5, 0.0)``; ``'lam10_t0.5' -> (10.0, 0.5, 0.5)``.
+
+    The third element is the indel price, which for a name carrying no ``_ti``
+    equals the substitution price -- that being exactly what such a name meant.
+    """
+    if not name.startswith("lam"):
+        raise ValueError(f"not a run directory: {name!r}")
+    rest = name[3:]
+    rest, _, indel_part = rest.partition("_ti")
+    lam_part, _, t_part = rest.partition("_t")
+    lam = float(lam_part)
+
+    def value(token: str) -> float:
+        return -float(token[1:]) if token.startswith("m") else float(token)
+
+    t = value(t_part) if t_part else 0.0
+    return lam, t, value(indel_part) if indel_part else t
+
+
+__all__ = [
+    "EnsembleConfig",
+    "EnsembleResult",
+    "run_ensemble",
+    "run_ensemble_gibbs",
+    "lam_dirname",
+    "run_dirname",
+    "parse_run_dirname",
+    "parse_run_dirname_full",
+]
